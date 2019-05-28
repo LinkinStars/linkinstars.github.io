@@ -100,36 +100,36 @@
 <meta name="keywords" content="RWMutex,Mutex">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Golang 读写锁RWMutex 互斥锁Mutex 源码详解">
-<meta property="og:url" content="http://linkinstar.gitee.io/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/index.html">
+<meta property="og:url" content="https://linkinstar.gitee.io/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/index.html">
 <meta property="og:site_name" content="LinkinStar&#39;s Blog">
 <meta property="og:description" content="前言Golang中有两种类型的锁，Mutex （互斥锁）和RWMutex（读写锁）对于这两种锁的使用这里就不多说了，本文主要侧重于从源码的角度分析这两种锁的具体实现。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15584204613293.jpg">
-<meta property="og:image" content="http://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15584205421002.jpg">
-<meta property="og:image" content="http://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15584206811382.jpg">
-<meta property="og:image" content="http://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15584207933845.jpg">
-<meta property="og:image" content="http://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15584212283633.jpg">
-<meta property="og:image" content="http://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15584216533656.jpg">
-<meta property="og:image" content="http://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15584229836367.jpg">
-<meta property="og:image" content="http://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15584242415804.jpg">
-<meta property="og:image" content="http://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15584247454301.jpg">
-<meta property="og:image" content="http://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15584287274923.jpg">
-<meta property="og:image" content="http://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15584280789129.jpg">
-<meta property="og:image" content="http://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15584281281348.jpg">
-<meta property="og:image" content="http://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15584895207182.jpg">
-<meta property="og:image" content="http://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15585949117771.jpg">
-<meta property="og:image" content="http://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15586002686717.jpg">
-<meta property="og:image" content="http://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15586027772503.jpg">
-<meta property="og:image" content="http://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15586041456370.jpg">
-<meta property="og:image" content="http://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15586032018219.jpg">
-<meta property="og:image" content="http://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15586034321669.jpg">
-<meta property="og:image" content="http://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15586035033460.jpg">
-<meta property="og:image" content="http://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15586040508623.jpg">
+<meta property="og:image" content="https://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15584204613293.jpg">
+<meta property="og:image" content="https://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15584205421002.jpg">
+<meta property="og:image" content="https://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15584206811382.jpg">
+<meta property="og:image" content="https://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15584207933845.jpg">
+<meta property="og:image" content="https://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15584212283633.jpg">
+<meta property="og:image" content="https://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15584216533656.jpg">
+<meta property="og:image" content="https://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15584229836367.jpg">
+<meta property="og:image" content="https://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15584242415804.jpg">
+<meta property="og:image" content="https://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15584247454301.jpg">
+<meta property="og:image" content="https://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15584287274923.jpg">
+<meta property="og:image" content="https://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15584280789129.jpg">
+<meta property="og:image" content="https://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15584281281348.jpg">
+<meta property="og:image" content="https://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15584895207182.jpg">
+<meta property="og:image" content="https://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15585949117771.jpg">
+<meta property="og:image" content="https://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15586002686717.jpg">
+<meta property="og:image" content="https://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15586027772503.jpg">
+<meta property="og:image" content="https://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15586041456370.jpg">
+<meta property="og:image" content="https://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15586032018219.jpg">
+<meta property="og:image" content="https://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15586034321669.jpg">
+<meta property="og:image" content="https://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15586035033460.jpg">
+<meta property="og:image" content="https://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15586040508623.jpg">
 <meta property="og:updated_time" content="2019-05-27T14:52:11.850Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Golang 读写锁RWMutex 互斥锁Mutex 源码详解">
 <meta name="twitter:description" content="前言Golang中有两种类型的锁，Mutex （互斥锁）和RWMutex（读写锁）对于这两种锁的使用这里就不多说了，本文主要侧重于从源码的角度分析这两种锁的具体实现。">
-<meta name="twitter:image" content="http://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15584204613293.jpg">
+<meta name="twitter:image" content="https://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/15584204613293.jpg">
 
 
 
@@ -137,7 +137,7 @@
 
   
   
-  <link rel="canonical" href="http://linkinstar.gitee.io/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/">
+  <link rel="canonical" href="https://linkinstar.gitee.io/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/">
 
 
 
@@ -392,7 +392,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/">
+    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/blog/blog/2019/05/27/golang/rwmutex-mutex-source-code-review/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="LinkinStar">
