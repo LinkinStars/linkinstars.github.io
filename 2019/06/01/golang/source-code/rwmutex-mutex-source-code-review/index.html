@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.1">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=7.1.1">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=7.1.1">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-32x32.png?v=7.1.1">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.1" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.1',
+    sidebar: {"position":"left","display":"always","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: true,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":true,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="Golang中有两种类型的锁，Mutex （互斥锁）和RWMutex（读写锁）对于这两种锁的使用这里就不多说了，本文主要侧重于从源码的角度分析这两种锁的具体实现。">
+<meta name="keywords" content="RWMutex,Mutex">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Golang 读写锁RWMutex 互斥锁Mutex 源码详解">
+<meta property="og:url" content="https://linkinstar.gitee.io/2019/06/01/golang/source-code/rwmutex-mutex-source-code-review/index.html">
+<meta property="og:site_name" content="LinkinStar&#39;s Blog">
+<meta property="og:description" content="Golang中有两种类型的锁，Mutex （互斥锁）和RWMutex（读写锁）对于这两种锁的使用这里就不多说了，本文主要侧重于从源码的角度分析这两种锁的具体实现。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://blog.linkinstars.com/mweb/15584204613293.jpg">
+<meta property="og:image" content="http://blog.linkinstars.com/mweb/15584205421002.jpg">
+<meta property="og:image" content="http://blog.linkinstars.com/mweb/15584206811382.jpg">
+<meta property="og:image" content="http://blog.linkinstars.com/mweb/15584207933845.jpg">
+<meta property="og:image" content="http://blog.linkinstars.com/mweb/15584212283633.jpg">
+<meta property="og:image" content="http://blog.linkinstars.com/mweb/15584216533656.jpg">
+<meta property="og:image" content="http://blog.linkinstars.com/mweb/15584229836367.jpg">
+<meta property="og:image" content="http://blog.linkinstars.com/mweb/15584242415804.jpg">
+<meta property="og:image" content="http://blog.linkinstars.com/mweb/15584247454301.jpg">
+<meta property="og:image" content="http://blog.linkinstars.com/mweb/15584287274923.jpg">
+<meta property="og:image" content="http://blog.linkinstars.com/mweb/15584280789129.jpg">
+<meta property="og:image" content="http://blog.linkinstars.com/mweb/15584281281348.jpg">
+<meta property="og:image" content="http://blog.linkinstars.com/mweb/15584895207182.jpg">
+<meta property="og:image" content="http://blog.linkinstars.com/mweb/15585949117771.jpg">
+<meta property="og:image" content="http://blog.linkinstars.com/mweb/15586002686717.jpg">
+<meta property="og:image" content="http://blog.linkinstars.com/mweb/15586027772503.jpg">
+<meta property="og:image" content="http://blog.linkinstars.com/mweb/15586041456370.jpg">
+<meta property="og:image" content="http://blog.linkinstars.com/mweb/15586032018219.jpg">
+<meta property="og:image" content="http://blog.linkinstars.com/mweb/15586034321669.jpg">
+<meta property="og:image" content="http://blog.linkinstars.com/mweb/15586035033460.jpg">
+<meta property="og:image" content="http://blog.linkinstars.com/mweb/15586040508623.jpg">
+<meta property="og:updated_time" content="2019-06-10T03:31:35.176Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Golang 读写锁RWMutex 互斥锁Mutex 源码详解">
+<meta name="twitter:description" content="Golang中有两种类型的锁，Mutex （互斥锁）和RWMutex（读写锁）对于这两种锁的使用这里就不多说了，本文主要侧重于从源码的角度分析这两种锁的具体实现。">
+<meta name="twitter:image" content="http://blog.linkinstars.com/mweb/15584204613293.jpg">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="https://linkinstar.gitee.io/2019/06/01/golang/source-code/rwmutex-mutex-source-code-review/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Golang 读写锁RWMutex 互斥锁Mutex 源码详解 | LinkinStar's Blog</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?89a776c473aa81d27c40ef9cfb9b569e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">LinkinStar's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2019/06/01/golang/source-code/rwmutex-mutex-source-code-review/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="LinkinStar">
+      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!">
+      <meta itemprop="image" content="/uploads/LLX.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LinkinStar's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Golang 读写锁RWMutex 互斥锁Mutex 源码详解
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-06-01 00:00:00" itemprop="dateCreated datePublished" datetime="2019-06-01T00:00:00+08:00">2019-06-01</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/golang源码解析/" itemprop="url" rel="index"><span itemprop="name">golang源码解析</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Golang中有两种类型的锁，Mutex （互斥锁）和RWMutex（读写锁）对于这两种锁的使用这里就不多说了，本文主要侧重于从源码的角度分析这两种锁的具体实现。</p>
+<a id="more"></a>
+<h2 id="引子问题"><a href="#引子问题" class="headerlink" title="引子问题"></a>引子问题</h2><p>我一般喜欢带着问题去看源码。那么对于读写锁，你是否有这样的问题，为什么可以有多个读锁？有没有可能出现有协程一直无法获取到写锁的情况？带着你的疑问来往下看看，具体这个锁是如何实现的。</p>
+<p>如果你自己想看，我给出阅读的一个思路，可以先看读写锁，因为读写锁的实现依赖于互斥锁，并且读写锁比较简单一些，然后整理思路之后再去想一下实际的应用场景，然后再去看互斥锁。</p>
+<p>下面我就会按照这个思路一步步往下走。</p>
+<h2 id="基础知识点"><a href="#基础知识点" class="headerlink" title="基础知识点"></a>基础知识点</h2><ul>
+<li>知识点1：信号量<br>信号量是 Edsger Dijkstra 发明的数据结构（没错就是那个最短路径算法那个牛人），在解决多种同步问题时很有用。其本质是一个整数，并关联两个操作：</li>
+</ul>
+<p>申请acquire（也称为 wait、decrement 或 P 操作）<br>释放release（也称 signal、increment 或 V 操作）</p>
+<p>acquire操作将信号量减 1，如果结果值为负则线程阻塞，且直到其他线程进行了信号量累加为正数才能恢复。如结果为正数，线程则继续执行。<br>release操作将信号量加 1，如存在被阻塞的线程，此时他们中的一个线程将解除阻塞。</p>
+<ul>
+<li><p>知识点2：锁的定义<br><img src="http://blog.linkinstars.com/mweb/15584204613293.jpg" alt><br>在goalng中如果实现了Lock和Unlock方法，那么它就可以被称为锁。</p>
+</li>
+<li><p>知识点3：锁的自旋：（详见百度）</p>
+</li>
+<li><p>知识点4：cas算法：（最好有所了解，不知道问题也不大）</p>
+</li>
+</ul>
+<h2 id="读写锁RWMutex"><a href="#读写锁RWMutex" class="headerlink" title="读写锁RWMutex"></a>读写锁RWMutex</h2><h3 id="首先我们来看看RWMutex大体结构"><a href="#首先我们来看看RWMutex大体结构" class="headerlink" title="首先我们来看看RWMutex大体结构"></a>首先我们来看看RWMutex大体结构</h3><p><img src="http://blog.linkinstars.com/mweb/15584205421002.jpg" alt><br>看到结构发现读写锁内部包含了一个w Mutex互斥锁<br>注释也很明确，<strong>这个锁的目的就是控制多个写入操作的并发执行</strong><br>writerSem是写入操作的信号量<br>readerSem是读操作的信号量<br>readerCount是当前读操作的个数<br>readerWait当前写入操作需要等待读操作解锁的个数<br>这几个现在看不懂没关系，后面等用到了你再回来看就好了。</p>
+<h3 id="然后我们看看方法"><a href="#然后我们看看方法" class="headerlink" title="然后我们看看方法"></a>然后我们看看方法</h3><p><img src="http://blog.linkinstars.com/mweb/15584206811382.jpg" alt><br>一共有5个方法，看起来就不复杂，我们一个个来看。</p>
+<p><img src="http://blog.linkinstars.com/mweb/15584207933845.jpg" alt><br>这个最简单，就是返回一个locker对象没啥好说的</p>
+<p>问题的关键就在于锁和解锁的几个方法，因为我已经看过，所以推荐这几个方法的阅读顺序是RLock Lock RUnlock Unlock</p>
+<h3 id="RLock（获取读锁）"><a href="#RLock（获取读锁）" class="headerlink" title="RLock（获取读锁）"></a>RLock（获取读锁）</h3><p><img src="http://blog.linkinstars.com/mweb/15584212283633.jpg" alt><br>先不看竞态检测的部分，先重点看红色框中的部分<br>可以看到，其实很简单，每当有协程需要获取读锁的时候，就将readerCount + 1<br>但是需要注意的是，这里有一个条件，当readerCount + 1之后的值 &lt; 0的时候，那么将会调用runtime_Semacquire方法<br><img src="http://blog.linkinstars.com/mweb/15584216533656.jpg" alt><br>这个方法是一个runtime的方法，会一直等待传入的s出现&gt;0的时候<br>然后我们可以记得，这里有这样一个情况，当出先readerCount + 1为负数的情况那么就会被等待，看注释我们可以猜到，<strong>是当有写入操作出现的时候，那么读操作就会被等待。</strong></p>
+<h3 id="Lock（获取写锁）"><a href="#Lock（获取写锁）" class="headerlink" title="Lock（获取写锁）"></a>Lock（获取写锁）</h3><p><img src="http://blog.linkinstars.com/mweb/15584229836367.jpg" alt><br>写锁稍微复杂一些，但是样子也差不多，我们还是先来看红色框中的部分。<br>首先操作最前面说的互斥锁，目的就是处理多个写锁并发的情况，因为我们知道写锁只有一把。这里不需要深入互斥锁，只需要知道，互斥锁只有一个人能拿到，所以写锁只有一个人能拿到。</p>
+<p>然后重点来了，这里的这个操作细细体会一下，atomic.AddInt32(&amp;rw.readerCount, -rwmutexMaxReaders)<br>是将当前的readerCount减去一个非常大的值rwmutexMaxReaders为1 &lt;&lt; 30<br>大概是1073741823这么大吧</p>
+<p>所以我们可以从源码中看出，readerCount由于每有一个协程获取读锁就+1，一直都是正数，而当有写锁过来的时候，就瞬间减为很大的负数。<br>然后做完上面的操作以后的r其实就是原来的readerCount。<br>后面进行判断，如果原来的readerCount不为0（原来有协程已经获取到了读锁）并且将readerWait加上readerCount（表示需要等待readerCount这么多个读锁进行解锁），如果满足上述条件证明原来有读锁，所以暂时没有办法获取到写锁，所以调用runtime_Semacquire进行等待，等待的信号量为writerSem</p>
+<h3 id="RUnlock（释放读锁）"><a href="#RUnlock（释放读锁）" class="headerlink" title="RUnlock（释放读锁）"></a>RUnlock（释放读锁）</h3><p><img src="http://blog.linkinstars.com/mweb/15584242415804.jpg" alt><br>如果是我们来写的话，可能就是将之前+1的readerCount，-1就完事了，但是其实还有一些操作需要注意。<br>如果-1之后+1==0是啥情况？没错就是我们常见的，新手程序员，<strong>没有获取读锁就想去释放读锁</strong>，于是异常了。当然+1之后刚好是rwmutexMaxReaders，<strong>就证获取了写锁而去释放了读锁</strong>，导致异常。<br>除去异常情况，剩下的就是r还是&lt;0的情况，那么证明确实有协程正在想要获取写锁，那么就需要操作我们前面看到的readerWait，当readerWait减到0的时候就证明没有人正在持有写锁了，就通过信号量writerSem的变化告知刚才等待的协程（想要获取写锁的协程）：你可以进行获取了。</p>
+<p>到这里你可以把思路大致串起来了，然后懂了再往下看。</p>
+<h3 id="Unlock（释放写锁）"><a href="#Unlock（释放写锁）" class="headerlink" title="Unlock（释放写锁）"></a>Unlock（释放写锁）</h3><p><img src="http://blog.linkinstars.com/mweb/15584247454301.jpg" alt><br>写锁释放需要恢复readerCount，还记得上锁的时候减了一个很大的数，这个时候要加回来了。<br>当然加完之后如果&gt;=rwmutexMaxReaders本身，那么还是新手程序员的问题，当没有获取写锁的时候就开始想着释放写锁了。<br>然后for循环就是为了通知所有在我们RLock方法中看到的，当有因为持有写锁所以等待的那些协程，通过信号量readerSem告诉他们可以动了。<br>最后别忘记还有一个互斥锁需要释放，让别的协程也可以开始抢写锁了。</p>
+<p>至此，读写锁的分析基本上告一段落了。<br>针对于其中关于竞态分析的代码，有兴趣的小伙伴可以去了解一下。</p>
+<h2 id="互斥锁Mutex"><a href="#互斥锁Mutex" class="headerlink" title="互斥锁Mutex"></a>互斥锁Mutex</h2><p>互斥锁比读写锁复杂，但是好在golang给的注释很详细，所以也不困难（注释真的很重要）。<br>我们先来看看里面的一段注释：<br><img src="http://blog.linkinstars.com/mweb/15584287274923.jpg" alt><br>很长的一段英文，我用英语四级的翻译能力给你翻译一下，可以将就看看，<strong>如果可以建议你仔细看英文看懂它</strong>，因为这对于后面的源码阅读非常重要。<br>///<br>这个互斥锁是公平锁</p>
+<p>互斥锁有两种操作模式：正常模式和饥饿模式。<br>在正常模式下等待获取锁的goroutine会以一个先进先出的方式进行排队，但是被唤醒的等待者并不能代表它已经拥有了这个mutex锁，它需要与新到达的goroutine争夺mutex锁。新来的goroutine有一个优势 —— 他们已经在CPU上运行了并且他们，所以抢到的可能性大一些，所以一个被唤醒的等待者有很大可能抢不过。在这样的情况下，被唤醒的等待者在队列的头部。如果一个等待者抢锁超过1ms失败了，就会切换为饥饿模式。</p>
+<p>在饥饿模式下，mutex锁会直接由解锁的goroutine交给队列头部的等待者。<br>新来的goroutine不能尝试去获取锁，即使可能根本就没goroutine在持有锁，并且不能尝试自旋。取而代之的是他们只能排到队伍尾巴上乖乖等着。</p>
+<p>如果一个等待者获取到了锁，并且遇到了下面两种情况之一，就恢复成正常工作模式。<br>情况1：它是最后一个队列中的等待者。<br>情况2：它等待的时间小于1ms</p>
+<p>正常模式下，即使有很多阻塞的等待者，有更好的表现，因为一轮能多次获得锁的机会。饥饿模式是为了避免那些一直在队尾的倒霉蛋。<br>///  </p>
+<p>我的话简单总结就是，互斥锁有两种工作模式，竞争模式和队列模式，竞争就是大家一起抢，队列就是老老实实排队，这两种工作模式会通过一些情况进行切换。</p>
+<h3 id="首先还是来看看大体结构"><a href="#首先还是来看看大体结构" class="headerlink" title="首先还是来看看大体结构"></a>首先还是来看看大体结构</h3><p><img src="http://blog.linkinstars.com/mweb/15584280789129.jpg" alt><br>可以看到，相对读写锁，结构上面很简单，只有两个值，但是千万不要小瞧它，减少了字段就增加了理解难度。<br>state：将一个32位整数拆分为：<br>当前阻塞的goroutine数(29位)<br>饥饿状态(1位，0为正常模式；1为饥饿模式)<br>唤醒状态(1位，0未唤醒；1已唤醒)<br>锁状态(1位，0可用；1占用) </p>
+<p>sema：信号量</p>
+<p><img src="http://blog.linkinstars.com/mweb/15584281281348.jpg" alt><br>方法也很简单，就是Lock和Unlock两个方法，一个上锁，一个解锁，没啥好说的。</p>
+<h3 id="一个方法"><a href="#一个方法" class="headerlink" title="一个方法"></a>一个方法</h3><p>我们先来看一个的要用到的方法</p>
+<p>func CompareAndSwapInt32(addr *int32, old, new int32) (swapped bool)<br>这个函数，会先判断参数addr指向的被操作值与参数old的值是否相等，如果相等会将参数new替换参数addr所指向的值，不然的话就啥也不做。<br>需要特别说明的是，这个方法并不会阻塞。</p>
+<h3 id="几个常量"><a href="#几个常量" class="headerlink" title="几个常量"></a>几个常量</h3><p>这是定义的几个常量，我们在一开始的注释周围可以看到，后面需要用到，暂时记住它们的初始值就好。</p>
+<p>mutexLocked = 1 &lt;&lt; iota // 1左移0位，是1，二进制是1，（1表示已经上锁）<br>mutexWoken              // 1左移1位，是2，二进制是10<br>mutexStarving           // 1左移2位，是4，二进制是100<br>mutexWaiterShift = iota // 就是3， 二进制是11</p>
+<p>starvationThresholdNs = 1e6  // 这个就是我们一开始在注释里面看到的1ms，一定超过这个门限值就会更换模式</p>
+<h3 id="Lock获取锁"><a href="#Lock获取锁" class="headerlink" title="Lock获取锁"></a>Lock获取锁</h3><p>因为Lock方法比较长，所以我切分一段段看，需要完整的请自己翻看源码。<strong>要注意的一点是，一定要时刻记住，Lock方法是做什么的，很简单，就是要抢锁。看不懂的时候想想这个目标。</strong><br><img src="http://blog.linkinstars.com/mweb/15584895207182.jpg" alt><br>第一步，判断state状态是否为0，如果为0，证明没有协程持有锁，那么就很简单了，直接获取到锁，将mutexLocked（为1）赋值到state就可以了。</p>
+<p>看后面的方法时，告诉需要告诉你们一个小技巧，当遇到这种位操作很多的情况，有两个方法挺好用，对于你看源码会有帮助：<br>第一个是将所有定值先计算，然后判断非定值的情况；<br>第二个是将所有的计算写下来，自己用笔去计算，不要执着于打字。</p>
+<p>然后我们以下面这个段举例：<br><img src="http://blog.linkinstars.com/mweb/15585949117771.jpg" alt><br>首先，看注释应该能明白这一段大致意思是，如果不是饥饿模式，就会进行自旋操作，然后不断循环。</p>
+<p>然后根据上面的技巧，old&amp;(mutexLocked|mutexStarving) == mutexLocked<br>（下面均为二进制）<br>mutexLocked = 1<br>mutexStarving = 11<br>mutexLocked = 1<br>这三个是定值，所以我们容易得到，满足情况的结果为，当old为xxxx0xx（二进制第三位为0）等式成立。<br>也就是我们一开始说的，state的第三位是表示这个锁当前的模式，0为正常模式，1为饥饿模式。</p>
+<p>那么第一个if就表示，如果当前模式为正常模式，且可以自旋，就进入if条件内部。<br>if !awoke &amp;&amp; old&amp;mutexWoken == 0 &amp;&amp; old&gt;&gt;mutexWaiterShift != 0 &amp;&amp;</p>
+<p>同样的分析，awoke表示是否唤醒，old&amp;mutexWoken是取第二位，0表示当前协程未被唤醒，old&gt;&gt;mutexWaiterShift表示右移3位，也就是前29位，不为0证明有协程在等待，并且尝试去对比当前m.state与取出时的old状态，尝试去唤醒自己。然后自旋，并且增加自旋次数表示iter，然后重新赋值old。再循环下一次。</p>
+<p>（你自己理一理，确实有点绕，仔细想想就想通了就对了。）</p>
+<p>以上是使用自旋的情况，就是canSpin的。</p>
+<p><img src="http://blog.linkinstars.com/mweb/15586002686717.jpg" alt><br>然后进行判断old&amp;mutexStarving == 0就是第三位为0的情况，还是所说的正常模式。new就马上拿到锁了，new |= mutexLocked，表示或1，就是第一位无论是啥都赋值为1</p>
+<p>old&amp;(mutexLocked|mutexStarving)，也就是old &amp; 0101<br>必须当old的1和3两个位置为1的时候才是true，也就是说当前处于饥饿模式，并且锁已经被占用的情况，那么就需要排队去。<br>排队也很精妙，new += 1 &lt;&lt; mutexWaiterShift<br>这边注意是先计算1 &lt;&lt; mutexWaiterShift也就是将new的前29位+1，就是表示有一个协程在等待了。</p>
+<p><strong>好了到这里你的位操作应该就习惯的差不多了，之后我就直接说结论，不仔细的帮你01表示了，你已经长大了，要学会自己动手了。</strong></p>
+<p>如果当前已经标记为饥饿模式，并且没有锁住，那么设置new为饥饿模式<br>if starving &amp;&amp; old&amp;mutexLocked != 0 {<br>    new |= mutexStarving<br>}</p>
+<p>如果唤醒，需要在两种情况下重设标志<br>if awoke {<br>   如果唤醒标志为与awoke不相协调就panic<br>    if new&amp;mutexWoken == 0 {<br>        throw(“sync: inconsistent mutex state”)<br>    }<br>    设置唤醒状态位0,被唤醒<br>    new &amp;^= mutexWoken<br>}</p>
+<p><img src="http://blog.linkinstars.com/mweb/15586027772503.jpg" alt><br>如果获取锁成功</p>
+<p>old&amp;(mutexLocked|mutexStarving) == 0成立表示已经获取锁，就直接退出CAS</p>
+<p>中间这一段我就不多解释了，就是最前面注释说的，满足什么条件转换什么模式，不多说了。然后从队列中，也就是前29位-1。<br>需要注意其中有一个runtime_SemacquireMutex和之前看的的runtime_Semacquire是一个意思，只是多了一个参数。<br><img src="http://blog.linkinstars.com/mweb/15586041456370.jpg" alt><br>这个就是这个方法的注释。可以看到，就是多了个队列去排队。</p>
+<p><img src="http://blog.linkinstars.com/mweb/15586032018219.jpg" alt><br>如果获取锁失败，old刷新状态再次循环，继续cas</p>
+<h3 id="UnLock释放锁"><a href="#UnLock释放锁" class="headerlink" title="UnLock释放锁"></a>UnLock释放锁</h3><p><img src="http://blog.linkinstars.com/mweb/15586034321669.jpg" alt></p>
+<p>Unlock就相对简单一些，竞态分析不看。<br>其实我们自己想也能想到，unlock就是将标识位改回来嘛。<br>然后因为我们已经看过读写锁了，也是同样的道理，如果没有上锁就直接解锁，那肯定报错嘛。</p>
+<p><img src="http://blog.linkinstars.com/mweb/15586035033460.jpg" alt><br>然后如果是正常模式，如果没有等待的goroutine或goroutine已经解锁完成的情况就直接返回了。如果有等待的goroutine那就通过信号量去唤醒runtime_Semrelease（注意这里是false），同时操作一下队列-1</p>
+<p><img src="http://blog.linkinstars.com/mweb/15586040508623.jpg" alt><br>如果是饥饿模式就直接唤醒（注意这里是true），反正有队列嘛。</p>
+<h2 id="互斥锁总结"><a href="#互斥锁总结" class="headerlink" title="互斥锁总结"></a>互斥锁总结</h2><p>其实话说回来，我们其实看起来也简单，没有冲突的情况下，能拿就拿呗，如果出现冲突了就尝试自旋解决（自旋一般都能解决）如果解决不了就通过信号量解决，同时如果正常模式就是我们说的抢占式，非公平，如果是饥饿模式，就是我们说的排队，公平，防止有一些倒霉蛋一直抢不到。</p>
+<p>整体总结一下，看完源码我们发现，其实锁的设计并不复杂，主要设计我们要学到cas和处理读写状态的信号量通知，对于那些位操作，能看懂，学可能一时半会学不会，因为很难在一开始就设计的那么巧妙，你也体会到了只用一个变量就维护了整个体系是一种艺术。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div id="reward-container">
+  <div>赞赏时记得备注邮箱，即可第一时间收到更新推送哦~</div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+
+    
+      
+      
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+      
+      
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/alipay.png" alt="LinkinStar 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      <div>
+       
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+              <strong>本文作者：</strong>LinkinStar
+          </li>
+          <li class="post-copyright-link">
+            <strong>本文链接：</strong>
+            <a href="http://www.linkinstar.wiki//2019/06/01/golang/source-code/rwmutex-mutex-source-code-review/" title="Golang 读写锁RWMutex 互斥锁Mutex 源码详解">http://www.linkinstar.wiki/2019/06/01/golang/source-code/rwmutex-mutex-source-code-review/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明： </strong>
+            如无特殊声明，本博客均采用 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0 CN</a> 许可协议，请勿用于商业，转载请注明出处！
+          </li>
+        </ul>
+        
+      </div>
+
+      
+        <div class="post-tags">
+          
+            <a href="/tags/RWMutex/" rel="tag"># RWMutex</a>
+          
+            <a href="/tags/Mutex/" rel="tag"># Mutex</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/06/03/golang/source-code/graphic-golang-map/" rel="prev" title="大话图解golang map源码详解">
+                大话图解golang map源码详解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="gitalk-container">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/uploads/LLX.jpg" alt="LinkinStar">
+            
+              <p class="site-author-name" itemprop="name">LinkinStar</p>
+              <div class="site-description motion-element" itemprop="description">No one but myself can do it.<br> Don't worry. Be happy!</div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">5</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/LinkinStars" title="GitHub &rarr; https://github.com/LinkinStars" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.cnblogs.com/linkstar" title="博客园 &rarr; https://www.cnblogs.com/linkstar" rel="noopener" target="_blank"><i class="fa fa-fw fa-link"></i>博客园</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#引子问题"><span class="nav-number">1.</span> <span class="nav-text">引子问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基础知识点"><span class="nav-number">2.</span> <span class="nav-text">基础知识点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#读写锁RWMutex"><span class="nav-number">3.</span> <span class="nav-text">读写锁RWMutex</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#首先我们来看看RWMutex大体结构"><span class="nav-number">3.1.</span> <span class="nav-text">首先我们来看看RWMutex大体结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#然后我们看看方法"><span class="nav-number">3.2.</span> <span class="nav-text">然后我们看看方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RLock（获取读锁）"><span class="nav-number">3.3.</span> <span class="nav-text">RLock（获取读锁）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Lock（获取写锁）"><span class="nav-number">3.4.</span> <span class="nav-text">Lock（获取写锁）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RUnlock（释放读锁）"><span class="nav-number">3.5.</span> <span class="nav-text">RUnlock（释放读锁）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Unlock（释放写锁）"><span class="nav-number">3.6.</span> <span class="nav-text">Unlock（释放写锁）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#互斥锁Mutex"><span class="nav-number">4.</span> <span class="nav-text">互斥锁Mutex</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#首先还是来看看大体结构"><span class="nav-number">4.1.</span> <span class="nav-text">首先还是来看看大体结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#一个方法"><span class="nav-number">4.2.</span> <span class="nav-text">一个方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#几个常量"><span class="nav-number">4.3.</span> <span class="nav-text">几个常量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Lock获取锁"><span class="nav-number">4.4.</span> <span class="nav-text">Lock获取锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UnLock释放锁"><span class="nav-number">4.5.</span> <span class="nav-text">UnLock释放锁</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#互斥锁总结"><span class="nav-number">5.</span> <span class="nav-text">互斥锁总结</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">LinkinStar</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.1"></script>
+
+  <script src="/js/motion.js?v=7.1.1"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.1"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.1"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.1"></script>
+<script src="/js/post-details.js?v=7.1.1"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.1"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+    
+
+<script src="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+
+
+<script src="//cdn.jsdelivr.net/npm/js-md5@0.7.3/src/md5.min.js"></script>
+
+<script>
+  var gitalk = new Gitalk({
+    clientID: 'fb1c6a994a1f26c2655e',
+    clientSecret: '512d1338f3c8e48f1be73caf0661c005bf1c0425',
+    repo: 'linkinstars.github.io',
+    owner: 'LinkinStars',
+    admin: ['LinkinStars'],
+    id: md5(location.pathname),
+    
+      language: window.navigator.language || window.navigator.userLanguage,
+    
+    distractionFreeMode: 'true'
+  });
+  gitalk.render('gitalk-container');
+</script>
+
+  
+
+
+  
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('10');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"live2d-widget-model-shizuku"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
+</html>
