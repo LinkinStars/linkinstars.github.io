@@ -96,18 +96,22 @@
 
 
 
-  <meta name="description" content="我们知道在golang中是存在指针这个概念的。对于指针很多人有点忌惮（可能是因为之前学习过C语言），因为它会导致很多异常的问题。但是很多人学习之后发现，golang中的指针很简单，没有C那么复杂。所以今天就详细来说说指针。">
-<meta name="keywords" content="unsafe">
+  <meta name="description" content="这次我们来说说，有关于etcd原理的一些事情。之前我们已经了解到了etcd是一个分布式的k-v存储，那么它究竟是如何保证数据是如何复制到每个节点上面去的呢？又是如何保证在网络分区的情况下能正常工作下去？raft协议到底是什么？带着这些问题我们继续往下看。">
+<meta name="keywords" content="etcd,raft">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Golang指针与unsafe">
-<meta property="og:url" content="https://linkinstar.gitee.io/2019/06/06/golang/source-code/point-unsafe/index.html">
+<meta property="og:title" content="浅入深出ETCD之【raft原理】">
+<meta property="og:url" content="https://linkinstar.gitee.io/2019/06/12/golang/open-source-component/etcd-raft/index.html">
 <meta property="og:site_name" content="LinkinStar&#39;s Blog">
-<meta property="og:description" content="我们知道在golang中是存在指针这个概念的。对于指针很多人有点忌惮（可能是因为之前学习过C语言），因为它会导致很多异常的问题。但是很多人学习之后发现，golang中的指针很简单，没有C那么复杂。所以今天就详细来说说指针。">
+<meta property="og:description" content="这次我们来说说，有关于etcd原理的一些事情。之前我们已经了解到了etcd是一个分布式的k-v存储，那么它究竟是如何保证数据是如何复制到每个节点上面去的呢？又是如何保证在网络分区的情况下能正常工作下去？raft协议到底是什么？带着这些问题我们继续往下看。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-06-10T03:32:12.961Z">
+<meta property="og:image" content="http://blog.linkinstars.com/mweb/15603076610892.jpg">
+<meta property="og:image" content="http://blog.linkinstars.com/mweb/15603077783791.jpg">
+<meta property="og:image" content="http://blog.linkinstars.com/mweb/15603110122471.jpg">
+<meta property="og:updated_time" content="2019-06-14T02:40:57.205Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Golang指针与unsafe">
-<meta name="twitter:description" content="我们知道在golang中是存在指针这个概念的。对于指针很多人有点忌惮（可能是因为之前学习过C语言），因为它会导致很多异常的问题。但是很多人学习之后发现，golang中的指针很简单，没有C那么复杂。所以今天就详细来说说指针。">
+<meta name="twitter:title" content="浅入深出ETCD之【raft原理】">
+<meta name="twitter:description" content="这次我们来说说，有关于etcd原理的一些事情。之前我们已经了解到了etcd是一个分布式的k-v存储，那么它究竟是如何保证数据是如何复制到每个节点上面去的呢？又是如何保证在网络分区的情况下能正常工作下去？raft协议到底是什么？带着这些问题我们继续往下看。">
+<meta name="twitter:image" content="http://blog.linkinstars.com/mweb/15603076610892.jpg">
 
 
 
@@ -115,7 +119,7 @@
 
   
   
-  <link rel="canonical" href="https://linkinstar.gitee.io/2019/06/06/golang/source-code/point-unsafe/">
+  <link rel="canonical" href="https://linkinstar.gitee.io/2019/06/12/golang/open-source-component/etcd-raft/">
 
 
 
@@ -125,7 +129,7 @@
   };
 </script>
 
-  <title>Golang指针与unsafe | LinkinStar's Blog</title>
+  <title>浅入深出ETCD之【raft原理】 | LinkinStar's Blog</title>
   
 
 
@@ -380,7 +384,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2019/06/06/golang/source-code/point-unsafe/">
+    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2019/06/12/golang/open-source-component/etcd-raft/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="LinkinStar">
@@ -397,7 +401,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Golang指针与unsafe
+          <h1 class="post-title" itemprop="name headline">浅入深出ETCD之【raft原理】
 
               
             
@@ -423,7 +427,7 @@
                 
               
 
-              <time title="创建时间：2019-06-06 00:00:00" itemprop="dateCreated datePublished" datetime="2019-06-06T00:00:00+08:00">2019-06-06</time>
+              <time title="创建时间：2019-06-12 00:00:00" itemprop="dateCreated datePublished" datetime="2019-06-12T00:00:00+08:00">2019-06-12</time>
             
 
             
@@ -441,7 +445,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/golang源码解析/" itemprop="url" rel="index"><span itemprop="name">golang源码解析</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/etcd/" itemprop="url" rel="index"><span itemprop="name">etcd</span></a></span>
 
                 
                 
@@ -483,60 +487,50 @@
       
 
       
-        <p>我们知道在golang中是存在指针这个概念的。对于指针很多人有点忌惮（可能是因为之前学习过C语言），因为它会导致很多异常的问题。但是很多人学习之后发现，golang中的指针很简单，没有C那么复杂。所以今天就详细来说说指针。</p>
+        <p>这次我们来说说，有关于etcd原理的一些事情。之前我们已经了解到了etcd是一个分布式的k-v存储，那么它究竟是如何保证数据是如何复制到每个节点上面去的呢？又是如何保证在网络分区的情况下能正常工作下去？raft协议到底是什么？带着这些问题我们继续往下看。</p>
 <a id="more"></a>
-<h2 id="指针的使用"><a href="#指针的使用" class="headerlink" title="指针的使用"></a>指针的使用</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">a := <span class="number">1</span></span><br><span class="line">p := &amp;a</span><br><span class="line">fmt.Println(p)</span><br></pre></td></tr></table></figure>
-<p>输出：0xc42001c070</p>
-<p>可以看到p就是一个指针，也可以说是a的地址。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">a := <span class="number">1</span></span><br><span class="line"><span class="keyword">var</span> p *<span class="keyword">int</span></span><br><span class="line">p = &amp;a</span><br><span class="line">fmt.Println(p)</span><br></pre></td></tr></table></figure>
-<p>或者也可以写成这样，因为我知道，在很多人看来，看到*号才是指针（手动滑稽）</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">a := <span class="number">1</span></span><br><span class="line">p := &amp;a</span><br><span class="line">fmt.Println(*p)</span><br></pre></td></tr></table></figure>
-<p>输出：1</p>
-<p>然后使用就直接通过*号就能去到对应的值了，就这么简单</p>
-<h2 id="指针的限制"><a href="#指针的限制" class="headerlink" title="指针的限制"></a>指针的限制</h2><p>Golang中指针之所以看起来很简单，是因为指针的功能不多。我们能看到的功能就是指针的指向一个地址而已，然后对于这个地址也只能进行传递，或者通过这个的地址去访问值。</p>
+<h2 id="raft选举策略"><a href="#raft选举策略" class="headerlink" title="raft选举策略"></a>raft选举策略</h2><p>我们知道etcd使用raft协议来保证整个分布式的节点网络能正常的运转并且能正确的将数据复制到每个节点上面去。那么什么是raft协议嘞？</p>
+<p>首先我们有这样一个背景：raft是想维护整一个网络，其中有一个领导人，这个领导人负责将收到的信息同步给网络中的其他所有节点，从而保证整个网络数据一致。</p>
+<p>如果你有一定的英文基础，我建议直接查看下面这个网站，它用动画非常清楚的描述了raft选举的整个过程：<a href="http://thesecretlivesofdata.com/raft/" target="_blank" rel="noopener">http://thesecretlivesofdata.com/raft/</a></p>
+<p>这个其实已经说明的超级棒了，如果你还看不懂，我下面会用最简单的几个要点来进行最简单的说明。</p>
+<h3 id="大多数理论"><a href="#大多数理论" class="headerlink" title="大多数理论"></a>大多数理论</h3><p>首先说明一个理论，叫做大多数理论，很简单，举个栗子：</p>
 <ul>
-<li>不能像C语言中一样p++，这样移动操作指针，因为其实这样操作确实不安全，很容易访问到奇怪的区域。</li>
-<li>不同类型的指针不能相互赋值、转换、比较。会出现cannot use &amp;a (type <em>int) as type </em>float32 in assignment类似这样的错误</li>
+<li>有10个人，如果你将苹果给其中的6个人（大多数），那么你随机选择5个人，一定有一个人会有苹果。</li>
 </ul>
-<p>如果只是单纯说go中指针的功能，上面就已经说完了，没必要写博客，但是其实go中还有一个包叫unsafe，有了它，指针就可以像C一样想干嘛干嘛了。</p>
-<h2 id="unsafe"><a href="#unsafe" class="headerlink" title="unsafe"></a>unsafe</h2><h3 id="三个类型"><a href="#三个类型" class="headerlink" title="三个类型"></a>三个类型</h3><p>其实指针有三种：<br>一种是我们常见的<code>*</code>，用*去表示的指针；<br>一种是unsafe.Pointer，Pointer是unsafe包下的一个类型；<br>最后一种是uintptr，uintptr就厉害了，这玩意是可以进行运算的也就是可以++–；</p>
-<p><strong>他们之间有这样的转换关系：</strong><br><code>*</code>  &lt;=&gt;  unsafe.Pointer  &lt;=&gt;  uintptr</p>
+<p>在etcd中的应用：</p>
 <ul>
-<li>有一点要注意的是，uintptr 并没有指针的语义，意思就是 uintptr 所指向的对象会被 gc 无情地回收。而 unsafe.Pointer 有指针语义，可以保护它所指向的对象在“有用”的时候不会被垃圾回收。</li>
+<li>选举中只要有大多数（超过半数的人给你投票）你肯定就是票数最多的了，不可能有人比你更多。</li>
+<li>只需要将日志复制给大多数的节点，那么只要有一半的节点正常工作就能保证数据最新</li>
 </ul>
-<p>从这样的关系你大概就可以猜到，我们使用的指针*p转换成Pointer然后转换uintptr进行运算之后再原路返回，理论上就能等同于进行了指针的运算。我们下面就来实践一下。</p>
-<h3 id="unsafe操作slice"><a href="#unsafe操作slice" class="headerlink" title="unsafe操作slice"></a>unsafe操作slice</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    s := <span class="built_in">make</span>([]<span class="keyword">int</span>, <span class="number">10</span>)</span><br><span class="line">    s[<span class="number">1</span>] = <span class="number">2</span></span><br><span class="line">    </span><br><span class="line">    p := &amp;s[<span class="number">0</span>]</span><br><span class="line">    fmt.Println(*p)</span><br><span class="line">    </span><br><span class="line">    up := <span class="keyword">uintptr</span>(unsafe.Pointer(p))</span><br><span class="line">    up += unsafe.Sizeof(<span class="keyword">int</span>(<span class="number">0</span>)) <span class="comment">// 这里可不是up++哦</span></span><br><span class="line"></span><br><span class="line">    p2 := (*<span class="keyword">int</span>)(unsafe.Pointer(up))</span><br><span class="line">    fmt.Println(*p2)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>输出：<br>0<br>2</p>
-<p>从代码中我们可以看到，我们首先将指针指向切片的第一个位置，然后通过转换得到uintptr，操作uintptr + 上8位（注意这里不能++因为存放的是int，下一个元素位置相隔举例int个字节），最后转换回来得到指针，取值，就能取到切片的第二个位置了。</p>
-<h3 id="unsafe操作struct"><a href="#unsafe操作struct" class="headerlink" title="unsafe操作struct"></a>unsafe操作struct</h3><p>当然有人肯定要说了，上面那个一顿操作猛如虎，不就是访问下一个位置嘛，我直接访问就行了。<br>那下面就是厉害的来了，我们知道如果一个结构体里面定义的属性是私有的，那么这个属性是不能被外界访问到的。我们来看看下面这个操作：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> basic</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> User <span class="keyword">struct</span> &#123;</span><br><span class="line">    age  <span class="keyword">int</span></span><br><span class="line">    name <span class="keyword">string</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    user := &amp;basic.User&#123;&#125;</span><br><span class="line">    fmt.Println(user)</span><br><span class="line">    </span><br><span class="line">    s := (*<span class="keyword">int</span>)(unsafe.Pointer(user))</span><br><span class="line">    *s = <span class="number">10</span></span><br><span class="line"></span><br><span class="line">    up := <span class="keyword">uintptr</span>(unsafe.Pointer(user)) + unsafe.Sizeof(<span class="keyword">int</span>(<span class="number">0</span>))</span><br><span class="line"></span><br><span class="line">    namep := (*<span class="keyword">string</span>)(unsafe.Pointer(up))</span><br><span class="line">    *namep = <span class="string">"xxx"</span> </span><br><span class="line"></span><br><span class="line">    fmt.Println(user)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>User是另外一个basic包中的结构体，其中的age是小写开头的，理论上来说，我们在外部没有办法修改age的值，但是经过上面这波操作之后，输出信息是：<br>&amp;{0 }<br>&amp;{10 xxx}<br>也就是说成功操作到了结构体的私有属性。</p>
-<p>顺便提一句：创建结构体会被分配一块连续的内存，结构体的地址也代表了第一个成员的地址。</p>
-<blockquote>
-<p>下面我们来验证一下你是否已经学会了unsafe的操作，尝试不看一个小结，自己尝试一下：如何完成字符串到[]byte的转换，并且不开辟新的空间？</p>
-</blockquote>
-<p><br><br><br><br><br><br><br></p>
-<h3 id="字符串和byte数组转换inplace"><a href="#字符串和byte数组转换inplace" class="headerlink" title="字符串和byte数组转换inplace"></a>字符串和byte数组转换inplace</h3><p>我们知道如果将字符串转换成[]byte非常方便<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">s := <span class="string">"123"</span></span><br><span class="line">a := []<span class="keyword">byte</span>(s)</span><br></pre></td></tr></table></figure></p>
-<p>但是这样需要开辟额外的空间，那么如何实现原地的，不需要拷贝数据的转换呢？<br>我们想一下，其实从底层的存储角度来说，string的存储规则和[]byte是一样的，也就是说，其实指针都是从某个位置开始到一段空间，中间一格一格。所以利用unsafe就可以做到。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    s := <span class="string">"123"</span></span><br><span class="line">    a := []<span class="keyword">byte</span>(s)</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"s = "</span> , &amp;s, <span class="string">"\n"</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"a = "</span> , &amp;a, <span class="string">"\n"</span>)</span><br><span class="line">    </span><br><span class="line">    a2 := (*[]<span class="keyword">byte</span>)(unsafe.Pointer(&amp;s))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"a2 = "</span> , a2, <span class="string">"\n"</span>)</span><br><span class="line"></span><br><span class="line">    fmt.Println(*a2)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>输出结果：<br>s = 0xc420055f40<br>a = 0xc420055f60<br>a2 = 0xc420055f40<br>[49 50 51]</p>
-<p>我们可以看到s和a的地址是不一样的，但是s和a2的地址是一样的，并且a2已经是一个[]byte了。<br><br><br><br><br><br><br>嘿嘿嘿~你以为这样就结束了？？？</p>
-<h4 id="存在的问题"><a href="#存在的问题" class="headerlink" title="存在的问题"></a>存在的问题</h4><p><strong>其实这个转换是存在问题的，问题就在新的[]byte的Cap没有正确的初始化。</strong><br>我们打印一下cap看一下<br>fmt.Println(“cap a =”, cap(a))<br>fmt.Println(“cap a2 =”, cap(*a2))<br>结果是：<br>cap a = 32<br>cap a2 = 17418400<br>这么大的容量是要上天呢？？？</p>
-<h4 id="问题的原因"><a href="#问题的原因" class="headerlink" title="问题的原因"></a>问题的原因</h4><p>在src/reflect/value.go下看<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> StringHeader <span class="keyword">struct</span> &#123;</span><br><span class="line">	Data <span class="keyword">uintptr</span></span><br><span class="line">	Len  <span class="keyword">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> SliceHeader <span class="keyword">struct</span> &#123;</span><br><span class="line">	Data <span class="keyword">uintptr</span></span><br><span class="line">	Len  <span class="keyword">int</span></span><br><span class="line">	Cap  <span class="keyword">int</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>看到其实string没有cap而[]byte有，所以导致问题出现，也容易理解，string是没有容量扩容这个说法的，所以新的[]byte没有赋值cap所以使用了默认值。</p>
-<h4 id="问题解决"><a href="#问题解决" class="headerlink" title="问题解决"></a>问题解决</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">stringHeader := (*reflect.StringHeader)(unsafe.Pointer(&amp;s))</span><br><span class="line"></span><br><span class="line">bh := reflect.SliceHeader&#123;</span><br><span class="line">	Data: stringHeader.Data,</span><br><span class="line">	Len:  stringHeader.Len,</span><br><span class="line">	Cap:  stringHeader.Len,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> *(*[]<span class="keyword">byte</span>)(unsafe.Pointer(&amp;bh))</span><br></pre></td></tr></table></figure>
-<p>通过重新设置SliceHeader就可以完成</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>以上就是所有golang指针和unsafe的相关细节和使用。那么肯定有人会问这个有什么用了？</p>
+<h3 id="选举状态"><a href="#选举状态" class="headerlink" title="选举状态"></a>选举状态</h3><p>下面是一些选举过程中节点的状态<br>leader 表示选举最终产生的领导人<br>candidate 候选状态，表示当前正在参与选举<br>follower 表示选举最终自己不是领导人，那自己就是从属节点</p>
+<h3 id="选举过程与要点"><a href="#选举过程与要点" class="headerlink" title="选举过程与要点"></a>选举过程与要点</h3><p><img src="http://blog.linkinstars.com/mweb/15603076610892.jpg" alt></p>
+<ol>
+<li>所有节点一开始都是follower状态</li>
+<li>当节点处于follower状态时，每个节点随机经过一段时间，<strong>如果没有收到leader的消息就会进入candidate状态</strong>（证明当前没有leader节点需要重新进行选举），如果收到信息就会继续保持follower状态</li>
+<li>当节点处于candidate就会要求别人给自己投票，<strong>收到大多数的节点的投票那就转变为leader状态</strong>，否则要么是别的节点成为了leader，要么就是因为特殊情况导致这次选举失败重新进行选举</li>
+<li>每次选举举办的时候有一个term，在每一个term中，<strong>每个节点只能投票一次</strong></li>
+<li>投票的时候必须投给当前数据至少和自己一样的节点，并且term大的优先</li>
+</ol>
+<h2 id="日志复制规则"><a href="#日志复制规则" class="headerlink" title="日志复制规则"></a>日志复制规则</h2><p>etcd是通过日志复制来实现数据同步的<br><img src="http://blog.linkinstars.com/mweb/15603077783791.jpg" alt><br>这个图网上也很多，说明的是日志复制的规则<br>每个节点都有一份自己的日志，有的节点多，有的节点少，日志最多的肯定是leader。<br>上图还有几个要点，我看别人没提到，我就提一下：</p>
+<ol>
+<li>颜色代表term</li>
+<li>第四行表示的这个节点，第一term下复制了两个日志就异常挂掉了</li>
+<li>最终只有第三行这个follower和第一行的leader保持了同步</li>
+</ol>
+<h2 id="异常情况"><a href="#异常情况" class="headerlink" title="异常情况"></a>异常情况</h2><p>raft之所以厉害因为即使出现一些特殊情况，整个网络在一定的时间之后也能自动恢复并正常工作。</p>
+<h3 id="一个节点的异常"><a href="#一个节点的异常" class="headerlink" title="一个节点的异常"></a>一个节点的异常</h3><p>首先最常见的情况就是一个节点出现异常，有可能是这个节点的服务器挂了，或者别的什么原因。</p>
 <ul>
-<li>1、没啥事你就别乱用了，别人都说unsafe不安全了。</li>
-<li>2、源码中很多大量的使用了指针移动的操作。</li>
+<li>如果出现问题的这个节点是follower，那么没有关系，整个网络依旧能正常运行，当这个节点再次加入网络的时候也只需要同步后面的数据即可。</li>
+<li>如果出现问题的是leader，有一点麻烦，因为网络中没有leader节点了，那么就会重新进行选举，重新找一个leader，当这个异常节点恢复之后发现当前网络中有leader了，而且term还比自己大，那么自己就退位称为follower。</li>
 </ul>
-<p>如map中通过key获取value的时候：</p>
-<blockquote>
-<p>v := add(unsafe.Pointer(b), dataOffset+bucketCnt <em> uintptr(t.keysize)+i </em> uintptr(t.valuesize))</p>
-</blockquote>
-<p>通过桶的指针的偏移拿到值，具体我就不多介绍了。<br>总之对于你看golang源码的时候会有很大帮助的。可能必要的时候你也能用到它，还是那句话，除非你知道它在干什么，否则不要用。</p>
+<h3 id="网络分区"><a href="#网络分区" class="headerlink" title="网络分区"></a>网络分区</h3><p>还有一种异常情况是由于网络导致的，网络出现异常，导致节点之间的通信存在异常，一部分节点与另一部分之间没有办法访问了。如下图所示：<br><img src="http://blog.linkinstars.com/mweb/15603110122471.jpg" alt></p>
+<p>上面三个follower没有办法与下面的节点进行通信。</p>
+<ul>
+<li>当客户端再次请求leader发送数据的时候，leader发现没有办法将数据同步给给大多数节点，它只能给自己和旁边的一个，此时leader没有办法给客户端反馈。</li>
+<li>上面三个节点由于收不到leader的消息，那么会认为网络中没有leader存在，会重新进行选举操作，因为当前上面有三个节点存在（只要有超过半数的节点参与选举就行），所以可以重新选举成功，选出新的leader告诉客户端，客户端就会重新发送数据到新的leader。</li>
+<li>当网络恢复之后又会找到最新的leader从而将数据同步至最新的状态。</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>总的来说，只要整个网络中存在大多数节点正常运行，那么etcd就是可用的，并且能够保证数据正确。当网络恢复之后也能将数据调整到最新的状态。<br>raft强大的地方在于它能自动的进行状态的变化，自动进行选举，并且选举遵循一定的策略，进而保证整个网络的正常运转。同时保证数据的一致性。<br>了解etcd的这个原理有助于我们后续的使用以及源码的阅读。</p>
 
       
     </div>
@@ -598,7 +592,7 @@
           </li>
           <li class="post-copyright-link">
             <strong>本文链接：</strong>
-            <a href="http://www.linkinstar.wiki//2019/06/06/golang/source-code/point-unsafe/" title="Golang指针与unsafe">http://www.linkinstar.wiki/2019/06/06/golang/source-code/point-unsafe/</a>
+            <a href="http://www.linkinstar.wiki//2019/06/12/golang/open-source-component/etcd-raft/" title="浅入深出ETCD之【raft原理】">http://www.linkinstar.wiki/2019/06/12/golang/open-source-component/etcd-raft/</a>
           </li>
           <li class="post-copyright-license">
             <strong>版权声明： </strong>
@@ -611,7 +605,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/unsafe/" rel="tag"># unsafe</a>
+            <a href="/tags/etcd/" rel="tag"># etcd</a>
+          
+            <a href="/tags/raft/" rel="tag"># raft</a>
           
         </div>
       
@@ -624,8 +620,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/06/03/golang/source-code/graphic-golang-map/" rel="next" title="大话图解golang map源码详解">
-                <i class="fa fa-chevron-left"></i> 大话图解golang map源码详解
+              <a href="/2019/06/10/golang/open-source-component/etcd-brief/" rel="next" title="浅入深出ETCD之【简介与命令行使用】">
+                <i class="fa fa-chevron-left"></i> 浅入深出ETCD之【简介与命令行使用】
               </a>
             
           </div>
@@ -634,8 +630,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/06/10/golang/open-source-component/etcd-brief/" rel="prev" title="浅入深出ETCD之【简介与命令行使用】">
-                浅入深出ETCD之【简介与命令行使用】 <i class="fa fa-chevron-right"></i>
+              <a href="/2019/06/14/golang/open-source-component/etcd-cluster-client/" rel="prev" title="浅入深出ETCD之【集群部署与golang客户端使用】">
+                浅入深出ETCD之【集群部署与golang客户端使用】 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -847,7 +843,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#指针的使用"><span class="nav-number">1.</span> <span class="nav-text">指针的使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#指针的限制"><span class="nav-number">2.</span> <span class="nav-text">指针的限制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#unsafe"><span class="nav-number">3.</span> <span class="nav-text">unsafe</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#三个类型"><span class="nav-number">3.1.</span> <span class="nav-text">三个类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#unsafe操作slice"><span class="nav-number">3.2.</span> <span class="nav-text">unsafe操作slice</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#unsafe操作struct"><span class="nav-number">3.3.</span> <span class="nav-text">unsafe操作struct</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#字符串和byte数组转换inplace"><span class="nav-number">3.4.</span> <span class="nav-text">字符串和byte数组转换inplace</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#存在的问题"><span class="nav-number">3.4.1.</span> <span class="nav-text">存在的问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#问题的原因"><span class="nav-number">3.4.2.</span> <span class="nav-text">问题的原因</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#问题解决"><span class="nav-number">3.4.3.</span> <span class="nav-text">问题解决</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#raft选举策略"><span class="nav-number">1.</span> <span class="nav-text">raft选举策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#大多数理论"><span class="nav-number">1.1.</span> <span class="nav-text">大多数理论</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#选举状态"><span class="nav-number">1.2.</span> <span class="nav-text">选举状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#选举过程与要点"><span class="nav-number">1.3.</span> <span class="nav-text">选举过程与要点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#日志复制规则"><span class="nav-number">2.</span> <span class="nav-text">日志复制规则</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异常情况"><span class="nav-number">3.</span> <span class="nav-text">异常情况</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#一个节点的异常"><span class="nav-number">3.1.</span> <span class="nav-text">一个节点的异常</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#网络分区"><span class="nav-number">3.2.</span> <span class="nav-text">网络分区</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
             
 
           </div>
