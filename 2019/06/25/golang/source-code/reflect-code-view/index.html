@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.1">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=7.1.1">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=7.1.1">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-32x32.png?v=7.1.1">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.1" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.1',
+    sidebar: {"position":"left","display":"always","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: true,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":true,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="反射 —— 如果你之前学过一些别的语言，比如java可能就会了解，反射是一个传说中很厉害的操作，算是一个高级用法。而同时，很多人也会告诉你，反射是一个危险的操作，那么在golang中，反射又是怎么操作的呢？今天就来说说golang中的反射reflect。">
+<meta name="keywords" content="reflect">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Golang之reflect">
+<meta property="og:url" content="https://linkinstar.gitee.io/2019/06/25/golang/source-code/reflect-code-view/index.html">
+<meta property="og:site_name" content="LinkinStar&#39;s Blog">
+<meta property="og:description" content="反射 —— 如果你之前学过一些别的语言，比如java可能就会了解，反射是一个传说中很厉害的操作，算是一个高级用法。而同时，很多人也会告诉你，反射是一个危险的操作，那么在golang中，反射又是怎么操作的呢？今天就来说说golang中的反射reflect。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-06-27T03:36:14.493Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Golang之reflect">
+<meta name="twitter:description" content="反射 —— 如果你之前学过一些别的语言，比如java可能就会了解，反射是一个传说中很厉害的操作，算是一个高级用法。而同时，很多人也会告诉你，反射是一个危险的操作，那么在golang中，反射又是怎么操作的呢？今天就来说说golang中的反射reflect。">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="https://linkinstar.gitee.io/2019/06/25/golang/source-code/reflect-code-view/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Golang之reflect | LinkinStar's Blog</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?89a776c473aa81d27c40ef9cfb9b569e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">LinkinStar's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2019/06/25/golang/source-code/reflect-code-view/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="LinkinStar">
+      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!">
+      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LinkinStar's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Golang之reflect
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-06-25 00:00:00" itemprop="dateCreated datePublished" datetime="2019-06-25T00:00:00+08:00">2019-06-25</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/golang源码解析/" itemprop="url" rel="index"><span itemprop="name">golang源码解析</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>反射 —— 如果你之前学过一些别的语言，比如java可能就会了解，反射是一个传说中很厉害的操作，算是一个高级用法。而同时，很多人也会告诉你，反射是一个危险的操作，那么在golang中，反射又是怎么操作的呢？今天就来说说golang中的反射reflect。</p>
+<a id="more"></a>
+<h2 id="反射的定义"><a href="#反射的定义" class="headerlink" title="反射的定义"></a>反射的定义</h2><p>首先问问自己，你知道什么是反射吗？如果你有一个清楚的定义，证明你已经对反射非常熟悉了。<br>官方的定义很官方，我就说说我的：<br>反射，反射，从字面理解就是通过镜子（或类似的东西）看到自己。<br>而在编程中，反射指的是在<strong>运行的过程中</strong>看到自己。<br>在实际的编程过程中我们知道，创建的这个变量或者对象是什么类型或者是什么样子的，同时很容易能对它进行操作。而在运行过程中，程序没有我们的眼睛，它并不知道这个东西是怎么样的，这个时候就需要运用到反射。<br><em>通过反射我可以知道自己长什么样子。</em></p>
+<h2 id="反射的使用"><a href="#反射的使用" class="headerlink" title="反射的使用"></a>反射的使用</h2><h3 id="reflect-TypeOf"><a href="#reflect-TypeOf" class="headerlink" title="reflect.TypeOf"></a>reflect.TypeOf</h3><p>如果你对反射还是有些模糊，那么看下面这个最简单的例子<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    a := <span class="number">1.3</span></span><br><span class="line">    fmt.Println(<span class="string">"a的类型是"</span>, reflect.TypeOf(a))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>输出<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a的类型是 float64</span><br></pre></td></tr></table></figure></p>
+<p>是不是瞬间明白了，没错，反射没有那么复杂。<br>你想想，作为程序自己，我运行中，我怎么知道a是什么类型，只能通过照镜子（反射）得到。</p>
+<p>下面再说说一些更高级的用法。</p>
+<h3 id="reflect-ValueOf"><a href="#reflect-ValueOf" class="headerlink" title="reflect.ValueOf"></a>reflect.ValueOf</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">type</span> MyInt <span class="keyword">int</span></span><br><span class="line">    <span class="keyword">var</span> x MyInt = <span class="number">7</span></span><br><span class="line">    v := reflect.ValueOf(x)</span><br><span class="line">    fmt.Println(v.Type())</span><br><span class="line">    fmt.Println(v.Kind())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">main.MyInt</span><br><span class="line">int</span><br></pre></td></tr></table></figure></p>
+<p>这里我们通过<code>reflect.ValueOf</code>方法拿到的v，其中v.Type()拿到的是它当前的类型，而v.Kind()可以拿到它最基本的类型。</p>
+<h3 id="Elem"><a href="#Elem" class="headerlink" title="Elem()"></a>Elem()</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    a := <span class="number">1.3</span></span><br><span class="line">    v := reflect.ValueOf(&amp;a)</span><br><span class="line">    elem := v.Elem()</span><br><span class="line">    elem.SetFloat(<span class="number">0.2</span>)</span><br><span class="line">    fmt.Println(a)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0.2</span><br></pre></td></tr></table></figure></p>
+<p>这里我们可以看到，通过反射拿到v使用v.Elem()方法可以拿到对应指针进行操作赋值</p>
+<h3 id="Field"><a href="#Field" class="headerlink" title="Field()"></a>Field()</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> MyData <span class="keyword">struct</span> &#123;</span><br><span class="line">    A <span class="keyword">int</span></span><br><span class="line">    b <span class="keyword">float32</span></span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    myData := MyData&#123;</span><br><span class="line">        A: <span class="number">1</span>,</span><br><span class="line">        b: <span class="number">1.1</span>,</span><br><span class="line">    &#125;</span><br><span class="line">    myDataV := reflect.ValueOf(&amp;myData).Elem()</span><br><span class="line">    fmt.Println(<span class="string">"字段a:"</span>, myDataV.Field(<span class="number">0</span>))</span><br><span class="line">    fmt.Println(<span class="string">"字段b:"</span>, myDataV.Field(<span class="number">1</span>))</span><br><span class="line">    fmt.Println(myDataV)</span><br><span class="line">    myDataV.Field(<span class="number">0</span>).SetInt(<span class="number">2</span>)</span><br><span class="line">    fmt.Println(myDataV)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">字段a: <span class="number">1</span></span><br><span class="line">字段b: <span class="number">1.1</span></span><br><span class="line">&#123;<span class="number">1</span> <span class="number">1.1</span>&#125;</span><br><span class="line">&#123;<span class="number">2</span> <span class="number">1.1</span>&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这里我们可以看到，我们即使不知道一个结构体里面的情况，我们依旧可以通过Field方法获得其中的值，并且<strong>如果这个变量可以被外界访问</strong>那么还可以修改。</p>
+<h3 id="Interface"><a href="#Interface" class="headerlink" title="Interface()"></a>Interface()</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    a := <span class="number">1.3</span></span><br><span class="line">    v := reflect.ValueOf(a)</span><br><span class="line">    a1 := v.Interface().(<span class="keyword">float64</span>)</span><br><span class="line">    fmt.Println(a1)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>1.3<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a的类型是 float64</span><br></pre></td></tr></table></figure></p>
+<p>反射之后的对象通过Interface还可以转换回来</p>
+<h2 id="反射的法则"><a href="#反射的法则" class="headerlink" title="反射的法则"></a>反射的法则</h2><p>上面就是一些反射的基本用法，常用的就是获取一个对象在运行中的一个状态，或者是针对运行中的一个不确定的对象进行修改。下面要说的是反射的法则。<br>如果你英文够好，并且网络自由，可以看看golang官方的博客：<br><a href="https://blog.golang.org/laws-of-reflection" target="_blank" rel="noopener">https://blog.golang.org/laws-of-reflection</a><br>里面详细描述了反射的三个法则，如果你看不到，那就只能听我下面吹一吹了。</p>
+<blockquote>
+<ul>
+<li>Reflection goes from interface value to reflection object.</li>
+<li>Reflection goes from reflection object to interface value.</li>
+<li>To modify a reflection object, the value must be settable.</li>
+</ul>
+</blockquote>
+<p>这三个就是官方给出的法则，我分别用自己的话解释一下。</p>
+<h3 id="反射就是将任意值转换为反射对象"><a href="#反射就是将任意值转换为反射对象" class="headerlink" title="反射就是将任意值转换为反射对象"></a>反射就是将任意值转换为反射对象</h3><p>在golang中我们知道interface就和java中的Object类似（只是类似而已），代表了所有类型，reflect包正是帮我们将任意的一个类型转换成了我们上面例子中看到的一个v，这个v就是反射对象。<br>通过这个反射对象中的一些方法我们才能看见原来的对象是什么样子。</p>
+<h3 id="反射对象可以转换为任意对象"><a href="#反射对象可以转换为任意对象" class="headerlink" title="反射对象可以转换为任意对象"></a>反射对象可以转换为任意对象</h3><p>这个正好与第一个相反，就像最后一个例子中给出的，反射获得的反射对象可以通过Interface方法转换为原来的对象。</p>
+<h3 id="如果你要修改反射对象，那么这个对象必须要可以被修改"><a href="#如果你要修改反射对象，那么这个对象必须要可以被修改" class="headerlink" title="如果你要修改反射对象，那么这个对象必须要可以被修改"></a>如果你要修改反射对象，那么这个对象必须要可以被修改</h3><p>什么意思呢？就如同这个案例中<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    a := <span class="number">1.3</span></span><br><span class="line">    v := reflect.ValueOf(&amp;a)</span><br><span class="line">    elem := v.Elem()</span><br><span class="line">    elem.SetFloat(<span class="number">0.2</span>)</span><br><span class="line">    fmt.Println(a)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>如果我们传递的并非a的地址并且直接使用v.SetFloat那么就会报错，因为我们无法对其进行修改，反射会帮我们copy一个，所以无法修改，只有当我们使用指针的时候才能修改。</p>
+<p>同样的，和案例中的结构体操作一样，如果一个结构体的变量是小写的而不是大写的，证明外界没有办法访问到，所以也没有办法修改，也会出现异常。</p>
+<h2 id="反射的原理"><a href="#反射的原理" class="headerlink" title="反射的原理"></a>反射的原理</h2><p>下面就需要看看在源码中，反射到底是怎么实现的了。<br>我们着重看两个方法<code>TypeOf</code>和<code>ValueOf</code></p>
+<h3 id="TypeOf"><a href="#TypeOf" class="headerlink" title="TypeOf"></a>TypeOf</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// TypeOf returns the reflection Type that represents the dynamic type of i.</span></span><br><span class="line"><span class="comment">// If i is a nil interface value, TypeOf returns nil.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TypeOf</span><span class="params">(i <span class="keyword">interface</span>&#123;&#125;)</span> <span class="title">Type</span></span> &#123;</span><br><span class="line">	eface := *(*emptyInterface)(unsafe.Pointer(&amp;i))</span><br><span class="line">	<span class="keyword">return</span> toType(eface.typ)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们先来看这个简单的<code>TypeOf</code>看到源码中很简单，通过unsafe.Pointer获得指针转换成emptyInterface类型<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// emptyInterface is the header for an interface&#123;&#125; value.</span></span><br><span class="line"><span class="keyword">type</span> emptyInterface <span class="keyword">struct</span> &#123;</span><br><span class="line">	typ  *rtype</span><br><span class="line">	word unsafe.Pointer</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>然后通过toType方法得到具体类型<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">toType</span><span class="params">(t *rtype)</span> <span class="title">Type</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> t</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>其中Type就包含了所有的信息，然后返回出去就完成了。</p>
+<h3 id="ValueOf"><a href="#ValueOf" class="headerlink" title="ValueOf"></a>ValueOf</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ValueOf returns a new Value initialized to the concrete value</span></span><br><span class="line"><span class="comment">// stored in the interface i. ValueOf(nil) returns the zero Value.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ValueOf</span><span class="params">(i <span class="keyword">interface</span>&#123;&#125;)</span> <span class="title">Value</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> i == <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> Value&#123;&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// <span class="doctag">TODO:</span> Maybe allow contents of a Value to live on the stack.</span></span><br><span class="line">	<span class="comment">// For now we make the contents always escape to the heap. It</span></span><br><span class="line">	<span class="comment">// makes life easier in a few places (see chanrecv/mapassign</span></span><br><span class="line">	<span class="comment">// comment below).</span></span><br><span class="line">	escapes(i)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> unpackEface(i)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面nil就不说了，主要方法是下面unpackEface<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// unpackEface converts the empty interface i to a Value.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">unpackEface</span><span class="params">(i <span class="keyword">interface</span>&#123;&#125;)</span> <span class="title">Value</span></span> &#123;</span><br><span class="line">	e := (*emptyInterface)(unsafe.Pointer(&amp;i))</span><br><span class="line">	<span class="comment">// <span class="doctag">NOTE:</span> don't read e.word until we know whether it is really a pointer or not.</span></span><br><span class="line">	t := e.typ</span><br><span class="line">	<span class="keyword">if</span> t == <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> Value&#123;&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	f := flag(t.Kind())</span><br><span class="line">	<span class="keyword">if</span> ifaceIndir(t) &#123;</span><br><span class="line">		f |= flagIndir</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> Value&#123;t, e.word, f&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>我们可以看到其实与TypeOf一样，只不过多封装了一层Value，其中的word就是当前对象的指针，因为我们知道通过TypeOf得到的Value可以用很多操作。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// emptyInterface is the header for an interface&#123;&#125; value.</span></span><br><span class="line"><span class="keyword">type</span> emptyInterface <span class="keyword">struct</span> &#123;</span><br><span class="line">	typ  *rtype</span><br><span class="line">	word unsafe.Pointer</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="反射的意义"><a href="#反射的意义" class="headerlink" title="反射的意义"></a>反射的意义</h2><p>说了这么多，那么反射存在的意义到底在哪？说白了，我们在写代码的时候什么时候能用上它？<br>还是举个例子你就明白了。</p>
+<h3 id="json-Marshal案例"><a href="#json-Marshal案例" class="headerlink" title="json.Marshal案例"></a>json.Marshal案例</h3><p>json.Marshal这个方法用过吧，是将任意对象转换成json，这个案例就足以说明反射的厉害了。<br>我们先自己想一下，如果要将一个对象转换成json：</p>
+<ul>
+<li>我们运行之前其实是不知道传入对象的类型，而且传入的对象不同，那么解析方式肯定不同，如果传入的是map或者传入的是struct肯定解析方式不同，所以方法内部需要动态的判断传入类型从而做操作。</li>
+<li>还有我们不知道传入的struct内部的属性长什么样子。</li>
+</ul>
+<p>这个时候反射就能解决这样的问题，通过反射可以知道传入对象的类型，根据不同的类型做操作，同时可以获取到如struct这样类型内部的字段属性和值分别是多少。</p>
+<h3 id="json-Marshal源码分析"><a href="#json-Marshal源码分析" class="headerlink" title="json.Marshal源码分析"></a>json.Marshal源码分析</h3><p>因为所有源码太多，我给出查看路线，然后给出上面所述的两处重点。<br>json.Marshal -&gt; e.marshal -&gt; e.reflectValue -&gt; valueEncoder -&gt; typeEncoder -&gt; newTypeEncoder -&gt; newStructEncoder -&gt; se.encode</p>
+<h4 id="要点1-newTypeEncoder"><a href="#要点1-newTypeEncoder" class="headerlink" title="要点1 - newTypeEncoder"></a>要点1 - newTypeEncoder</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// newTypeEncoder constructs an encoderFunc for a type.</span></span><br><span class="line"><span class="comment">// The returned encoder only checks CanAddr when allowAddr is true.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">newTypeEncoder</span><span class="params">(t reflect.Type, allowAddr <span class="keyword">bool</span>)</span> <span class="title">encoderFunc</span></span> &#123;</span><br><span class="line">	...........</span><br><span class="line"></span><br><span class="line">	<span class="keyword">switch</span> t.Kind() &#123;</span><br><span class="line">	<span class="keyword">case</span> reflect.Bool:</span><br><span class="line">		<span class="keyword">return</span> boolEncoder</span><br><span class="line">	<span class="keyword">case</span> reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:</span><br><span class="line">		<span class="keyword">return</span> intEncoder</span><br><span class="line">	<span class="keyword">case</span> reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:</span><br><span class="line">		<span class="keyword">return</span> uintEncoder</span><br><span class="line">	<span class="keyword">case</span> reflect.Float32:</span><br><span class="line">		<span class="keyword">return</span> float32Encoder</span><br><span class="line">	<span class="keyword">case</span> reflect.Float64:</span><br><span class="line">		<span class="keyword">return</span> float64Encoder</span><br><span class="line">	<span class="keyword">case</span> reflect.String:</span><br><span class="line">		<span class="keyword">return</span> stringEncoder</span><br><span class="line">	<span class="keyword">case</span> reflect.Interface:</span><br><span class="line">		<span class="keyword">return</span> interfaceEncoder</span><br><span class="line">	<span class="keyword">case</span> reflect.Struct:</span><br><span class="line">		<span class="keyword">return</span> newStructEncoder(t)</span><br><span class="line">	<span class="keyword">case</span> reflect.Map:</span><br><span class="line">		<span class="keyword">return</span> newMapEncoder(t)</span><br><span class="line">	<span class="keyword">case</span> reflect.Slice:</span><br><span class="line">		<span class="keyword">return</span> newSliceEncoder(t)</span><br><span class="line">	<span class="keyword">case</span> reflect.Array:</span><br><span class="line">		<span class="keyword">return</span> newArrayEncoder(t)</span><br><span class="line">	<span class="keyword">case</span> reflect.Ptr:</span><br><span class="line">		<span class="keyword">return</span> newPtrEncoder(t)</span><br><span class="line">	<span class="keyword">default</span>:</span><br><span class="line">		<span class="keyword">return</span> unsupportedTypeEncoder</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过反射获得传入对象的类型，判断选择具体的编码器进行编码，如果传入的是map那就…如果传入的是struct那就…</p>
+<h4 id="要点2-se-encode"><a href="#要点2-se-encode" class="headerlink" title="要点2 - se.encode"></a>要点2 - se.encode</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(se *structEncoder)</span> <span class="title">encode</span><span class="params">(e *encodeState, v reflect.Value, opts encOpts)</span></span> &#123;</span><br><span class="line">	e.WriteByte(<span class="string">'&#123;'</span>)</span><br><span class="line">	first := <span class="literal">true</span></span><br><span class="line">	<span class="keyword">for</span> i, f := <span class="keyword">range</span> se.fields &#123;</span><br><span class="line">		fv := fieldByIndex(v, f.index)</span><br><span class="line">		<span class="keyword">if</span> !fv.IsValid() || f.omitEmpty &amp;&amp; isEmptyValue(fv) &#123;</span><br><span class="line">			<span class="keyword">continue</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> first &#123;</span><br><span class="line">			first = <span class="literal">false</span></span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			e.WriteByte(<span class="string">','</span>)</span><br><span class="line">		&#125;</span><br><span class="line">		e.<span class="keyword">string</span>(f.name, opts.escapeHTML)</span><br><span class="line">		e.WriteByte(<span class="string">':'</span>)</span><br><span class="line">		opts.quoted = f.quoted</span><br><span class="line">		se.fieldEncs[i](e, fv, opts)</span><br><span class="line">	&#125;</span><br><span class="line">	e.WriteByte(<span class="string">'&#125;'</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">fieldByIndex</span><span class="params">(v reflect.Value, index []<span class="keyword">int</span>)</span> <span class="title">reflect</span>.<span class="title">Value</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> _, i := <span class="keyword">range</span> index &#123;</span><br><span class="line">		<span class="keyword">if</span> v.Kind() == reflect.Ptr &#123;</span><br><span class="line">			<span class="keyword">if</span> v.IsNil() &#123;</span><br><span class="line">				<span class="keyword">return</span> reflect.Value&#123;&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			v = v.Elem()</span><br><span class="line">		&#125;</span><br><span class="line">		v = v.Field(i)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> v</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>encode这个方法是解析结构体的，我们可以清楚的看的从结构体中通过v.Field将里面的参数拿出来。<br>其他细节这里就不做说明了，主要的目的是要表示反射在其中起到的重要作用。</p>
+<h2 id="总结和提醒"><a href="#总结和提醒" class="headerlink" title="总结和提醒"></a>总结和提醒</h2><p>看完你就应该清楚反射到底是做什么用的，具体我们什么时候会用到它。最后还要提醒一下，反射也存在两个必然的问题：</p>
+<ul>
+<li>第一个是<strong>不安全</strong>，因为反射的类型在转换中极易出现问题，所以使用需谨慎。</li>
+<li>第二个是<strong>速度慢</strong>，之所以有人抨击golang的json解析库慢，一部分原因就是因为其中涉及到了反射，所以如果对效率有要求的地方就要斟酌使用了。</li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div id="reward-container">
+  <div>赞赏时记得备注邮箱，即可第一时间收到更新推送哦~</div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+
+    
+      
+      
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+      
+      
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/alipay.png" alt="LinkinStar 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      <div>
+       
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+              <strong>本文作者：</strong>LinkinStar
+          </li>
+          <li class="post-copyright-link">
+            <strong>本文链接：</strong>
+            <a href="http://www.linkinstar.wiki//2019/06/25/golang/source-code/reflect-code-view/" title="Golang之reflect">http://www.linkinstar.wiki/2019/06/25/golang/source-code/reflect-code-view/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明： </strong>
+            如无特殊声明，本博客均采用 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0 CN</a> 许可协议，请勿用于商业，转载请注明出处！
+          </li>
+        </ul>
+        
+      </div>
+
+      
+        <div class="post-tags">
+          
+            <a href="/tags/reflect/" rel="tag"># reflect</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/06/20/golang/source-code/strings-go-source-code/" rel="next" title="Golang的strings.go源码解析 - Rabin-Karp了解一下？">
+                <i class="fa fa-chevron-left"></i> Golang的strings.go源码解析 - Rabin-Karp了解一下？
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/06/27/golang/source-code/context-code-view/" rel="prev" title="Golang之context">
+                Golang之context <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="gitalk-container">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="http://blog.linkinstars.com/LLX.jpg" alt="LinkinStar">
+            
+              <p class="site-author-name" itemprop="name">LinkinStar</p>
+              <div class="site-description motion-element" itemprop="description">No one but myself can do it.<br> Don't worry. Be happy!</div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">10</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">10</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/LinkinStars" title="GitHub &rarr; https://github.com/LinkinStars" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.jianshu.com/u/dcc4b2396fc4" title="简书 &rarr; https://www.jianshu.com/u/dcc4b2396fc4" rel="noopener" target="_blank"><i class="fa fa-fw fa-book"></i>简书</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.cnblogs.com/linkstar" title="博客园 &rarr; https://www.cnblogs.com/linkstar" rel="noopener" target="_blank"><i class="fa fa-fw fa-link"></i>博客园</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://weibo.com/u/5305440833" title="Weibo &rarr; https://weibo.com/u/5305440833" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#反射的定义"><span class="nav-number">1.</span> <span class="nav-text">反射的定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#反射的使用"><span class="nav-number">2.</span> <span class="nav-text">反射的使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#reflect-TypeOf"><span class="nav-number">2.1.</span> <span class="nav-text">reflect.TypeOf</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#reflect-ValueOf"><span class="nav-number">2.2.</span> <span class="nav-text">reflect.ValueOf</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Elem"><span class="nav-number">2.3.</span> <span class="nav-text">Elem()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Field"><span class="nav-number">2.4.</span> <span class="nav-text">Field()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Interface"><span class="nav-number">2.5.</span> <span class="nav-text">Interface()</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#反射的法则"><span class="nav-number">3.</span> <span class="nav-text">反射的法则</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#反射就是将任意值转换为反射对象"><span class="nav-number">3.1.</span> <span class="nav-text">反射就是将任意值转换为反射对象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#反射对象可以转换为任意对象"><span class="nav-number">3.2.</span> <span class="nav-text">反射对象可以转换为任意对象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如果你要修改反射对象，那么这个对象必须要可以被修改"><span class="nav-number">3.3.</span> <span class="nav-text">如果你要修改反射对象，那么这个对象必须要可以被修改</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#反射的原理"><span class="nav-number">4.</span> <span class="nav-text">反射的原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#TypeOf"><span class="nav-number">4.1.</span> <span class="nav-text">TypeOf</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ValueOf"><span class="nav-number">4.2.</span> <span class="nav-text">ValueOf</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#反射的意义"><span class="nav-number">5.</span> <span class="nav-text">反射的意义</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#json-Marshal案例"><span class="nav-number">5.1.</span> <span class="nav-text">json.Marshal案例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#json-Marshal源码分析"><span class="nav-number">5.2.</span> <span class="nav-text">json.Marshal源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#要点1-newTypeEncoder"><span class="nav-number">5.2.1.</span> <span class="nav-text">要点1 - newTypeEncoder</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#要点2-se-encode"><span class="nav-number">5.2.2.</span> <span class="nav-text">要点2 - se.encode</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结和提醒"><span class="nav-number">6.</span> <span class="nav-text">总结和提醒</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">LinkinStar</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.1"></script>
+
+  <script src="/js/motion.js?v=7.1.1"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.1"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.1"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.1"></script>
+<script src="/js/post-details.js?v=7.1.1"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.1"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+    
+
+<script src="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+
+
+<script src="//cdn.jsdelivr.net/npm/js-md5@0.7.3/src/md5.min.js"></script>
+
+<script>
+  var gitalk = new Gitalk({
+    clientID: 'fb1c6a994a1f26c2655e',
+    clientSecret: '512d1338f3c8e48f1be73caf0661c005bf1c0425',
+    repo: 'linkinstars.github.io',
+    owner: 'LinkinStars',
+    admin: ['LinkinStars'],
+    id: md5(location.pathname),
+    
+      language: window.navigator.language || window.navigator.userLanguage,
+    
+    distractionFreeMode: 'true'
+  });
+  gitalk.render('gitalk-container');
+</script>
+
+  
+
+
+  
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('10');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"/live2dw/assets/shizuku.model.json"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
+</html>
