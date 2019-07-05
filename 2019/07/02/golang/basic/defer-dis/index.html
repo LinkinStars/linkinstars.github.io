@@ -96,18 +96,18 @@
 
 
 
-  <meta name="description" content="我们知道在golang中是存在指针这个概念的。对于指针很多人有点忌惮（可能是因为之前学习过C语言），因为它会导致很多异常的问题。但是很多人学习之后发现，golang中的指针很简单，没有C那么复杂。所以今天就详细来说说指针。">
-<meta name="keywords" content="unsafe">
+  <meta name="description" content="在golang中，对于defer，我之前的理解就是和java中的finally代码块一样，没什么难度，但是吧，当我最近看的一些神奇的问题，我就发现原来并非想的那么简单。">
+<meta name="keywords" content="defer">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Golang指针与unsafe">
-<meta property="og:url" content="https://linkinstar.gitee.io/2019/06/06/golang/source-code/point-unsafe/index.html">
+<meta property="og:title" content="不是我吹，你可能连defer都不清楚">
+<meta property="og:url" content="https://linkinstar.gitee.io/2019/07/02/golang/basic/defer-dis/index.html">
 <meta property="og:site_name" content="LinkinStar&#39;s Blog">
-<meta property="og:description" content="我们知道在golang中是存在指针这个概念的。对于指针很多人有点忌惮（可能是因为之前学习过C语言），因为它会导致很多异常的问题。但是很多人学习之后发现，golang中的指针很简单，没有C那么复杂。所以今天就详细来说说指针。">
+<meta property="og:description" content="在golang中，对于defer，我之前的理解就是和java中的finally代码块一样，没什么难度，但是吧，当我最近看的一些神奇的问题，我就发现原来并非想的那么简单。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-06-10T03:32:12.961Z">
+<meta property="og:updated_time" content="2019-07-05T06:51:52.755Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Golang指针与unsafe">
-<meta name="twitter:description" content="我们知道在golang中是存在指针这个概念的。对于指针很多人有点忌惮（可能是因为之前学习过C语言），因为它会导致很多异常的问题。但是很多人学习之后发现，golang中的指针很简单，没有C那么复杂。所以今天就详细来说说指针。">
+<meta name="twitter:title" content="不是我吹，你可能连defer都不清楚">
+<meta name="twitter:description" content="在golang中，对于defer，我之前的理解就是和java中的finally代码块一样，没什么难度，但是吧，当我最近看的一些神奇的问题，我就发现原来并非想的那么简单。">
 
 
 
@@ -115,7 +115,7 @@
 
   
   
-  <link rel="canonical" href="https://linkinstar.gitee.io/2019/06/06/golang/source-code/point-unsafe/">
+  <link rel="canonical" href="https://linkinstar.gitee.io/2019/07/02/golang/basic/defer-dis/">
 
 
 
@@ -125,7 +125,7 @@
   };
 </script>
 
-  <title>Golang指针与unsafe | LinkinStar's Blog</title>
+  <title>不是我吹，你可能连defer都不清楚 | LinkinStar's Blog</title>
   
 
 
@@ -380,7 +380,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2019/06/06/golang/source-code/point-unsafe/">
+    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2019/07/02/golang/basic/defer-dis/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="LinkinStar">
@@ -397,7 +397,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Golang指针与unsafe
+          <h1 class="post-title" itemprop="name headline">不是我吹，你可能连defer都不清楚
 
               
             
@@ -423,7 +423,7 @@
                 
               
 
-              <time title="创建时间：2019-06-06 00:00:00" itemprop="dateCreated datePublished" datetime="2019-06-06T00:00:00+08:00">2019-06-06</time>
+              <time title="创建时间：2019-07-02 00:00:00" itemprop="dateCreated datePublished" datetime="2019-07-02T00:00:00+08:00">2019-07-02</time>
             
 
             
@@ -441,7 +441,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/golang源码解析/" itemprop="url" rel="index"><span itemprop="name">golang源码解析</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/golang基础/" itemprop="url" rel="index"><span itemprop="name">golang基础</span></a></span>
 
                 
                 
@@ -483,60 +483,60 @@
       
 
       
-        <p>我们知道在golang中是存在指针这个概念的。对于指针很多人有点忌惮（可能是因为之前学习过C语言），因为它会导致很多异常的问题。但是很多人学习之后发现，golang中的指针很简单，没有C那么复杂。所以今天就详细来说说指针。</p>
+        <p>在golang中，对于defer，我之前的理解就是和java中的finally代码块一样，没什么难度，但是吧，当我最近看的一些神奇的问题，我就发现原来并非想的那么简单。</p>
 <a id="more"></a>
-<h2 id="指针的使用"><a href="#指针的使用" class="headerlink" title="指针的使用"></a>指针的使用</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">a := <span class="number">1</span></span><br><span class="line">p := &amp;a</span><br><span class="line">fmt.Println(p)</span><br></pre></td></tr></table></figure>
-<p>输出：0xc42001c070</p>
-<p>可以看到p就是一个指针，也可以说是a的地址。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">a := <span class="number">1</span></span><br><span class="line"><span class="keyword">var</span> p *<span class="keyword">int</span></span><br><span class="line">p = &amp;a</span><br><span class="line">fmt.Println(p)</span><br></pre></td></tr></table></figure>
-<p>或者也可以写成这样，因为我知道，在很多人看来，看到*号才是指针（手动滑稽）</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">a := <span class="number">1</span></span><br><span class="line">p := &amp;a</span><br><span class="line">fmt.Println(*p)</span><br></pre></td></tr></table></figure>
-<p>输出：1</p>
-<p>然后使用就直接通过*号就能去到对应的值了，就这么简单</p>
-<h2 id="指针的限制"><a href="#指针的限制" class="headerlink" title="指针的限制"></a>指针的限制</h2><p>Golang中指针之所以看起来很简单，是因为指针的功能不多。我们能看到的功能就是指针的指向一个地址而已，然后对于这个地址也只能进行传递，或者通过这个的地址去访问值。</p>
-<ul>
-<li>不能像C语言中一样p++，这样移动操作指针，因为其实这样操作确实不安全，很容易访问到奇怪的区域。</li>
-<li>不同类型的指针不能相互赋值、转换、比较。会出现cannot use &amp;a (type <em>int) as type </em>float32 in assignment类似这样的错误</li>
-</ul>
-<p>如果只是单纯说go中指针的功能，上面就已经说完了，没必要写博客，但是其实go中还有一个包叫unsafe，有了它，指针就可以像C一样想干嘛干嘛了。</p>
-<h2 id="unsafe"><a href="#unsafe" class="headerlink" title="unsafe"></a>unsafe</h2><h3 id="三个类型"><a href="#三个类型" class="headerlink" title="三个类型"></a>三个类型</h3><p>其实指针有三种：<br>一种是我们常见的<code>*</code>，用*去表示的指针；<br>一种是unsafe.Pointer，Pointer是unsafe包下的一个类型；<br>最后一种是uintptr，uintptr就厉害了，这玩意是可以进行运算的也就是可以++–；</p>
-<p><strong>他们之间有这样的转换关系：</strong><br><code>*</code>  &lt;=&gt;  unsafe.Pointer  &lt;=&gt;  uintptr</p>
-<ul>
-<li>有一点要注意的是，uintptr 并没有指针的语义，意思就是 uintptr 所指向的对象会被 gc 无情地回收。而 unsafe.Pointer 有指针语义，可以保护它所指向的对象在“有用”的时候不会被垃圾回收。</li>
-</ul>
-<p>从这样的关系你大概就可以猜到，我们使用的指针*p转换成Pointer然后转换uintptr进行运算之后再原路返回，理论上就能等同于进行了指针的运算。我们下面就来实践一下。</p>
-<h3 id="unsafe操作slice"><a href="#unsafe操作slice" class="headerlink" title="unsafe操作slice"></a>unsafe操作slice</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    s := <span class="built_in">make</span>([]<span class="keyword">int</span>, <span class="number">10</span>)</span><br><span class="line">    s[<span class="number">1</span>] = <span class="number">2</span></span><br><span class="line">    </span><br><span class="line">    p := &amp;s[<span class="number">0</span>]</span><br><span class="line">    fmt.Println(*p)</span><br><span class="line">    </span><br><span class="line">    up := <span class="keyword">uintptr</span>(unsafe.Pointer(p))</span><br><span class="line">    up += unsafe.Sizeof(<span class="keyword">int</span>(<span class="number">0</span>)) <span class="comment">// 这里可不是up++哦</span></span><br><span class="line"></span><br><span class="line">    p2 := (*<span class="keyword">int</span>)(unsafe.Pointer(up))</span><br><span class="line">    fmt.Println(*p2)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>输出：<br>0<br>2</p>
-<p>从代码中我们可以看到，我们首先将指针指向切片的第一个位置，然后通过转换得到uintptr，操作uintptr + 上8位（注意这里不能++因为存放的是int，下一个元素位置相隔举例int个字节），最后转换回来得到指针，取值，就能取到切片的第二个位置了。</p>
-<h3 id="unsafe操作struct"><a href="#unsafe操作struct" class="headerlink" title="unsafe操作struct"></a>unsafe操作struct</h3><p>当然有人肯定要说了，上面那个一顿操作猛如虎，不就是访问下一个位置嘛，我直接访问就行了。<br>那下面就是厉害的来了，我们知道如果一个结构体里面定义的属性是私有的，那么这个属性是不能被外界访问到的。我们来看看下面这个操作：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> basic</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> User <span class="keyword">struct</span> &#123;</span><br><span class="line">    age  <span class="keyword">int</span></span><br><span class="line">    name <span class="keyword">string</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    user := &amp;basic.User&#123;&#125;</span><br><span class="line">    fmt.Println(user)</span><br><span class="line">    </span><br><span class="line">    s := (*<span class="keyword">int</span>)(unsafe.Pointer(user))</span><br><span class="line">    *s = <span class="number">10</span></span><br><span class="line"></span><br><span class="line">    up := <span class="keyword">uintptr</span>(unsafe.Pointer(user)) + unsafe.Sizeof(<span class="keyword">int</span>(<span class="number">0</span>))</span><br><span class="line"></span><br><span class="line">    namep := (*<span class="keyword">string</span>)(unsafe.Pointer(up))</span><br><span class="line">    *namep = <span class="string">"xxx"</span> </span><br><span class="line"></span><br><span class="line">    fmt.Println(user)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>User是另外一个basic包中的结构体，其中的age是小写开头的，理论上来说，我们在外部没有办法修改age的值，但是经过上面这波操作之后，输出信息是：<br>&amp;{0 }<br>&amp;{10 xxx}<br>也就是说成功操作到了结构体的私有属性。</p>
-<p>顺便提一句：创建结构体会被分配一块连续的内存，结构体的地址也代表了第一个成员的地址。</p>
-<blockquote>
-<p>下面我们来验证一下你是否已经学会了unsafe的操作，尝试不看一个小结，自己尝试一下：如何完成字符串到[]byte的转换，并且不开辟新的空间？</p>
-</blockquote>
-<p><br><br><br><br><br><br><br></p>
-<h3 id="字符串和byte数组转换inplace"><a href="#字符串和byte数组转换inplace" class="headerlink" title="字符串和byte数组转换inplace"></a>字符串和byte数组转换inplace</h3><p>我们知道如果将字符串转换成[]byte非常方便<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">s := <span class="string">"123"</span></span><br><span class="line">a := []<span class="keyword">byte</span>(s)</span><br></pre></td></tr></table></figure></p>
-<p>但是这样需要开辟额外的空间，那么如何实现原地的，不需要拷贝数据的转换呢？<br>我们想一下，其实从底层的存储角度来说，string的存储规则和[]byte是一样的，也就是说，其实指针都是从某个位置开始到一段空间，中间一格一格。所以利用unsafe就可以做到。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    s := <span class="string">"123"</span></span><br><span class="line">    a := []<span class="keyword">byte</span>(s)</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"s = "</span> , &amp;s, <span class="string">"\n"</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"a = "</span> , &amp;a, <span class="string">"\n"</span>)</span><br><span class="line">    </span><br><span class="line">    a2 := (*[]<span class="keyword">byte</span>)(unsafe.Pointer(&amp;s))</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">"a2 = "</span> , a2, <span class="string">"\n"</span>)</span><br><span class="line"></span><br><span class="line">    fmt.Println(*a2)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>输出结果：<br>s = 0xc420055f40<br>a = 0xc420055f60<br>a2 = 0xc420055f40<br>[49 50 51]</p>
-<p>我们可以看到s和a的地址是不一样的，但是s和a2的地址是一样的，并且a2已经是一个[]byte了。<br><br><br><br><br><br><br>嘿嘿嘿~你以为这样就结束了？？？</p>
-<h4 id="存在的问题"><a href="#存在的问题" class="headerlink" title="存在的问题"></a>存在的问题</h4><p><strong>其实这个转换是存在问题的，问题就在新的[]byte的Cap没有正确的初始化。</strong><br>我们打印一下cap看一下<br>fmt.Println(“cap a =”, cap(a))<br>fmt.Println(“cap a2 =”, cap(*a2))<br>结果是：<br>cap a = 32<br>cap a2 = 17418400<br>这么大的容量是要上天呢？？？</p>
-<h4 id="问题的原因"><a href="#问题的原因" class="headerlink" title="问题的原因"></a>问题的原因</h4><p>在src/reflect/value.go下看<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> StringHeader <span class="keyword">struct</span> &#123;</span><br><span class="line">	Data <span class="keyword">uintptr</span></span><br><span class="line">	Len  <span class="keyword">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> SliceHeader <span class="keyword">struct</span> &#123;</span><br><span class="line">	Data <span class="keyword">uintptr</span></span><br><span class="line">	Len  <span class="keyword">int</span></span><br><span class="line">	Cap  <span class="keyword">int</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>看到其实string没有cap而[]byte有，所以导致问题出现，也容易理解，string是没有容量扩容这个说法的，所以新的[]byte没有赋值cap所以使用了默认值。</p>
-<h4 id="问题解决"><a href="#问题解决" class="headerlink" title="问题解决"></a>问题解决</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">stringHeader := (*reflect.StringHeader)(unsafe.Pointer(&amp;s))</span><br><span class="line"></span><br><span class="line">bh := reflect.SliceHeader&#123;</span><br><span class="line">	Data: stringHeader.Data,</span><br><span class="line">	Len:  stringHeader.Len,</span><br><span class="line">	Cap:  stringHeader.Len,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> *(*[]<span class="keyword">byte</span>)(unsafe.Pointer(&amp;bh))</span><br></pre></td></tr></table></figure>
-<p>通过重新设置SliceHeader就可以完成</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>以上就是所有golang指针和unsafe的相关细节和使用。那么肯定有人会问这个有什么用了？</p>
-<ul>
-<li>1、没啥事你就别乱用了，别人都说unsafe不安全了。</li>
-<li>2、源码中很多大量的使用了指针移动的操作。</li>
-</ul>
-<p>如map中通过key获取value的时候：</p>
-<blockquote>
-<p>v := add(unsafe.Pointer(b), dataOffset+bucketCnt <em> uintptr(t.keysize)+i </em> uintptr(t.valuesize))</p>
-</blockquote>
-<p>通过桶的指针的偏移拿到值，具体我就不多介绍了。<br>总之对于你看golang源码的时候会有很大帮助的。可能必要的时候你也能用到它，还是那句话，除非你知道它在干什么，否则不要用。</p>
+<h2 id="先举个栗子"><a href="#先举个栗子" class="headerlink" title="先举个栗子"></a>先举个栗子</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    fmt.Println(DeferFunc1(<span class="number">1</span>))</span><br><span class="line">    fmt.Println(DeferFunc2(<span class="number">1</span>))</span><br><span class="line">    fmt.Println(DeferFunc3(<span class="number">1</span>))</span><br><span class="line">    DeferFunc4()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc1</span><span class="params">(i <span class="keyword">int</span>)</span> <span class="params">(t <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    t = i</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        t += <span class="number">3</span></span><br><span class="line">    &#125;()</span><br><span class="line">    <span class="keyword">return</span> t</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc2</span><span class="params">(i <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">    t := i</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        t += <span class="number">3</span></span><br><span class="line">    &#125;()</span><br><span class="line">    <span class="keyword">return</span> t</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc3</span><span class="params">(i <span class="keyword">int</span>)</span> <span class="params">(t <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        t += i</span><br><span class="line">    &#125;()</span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc4</span><span class="params">()</span> <span class="params">(t <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">(i <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">        fmt.Println(i)</span><br><span class="line">        fmt.Println(t)</span><br><span class="line">    &#125;(t)</span><br><span class="line">    t = <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>请问这段代码输出的结果是什么？<br><br><br><em>答案见文末</em><br><br><br>如果你看完答对了，那么请直接点击右上角的关闭按钮，如果你答错了，你可以继续往下看了。<br>下面会一步步介绍，到底为什么结果会是这样</p>
+<h2 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h2><h3 id="函数的返回值初始化"><a href="#函数的返回值初始化" class="headerlink" title="函数的返回值初始化"></a>函数的返回值初始化</h3><p>如 ： <code>func DeferFunc1(i int) (t int) {</code><br>其中返回值t int，这个t会在函数起始处被初始化为对应类型的零值并且作用域为整个函数。</p>
+<h3 id="defer的执行顺序"><a href="#defer的执行顺序" class="headerlink" title="defer的执行顺序"></a>defer的执行顺序</h3><p>虽然这边没有提及，但是还是要说一下，因为很多人学习defer的时候都会用到，就是当多个defer出现的时候，<strong>它是一个“栈”的关系，也就是先进后出</strong>。一个函数中，写在前面的defer会比写在后面的defer调用的晚。</p>
+<h3 id="defer与return谁先谁后"><a href="#defer与return谁先谁后" class="headerlink" title="defer与return谁先谁后"></a>defer与return谁先谁后</h3><p>return先，defer后<br>这个可能会让人怀疑，后面会详细解释。</p>
+<h3 id="函数的返回与return"><a href="#函数的返回与return" class="headerlink" title="函数的返回与return"></a>函数的返回与return</h3><p>在没有defer的情况下，其实函数的返回就是与return一致的，但是有了defer就不一样了。<br>函数的返回其实是有两个步骤的，第一个当执行到return语句的时候<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc3</span><span class="params">(i <span class="keyword">int</span>)</span> <span class="params">(t <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        t += i</span><br><span class="line">    &#125;()</span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这个时候会先将返回值t赋值为2，然后执行defer，完成之后才会真正返回外部调用者。</p>
+<h3 id="defer调用的三步走"><a href="#defer调用的三步走" class="headerlink" title="defer调用的三步走"></a>defer调用的三步走</h3><p>这个就是今天的重头戏了，defer这个语法其实一共有三个步骤。</p>
+<ol>
+<li>将defer方法中的参数进行赋值。</li>
+<li>将defer压入栈中。</li>
+<li>当return或者是panic的时候依次出栈执行。<br>后面会用实际的例子说明具体执行的情况。</li>
+</ol>
+<h2 id="解释"><a href="#解释" class="headerlink" title="解释"></a>解释</h2><p>有了上面的所有知识点，其实你就应该能明白上面输出的结果了。如果还不明白就看看下面的分析解释吧。</p>
+<h3 id="DeferFunc1"><a href="#DeferFunc1" class="headerlink" title="DeferFunc1"></a>DeferFunc1</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc1</span><span class="params">(i <span class="keyword">int</span>)</span> <span class="params">(t <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    t = i</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        t += <span class="number">3</span></span><br><span class="line">    &#125;()</span><br><span class="line">    <span class="keyword">return</span> t</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先上面是第一个方法</p>
+<ol>
+<li>将返回值t赋值为传入的i，此时t为1</li>
+<li>执行return语句将t赋值给t（等于啥也没做）</li>
+<li>执行defer方法，将t + 3 = 4</li>
+<li>函数返回 4<br>因为t的作用域为整个函数所以修改有效。</li>
+</ol>
+<h3 id="DeferFunc2"><a href="#DeferFunc2" class="headerlink" title="DeferFunc2"></a>DeferFunc2</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc2</span><span class="params">(i <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">    t := i</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        t += <span class="number">3</span></span><br><span class="line">    &#125;()</span><br><span class="line">    <span class="keyword">return</span> t</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>第二个方法</p>
+<ol>
+<li>创建变量t并赋值为1</li>
+<li>执行return语句，注意这里是将t赋值给返回值，此时返回值为1（这个返回值并不是t）</li>
+<li>执行defer方法，将t + 3 = 4 </li>
+<li>函数返回返回值1</li>
+</ol>
+<p>可能这里就有点难理解了，修改一下代码你就明白了<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc2</span><span class="params">(i <span class="keyword">int</span>)</span> <span class="params">(result <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    t := i</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        t += <span class="number">3</span></span><br><span class="line">    &#125;()</span><br><span class="line">    <span class="keyword">return</span> t</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>上面的代码return的时候相当于将t赋值给了result，当defer修改了t的值之后，对result是不会造成影响的。</p>
+<h3 id="DeferFunc3"><a href="#DeferFunc3" class="headerlink" title="DeferFunc3"></a>DeferFunc3</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc3</span><span class="params">(i <span class="keyword">int</span>)</span> <span class="params">(t <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        t += i</span><br><span class="line">    &#125;()</span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>首先执行return将返回值t赋值为2</li>
+<li>执行defer方法将t + 1</li>
+<li>最后返回 3</li>
+</ol>
+<h3 id="DeferFunc4"><a href="#DeferFunc4" class="headerlink" title="DeferFunc4"></a>DeferFunc4</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc4</span><span class="params">()</span> <span class="params">(t <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">(i <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">        fmt.Println(i)</span><br><span class="line">        fmt.Println(t)</span><br><span class="line">    &#125;(t)</span><br><span class="line">    t = <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个分析的步骤要详细一些</p>
+<ol>
+<li>初始化返回值t为零值 0</li>
+<li>首先执行defer的第一步，赋值defer中的func入参t为0</li>
+<li>执行defer的第二步，将defer压栈</li>
+<li>将t赋值为1</li>
+<li>执行return语句，将返回值t赋值为2</li>
+<li>执行defer的第三步，出栈并执行<br>因为在入栈时defer执行的func的入参已经赋值了，此时它作为的是一个形式参数，所以打印为0；相对应的因为最后已经将t的值修改为2，所以再打印一个2</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>看完，有的人肯定又要出来搞事了，说这个在实际中不会遇到的，实际中谁写这么蠢的代码。但是其实某些时候非常重要，当我们需要在defer中返回一些错误信息的时候，并且需要将这些信息给到调用者的时候，就需要注意变量的作用域以及执行顺序所带来的差异。</p>
+<p>而且正因为这样的执行顺序，在实际中要记住：<br><strong>defer 最大的功能是 panic 后依然有效</strong><br>所以defer可以保证你的一些资源一定会被关闭，从而避免一些异常出现的问题。</p>
+<p>参考例子来源于网络，自己做了修改和结合：<br><a href="https://stackoverflow.com/questions/52718143/is-golang-defer-statement-execute-before-or-after-return-statement" target="_blank" rel="noopener">https://stackoverflow.com/questions/52718143/is-golang-defer-statement-execute-before-or-after-return-statement</a></p>
+<h2 id="答案"><a href="#答案" class="headerlink" title="答案"></a>答案</h2><p>4<br>1<br>3<br>0<br>2</p>
 
       
     </div>
@@ -598,7 +598,7 @@
           </li>
           <li class="post-copyright-link">
             <strong>本文链接：</strong>
-            <a href="http://www.linkinstar.wiki//2019/06/06/golang/source-code/point-unsafe/" title="Golang指针与unsafe">http://www.linkinstar.wiki/2019/06/06/golang/source-code/point-unsafe/</a>
+            <a href="http://www.linkinstar.wiki//2019/07/02/golang/basic/defer-dis/" title="不是我吹，你可能连defer都不清楚">http://www.linkinstar.wiki/2019/07/02/golang/basic/defer-dis/</a>
           </li>
           <li class="post-copyright-license">
             <strong>版权声明： </strong>
@@ -611,7 +611,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/unsafe/" rel="tag"># unsafe</a>
+            <a href="/tags/defer/" rel="tag"># defer</a>
           
         </div>
       
@@ -624,8 +624,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/06/03/golang/source-code/graphic-golang-map/" rel="next" title="大话图解golang map源码详解">
-                <i class="fa fa-chevron-left"></i> 大话图解golang map源码详解
+              <a href="/2019/06/27/golang/source-code/context-code-view/" rel="next" title="Golang之context">
+                <i class="fa fa-chevron-left"></i> Golang之context
               </a>
             
           </div>
@@ -634,8 +634,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/06/10/golang/open-source-component/etcd-brief/" rel="prev" title="浅入深出ETCD之【简介与命令行使用】">
-                浅入深出ETCD之【简介与命令行使用】 <i class="fa fa-chevron-right"></i>
+              <a href="/2019/07/04/golang/basic/gc-easy-dis/" rel="prev" title="Golang的垃圾回收">
+                Golang的垃圾回收 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -861,7 +861,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#指针的使用"><span class="nav-number">1.</span> <span class="nav-text">指针的使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#指针的限制"><span class="nav-number">2.</span> <span class="nav-text">指针的限制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#unsafe"><span class="nav-number">3.</span> <span class="nav-text">unsafe</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#三个类型"><span class="nav-number">3.1.</span> <span class="nav-text">三个类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#unsafe操作slice"><span class="nav-number">3.2.</span> <span class="nav-text">unsafe操作slice</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#unsafe操作struct"><span class="nav-number">3.3.</span> <span class="nav-text">unsafe操作struct</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#字符串和byte数组转换inplace"><span class="nav-number">3.4.</span> <span class="nav-text">字符串和byte数组转换inplace</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#存在的问题"><span class="nav-number">3.4.1.</span> <span class="nav-text">存在的问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#问题的原因"><span class="nav-number">3.4.2.</span> <span class="nav-text">问题的原因</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#问题解决"><span class="nav-number">3.4.3.</span> <span class="nav-text">问题解决</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#先举个栗子"><span class="nav-number">1.</span> <span class="nav-text">先举个栗子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基础知识"><span class="nav-number">2.</span> <span class="nav-text">基础知识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#函数的返回值初始化"><span class="nav-number">2.1.</span> <span class="nav-text">函数的返回值初始化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#defer的执行顺序"><span class="nav-number">2.2.</span> <span class="nav-text">defer的执行顺序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#defer与return谁先谁后"><span class="nav-number">2.3.</span> <span class="nav-text">defer与return谁先谁后</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#函数的返回与return"><span class="nav-number">2.4.</span> <span class="nav-text">函数的返回与return</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#defer调用的三步走"><span class="nav-number">2.5.</span> <span class="nav-text">defer调用的三步走</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解释"><span class="nav-number">3.</span> <span class="nav-text">解释</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#DeferFunc1"><span class="nav-number">3.1.</span> <span class="nav-text">DeferFunc1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DeferFunc2"><span class="nav-number">3.2.</span> <span class="nav-text">DeferFunc2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DeferFunc3"><span class="nav-number">3.3.</span> <span class="nav-text">DeferFunc3</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DeferFunc4"><span class="nav-number">3.4.</span> <span class="nav-text">DeferFunc4</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#答案"><span class="nav-number">5.</span> <span class="nav-text">答案</span></a></li></ol></div>
             
 
           </div>
