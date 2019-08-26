@@ -104,7 +104,7 @@
 <meta property="og:site_name" content="LinkinStar&#39;s Blog">
 <meta property="og:description" content="在golang中，对于defer，我之前的理解就是和java中的finally代码块一样，没什么难度，但是吧，当我最近看的一些神奇的问题，我就发现原来并非想的那么简单。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-07-05T06:51:52.755Z">
+<meta property="og:updated_time" content="2019-08-16T03:41:56.131Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="不是我吹，你可能连defer都不清楚">
 <meta name="twitter:description" content="在golang中，对于defer，我之前的理解就是和java中的finally代码块一样，没什么难度，但是吧，当我最近看的一些神奇的问题，我就发现原来并非想的那么简单。">
@@ -533,6 +533,7 @@
 <li>执行return语句，将返回值t赋值为2</li>
 <li>执行defer的第三步，出栈并执行<br>因为在入栈时defer执行的func的入参已经赋值了，此时它作为的是一个形式参数，所以打印为0；相对应的因为最后已经将t的值修改为2，所以再打印一个2</li>
 </ol>
+<h2 id="源码一瞥"><a href="#源码一瞥" class="headerlink" title="源码一瞥"></a>源码一瞥</h2><p>那么 defer 在底层究竟是如何实现的呢？<br>通过生成汇编代码我们可以看到下面这样的方法：<br>CALL runtime.deferproc(SB)<br>CALL runtime.deferreturn(SB)<br>实际上来说当我们使用defer的使用就会调用runtime.deferproc，那么这个时候，就会将所有的参数赋值好，所有就像我们上面例子中看到的一样，在调用defer的时候参数会先计算好保存起来，然后挂载到G._defer中，最后deferreturn的时候进行执行相关的defer中的方法<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">deferproc</span><span class="params">(siz <span class="keyword">int32</span>, fn *funcval)</span></span> &#123; <span class="comment">// arguments of fn follow fn</span></span><br><span class="line">     sp := getcallersp(unsafe.Pointer(&amp;siz))</span><br><span class="line">     argp := <span class="keyword">uintptr</span>(unsafe.Pointer(&amp;fn)) + unsafe.Sizeof(fn)</span><br><span class="line">     callerpc := getcallerpc(unsafe.Pointer(&amp;siz))</span><br><span class="line">     systemstack(<span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">            d := newdefer(siz)</span><br><span class="line">&#125;)</span><br><span class="line">d.fn = fn</span><br><span class="line">d.pc = callerpc</span><br><span class="line">d.sp = sp</span><br><span class="line">memmove(add(unsafe.Pointer(d), unsafe.Sizeof(*d)),</span><br><span class="line">       unsafe.Pointer(argp), <span class="keyword">uintptr</span>(siz))</span><br><span class="line">     <span class="comment">// deferproc returns 0 normally.</span></span><br><span class="line">     <span class="comment">// a deferred func that stops a panic makes the deferproc return 1.</span></span><br><span class="line">     <span class="comment">// the code the compiler generates always checks the return value and jumps to the</span></span><br><span class="line">     <span class="comment">// end of the function if deferproc returns != 0.</span></span><br><span class="line">     return0()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>看完，有的人肯定又要出来搞事了，说这个在实际中不会遇到的，实际中谁写这么蠢的代码。但是其实某些时候非常重要，当我们需要在defer中返回一些错误信息的时候，并且需要将这些信息给到调用者的时候，就需要注意变量的作用域以及执行顺序所带来的差异。</p>
 <p>而且正因为这样的执行顺序，在实际中要记住：<br><strong>defer 最大的功能是 panic 后依然有效</strong><br>所以defer可以保证你的一些资源一定会被关闭，从而避免一些异常出现的问题。</p>
 <p>参考例子来源于网络，自己做了修改和结合：<br><a href="https://stackoverflow.com/questions/52718143/is-golang-defer-statement-execute-before-or-after-return-statement" target="_blank" rel="noopener">https://stackoverflow.com/questions/52718143/is-golang-defer-statement-execute-before-or-after-return-statement</a></p>
@@ -711,7 +712,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">12</span>
+                    <span class="site-state-item-count">18</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -734,7 +735,13 @@
                     
                       
                     
-                    <span class="site-state-item-count">3</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">6</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -775,7 +782,19 @@
                     
                       
                     
-                    <span class="site-state-item-count">12</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">18</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -861,7 +880,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#先举个栗子"><span class="nav-number">1.</span> <span class="nav-text">先举个栗子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基础知识"><span class="nav-number">2.</span> <span class="nav-text">基础知识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#函数的返回值初始化"><span class="nav-number">2.1.</span> <span class="nav-text">函数的返回值初始化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#defer的执行顺序"><span class="nav-number">2.2.</span> <span class="nav-text">defer的执行顺序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#defer与return谁先谁后"><span class="nav-number">2.3.</span> <span class="nav-text">defer与return谁先谁后</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#函数的返回与return"><span class="nav-number">2.4.</span> <span class="nav-text">函数的返回与return</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#defer调用的三步走"><span class="nav-number">2.5.</span> <span class="nav-text">defer调用的三步走</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解释"><span class="nav-number">3.</span> <span class="nav-text">解释</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#DeferFunc1"><span class="nav-number">3.1.</span> <span class="nav-text">DeferFunc1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DeferFunc2"><span class="nav-number">3.2.</span> <span class="nav-text">DeferFunc2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DeferFunc3"><span class="nav-number">3.3.</span> <span class="nav-text">DeferFunc3</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DeferFunc4"><span class="nav-number">3.4.</span> <span class="nav-text">DeferFunc4</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#答案"><span class="nav-number">5.</span> <span class="nav-text">答案</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#先举个栗子"><span class="nav-number">1.</span> <span class="nav-text">先举个栗子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基础知识"><span class="nav-number">2.</span> <span class="nav-text">基础知识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#函数的返回值初始化"><span class="nav-number">2.1.</span> <span class="nav-text">函数的返回值初始化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#defer的执行顺序"><span class="nav-number">2.2.</span> <span class="nav-text">defer的执行顺序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#defer与return谁先谁后"><span class="nav-number">2.3.</span> <span class="nav-text">defer与return谁先谁后</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#函数的返回与return"><span class="nav-number">2.4.</span> <span class="nav-text">函数的返回与return</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#defer调用的三步走"><span class="nav-number">2.5.</span> <span class="nav-text">defer调用的三步走</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解释"><span class="nav-number">3.</span> <span class="nav-text">解释</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#DeferFunc1"><span class="nav-number">3.1.</span> <span class="nav-text">DeferFunc1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DeferFunc2"><span class="nav-number">3.2.</span> <span class="nav-text">DeferFunc2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DeferFunc3"><span class="nav-number">3.3.</span> <span class="nav-text">DeferFunc3</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DeferFunc4"><span class="nav-number">3.4.</span> <span class="nav-text">DeferFunc4</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源码一瞥"><span class="nav-number">4.</span> <span class="nav-text">源码一瞥</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#答案"><span class="nav-number">6.</span> <span class="nav-text">答案</span></a></li></ol></div>
             
 
           </div>
