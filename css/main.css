@@ -1806,7 +1806,7 @@ pre .javascript .function {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #71ff70;
+  background: #ff74ff;
 }
 .feed-link,
 .chat {
@@ -3024,6 +3024,7 @@ body {
 }
 .site-title {
   font-family: fantasy;
+  font-size: 24px;
 }
 .post-copyright {
   margin: 1em 0 0;

@@ -96,22 +96,20 @@
 
 
 
-  <meta name="description" content="这次我们来说说，有关于etcd原理的一些事情。之前我们已经了解到了etcd是一个分布式的k-v存储，那么它究竟是如何保证数据是如何复制到每个节点上面去的呢？又是如何保证在网络分区的情况下能正常工作下去？raft协议到底是什么？带着这些问题我们继续往下看。">
-<meta name="keywords" content="etcd,raft">
+  <meta name="description" content="在 golang 中有一个池，它特别神奇，你只要和它有个约定，你要什么它就给什么，你用完了还可以还回去，但是下次拿的时候呢，确不一定是你上次存的那个，这个池就是 sync.Pool 说实话第一次看到这个东西的时候，真的想不到这个东西有啥用啊，为什么要有这个东西呢？等我看完之后，嗯，还有有点用的；等到有一次优化经历的时候，嗯，这个有点意思了。今天我们就来看看这个神奇的 sync.Pool">
+<meta name="keywords" content="sync.Pool">
 <meta property="og:type" content="article">
-<meta property="og:title" content="浅入深出ETCD之【raft原理】">
-<meta property="og:url" content="https://linkinstar.gitee.io/2019/06/12/golang/open-source-component/etcd-raft/index.html">
+<meta property="og:title" content="golang中神奇的sync.Pool">
+<meta property="og:url" content="https://linkinstar.gitee.io/2019/11/09/golang/source-code/sync-pool-source-code/index.html">
 <meta property="og:site_name" content="LinkinStar&#39;s Blog">
-<meta property="og:description" content="这次我们来说说，有关于etcd原理的一些事情。之前我们已经了解到了etcd是一个分布式的k-v存储，那么它究竟是如何保证数据是如何复制到每个节点上面去的呢？又是如何保证在网络分区的情况下能正常工作下去？raft协议到底是什么？带着这些问题我们继续往下看。">
+<meta property="og:description" content="在 golang 中有一个池，它特别神奇，你只要和它有个约定，你要什么它就给什么，你用完了还可以还回去，但是下次拿的时候呢，确不一定是你上次存的那个，这个池就是 sync.Pool 说实话第一次看到这个东西的时候，真的想不到这个东西有啥用啊，为什么要有这个东西呢？等我看完之后，嗯，还有有点用的；等到有一次优化经历的时候，嗯，这个有点意思了。今天我们就来看看这个神奇的 sync.Pool">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://blog.linkinstars.com/mweb/15603076610892.jpg">
-<meta property="og:image" content="http://blog.linkinstars.com/mweb/15603077783791.jpg">
-<meta property="og:image" content="http://blog.linkinstars.com/mweb/15603110122471.jpg">
-<meta property="og:updated_time" content="2019-06-14T02:40:57.205Z">
+<meta property="og:image" content="http://blog.linkinstars.com/mweb/15732709504973.jpg">
+<meta property="og:updated_time" content="2019-11-09T06:03:50.380Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="浅入深出ETCD之【raft原理】">
-<meta name="twitter:description" content="这次我们来说说，有关于etcd原理的一些事情。之前我们已经了解到了etcd是一个分布式的k-v存储，那么它究竟是如何保证数据是如何复制到每个节点上面去的呢？又是如何保证在网络分区的情况下能正常工作下去？raft协议到底是什么？带着这些问题我们继续往下看。">
-<meta name="twitter:image" content="http://blog.linkinstars.com/mweb/15603076610892.jpg">
+<meta name="twitter:title" content="golang中神奇的sync.Pool">
+<meta name="twitter:description" content="在 golang 中有一个池，它特别神奇，你只要和它有个约定，你要什么它就给什么，你用完了还可以还回去，但是下次拿的时候呢，确不一定是你上次存的那个，这个池就是 sync.Pool 说实话第一次看到这个东西的时候，真的想不到这个东西有啥用啊，为什么要有这个东西呢？等我看完之后，嗯，还有有点用的；等到有一次优化经历的时候，嗯，这个有点意思了。今天我们就来看看这个神奇的 sync.Pool">
+<meta name="twitter:image" content="http://blog.linkinstars.com/mweb/15732709504973.jpg">
 
 
 
@@ -119,7 +117,7 @@
 
   
   
-  <link rel="canonical" href="https://linkinstar.gitee.io/2019/06/12/golang/open-source-component/etcd-raft/">
+  <link rel="canonical" href="https://linkinstar.gitee.io/2019/11/09/golang/source-code/sync-pool-source-code/">
 
 
 
@@ -129,7 +127,7 @@
   };
 </script>
 
-  <title>浅入深出ETCD之【raft原理】 | LinkinStar's Blog</title>
+  <title>golang中神奇的sync.Pool | LinkinStar's Blog</title>
   
 
 
@@ -384,7 +382,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2019/06/12/golang/open-source-component/etcd-raft/">
+    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2019/11/09/golang/source-code/sync-pool-source-code/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="LinkinStar">
@@ -401,7 +399,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">浅入深出ETCD之【raft原理】
+          <h1 class="post-title" itemprop="name headline">golang中神奇的sync.Pool
 
               
             
@@ -427,7 +425,7 @@
                 
               
 
-              <time title="创建时间：2019-06-12 00:00:00" itemprop="dateCreated datePublished" datetime="2019-06-12T00:00:00+08:00">2019-06-12</time>
+              <time title="创建时间：2019-11-09 00:00:00" itemprop="dateCreated datePublished" datetime="2019-11-09T00:00:00+08:00">2019-11-09</time>
             
 
             
@@ -445,7 +443,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/etcd/" itemprop="url" rel="index"><span itemprop="name">etcd</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/golang源码解析/" itemprop="url" rel="index"><span itemprop="name">golang源码解析</span></a></span>
 
                 
                 
@@ -487,50 +485,75 @@
       
 
       
-        <p>这次我们来说说，有关于etcd原理的一些事情。之前我们已经了解到了etcd是一个分布式的k-v存储，那么它究竟是如何保证数据是如何复制到每个节点上面去的呢？又是如何保证在网络分区的情况下能正常工作下去？raft协议到底是什么？带着这些问题我们继续往下看。</p>
+        <p>在 golang 中有一个池，它特别神奇，你只要和它有个约定，你要什么它就给什么，你用完了还可以还回去，但是下次拿的时候呢，确不一定是你上次存的那个，这个池就是 sync.Pool</p>
+<p>说实话第一次看到这个东西的时候，真的想不到这个东西有啥用啊，为什么要有这个东西呢？等我看完之后，嗯，还有有点用的；等到有一次优化经历的时候，嗯，这个有点意思了。今天我们就来看看这个神奇的 sync.Pool</p>
 <a id="more"></a>
-<h2 id="raft选举策略"><a href="#raft选举策略" class="headerlink" title="raft选举策略"></a>raft选举策略</h2><p>我们知道etcd使用raft协议来保证整个分布式的节点网络能正常的运转并且能正确的将数据复制到每个节点上面去。那么什么是raft协议嘞？</p>
-<p>首先我们有这样一个背景：raft是想维护整一个网络，其中有一个领导人，这个领导人负责将收到的信息同步给网络中的其他所有节点，从而保证整个网络数据一致。</p>
-<p>如果你有一定的英文基础，我建议直接查看下面这个网站，它用动画非常清楚的描述了raft选举的整个过程：<a href="http://thesecretlivesofdata.com/raft/" target="_blank" rel="noopener">http://thesecretlivesofdata.com/raft/</a></p>
-<p>这个其实已经说明的超级棒了，如果你还看不懂，我下面会用最简单的几个要点来进行最简单的说明。</p>
-<h3 id="大多数理论"><a href="#大多数理论" class="headerlink" title="大多数理论"></a>大多数理论</h3><p>首先说明一个理论，叫做大多数理论，很简单，举个栗子：</p>
+<h2 id="简单案例"><a href="#简单案例" class="headerlink" title="简单案例"></a>简单案例</h2><p>首先我们来看看这个 sync.Pool 是如何使用的，其实非常的简单。<br>它一共只有三个方法我们需要知道的：New、Put、Get</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"fmt"</span></span><br><span class="line">    <span class="string">"sync"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> strPool = sync.Pool&#123;</span><br><span class="line">    New: <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="title">interface</span></span>&#123;&#125; &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"test str"</span></span><br><span class="line">    &#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    str := strPool.Get()</span><br><span class="line">    fmt.Println(str)</span><br><span class="line">    strPool.Put(str)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <ul>
-<li>有10个人，如果你将苹果给其中的6个人（大多数），那么你随机选择5个人，一定有一个人会有苹果。</li>
+<li>通过<code>New</code>去定义你这个池子里面放的究竟是什么东西，在这个池子里面你只能放一种类型的东西。比如在上面的例子中我就在池子里面放了字符串。</li>
+<li>我们随时可以通过<code>Get</code>方法从池子里面获取我们之前在New里面定义类型的数据。</li>
+<li>当我们用完了之后可以通过<code>Put</code>方法放回去，或者放别的同类型的数据进去。</li>
 </ul>
-<p>在etcd中的应用：</p>
+<h2 id="目的"><a href="#目的" class="headerlink" title="目的"></a>目的</h2><p>那么这个池子的目的是什么呢？其实一句话就可以说明白，就是为了复用已经使用过的对象，来达到优化内存使用和回收的目的。说白了，一开始这个池子会初始化一些对象供你使用，如果不够了呢，自己会通过new产生一些，当你放回去了之后这些对象会被别人进行复用，当对象特别大并且使用非常频繁的时候可以大大的减少对象的创建和回收的时间。</p>
+<h2 id="来看看doc"><a href="#来看看doc" class="headerlink" title="来看看doc"></a>来看看doc</h2><p>其实官方文档里面给出了一些小细节让我们一起来看看</p>
 <ul>
-<li>选举中只要有大多数（超过半数的人给你投票）你肯定就是票数最多的了，不可能有人比你更多。</li>
-<li>只需要将日志复制给大多数的节点，那么只要有一半的节点正常工作就能保证数据最新</li>
+<li><a href="https://golang.google.cn/pkg/sync/#Pool" target="_blank" rel="noopener">https://golang.google.cn/pkg/sync/#Pool</a></li>
 </ul>
-<h3 id="选举状态"><a href="#选举状态" class="headerlink" title="选举状态"></a>选举状态</h3><p>下面是一些选举过程中节点的状态<br>leader 表示选举最终产生的领导人<br>candidate 候选状态，表示当前正在参与选举<br>follower 表示选举最终自己不是领导人，那自己就是从属节点</p>
-<h3 id="选举过程与要点"><a href="#选举过程与要点" class="headerlink" title="选举过程与要点"></a>选举过程与要点</h3><p><img src="http://blog.linkinstars.com/mweb/15603076610892.jpg" alt></p>
+<p>A Pool is a set of <strong>temporary objects</strong> that may be individually saved and retrieved.</p>
+<p>Any item stored in the Pool may be <strong>removed automatically</strong> at any time without notification. <strong>If the Pool holds the only reference when this happens, the item might be deallocated.</strong></p>
+<p><strong>A Pool is safe for use by multiple goroutines simultaneously.</strong></p>
+<p>Pool’s purpose is to cache allocated but unused items for later reuse, <strong>relieving pressure on the garbage collector</strong>. That is, it makes it easy to build efficient, thread-safe free lists. However, it is not suitable for all free lists.</p>
+<p>An appropriate use of a Pool is to manage a group of temporary items silently shared among and potentially reused by concurrent independent clients of a package. Pool provides a way to amortize allocation overhead across many clients.</p>
+<p>An example of good use of a Pool is in the fmt package, which maintains a dynamically-sized store of temporary output buffers. <strong>The store scales under load (when many goroutines are actively printing) and shrinks when quiescent.</strong></p>
+<p>On the other hand, a free list maintained as part of a short-lived object is not a suitable use for a Pool, since the overhead does not amortize well in that scenario. It is more efficient to have such objects implement their own free list.</p>
+<p><strong>A Pool must not be copied after first use.</strong></p>
+<p>注意其中加粗的部分，我列一下其中的点，建议还是尝试去阅读doc里面的说明。</p>
+<ul>
+<li>临时对象</li>
+<li>自动移除</li>
+<li>当这个对象的引用只有sync.Pool持有时，这个对象内存会被释放</li>
+<li>多线程安全</li>
+<li>目的就是缓存并重用对象，减少GC的压力</li>
+<li>自动扩容、缩容</li>
+<li>不要去拷贝pool，也就是说最好单例</li>
+</ul>
+<h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><p>下面我们从源码层面来看看这个 sync.Pool；可能需要你有GPM模型和GC的相关知识。<br>使用golang版本： go version go1.13</p>
+<h3 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Pool <span class="keyword">struct</span> &#123;</span><br><span class="line">	noCopy noCopy</span><br><span class="line"></span><br><span class="line">	local     unsafe.Pointer <span class="comment">// local fixed-size per-P pool, actual type is [P]poolLocal</span></span><br><span class="line">	localSize <span class="keyword">uintptr</span>        <span class="comment">// size of the local array</span></span><br><span class="line"></span><br><span class="line">	victim     unsafe.Pointer <span class="comment">// local from previous cycle</span></span><br><span class="line">	victimSize <span class="keyword">uintptr</span>        <span class="comment">// size of victims array</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// New optionally specifies a function to generate</span></span><br><span class="line">	<span class="comment">// a value when Get would otherwise return nil.</span></span><br><span class="line">	<span class="comment">// It may not be changed concurrently with calls to Get.</span></span><br><span class="line">	New <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="title">interface</span></span>&#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Local per-P Pool appendix.</span></span><br><span class="line"><span class="keyword">type</span> poolLocalInternal <span class="keyword">struct</span> &#123;</span><br><span class="line">	private <span class="keyword">interface</span>&#123;&#125; <span class="comment">// Can be used only by the respective P.</span></span><br><span class="line">	shared  poolChain   <span class="comment">// Local P can pushHead/popHead; any P can popTail.</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> poolLocal <span class="keyword">struct</span> &#123;</span><br><span class="line">	poolLocalInternal</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Prevents false sharing on widespread platforms with</span></span><br><span class="line">	<span class="comment">// 128 mod (cache line size) = 0 .</span></span><br><span class="line">	pad [<span class="number">128</span> - unsafe.Sizeof(poolLocalInternal&#123;&#125;)%<span class="number">128</span>]<span class="keyword">byte</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们可以看到其实结构并不复杂，但是如果自己看的话有点懵。注意几个细节就ok。</p>
+<ul>
+<li>local这里面真正的是[P]poolLocal其中P就是GPM模型中的P，有多少个P数组就有多大，也就是每个P维护了一个本地的poolLocal。</li>
+<li>poolLocal里面维护了一个private一个shared，看名字其实就很明显了，private是给自己用的，而shared的是一个队列，可以给别人用的。注释写的也很清楚，自己可以从队列的头部存然后从头部取，而别的P可以从尾部取。</li>
+<li>victim这个从字面上面也可以知道，幸存者嘛，当进行gc的stw时候，会将local中的对象移到victim中去，也就是说幸存了一次gc，</li>
+</ul>
+<h3 id="Get"><a href="#Get" class="headerlink" title="Get"></a>Get</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Pool)</span> <span class="title">Get</span><span class="params">()</span> <span class="title">interface</span></span>&#123;&#125; &#123;</span><br><span class="line">	......</span><br><span class="line">	l, pid := p.pin()</span><br><span class="line">	x := l.private</span><br><span class="line">	l.private = <span class="literal">nil</span></span><br><span class="line">	<span class="keyword">if</span> x == <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="comment">// Try to pop the head of the local shard. We prefer</span></span><br><span class="line">		<span class="comment">// the head over the tail for temporal locality of</span></span><br><span class="line">		<span class="comment">// reuse.</span></span><br><span class="line">		x, _ = l.shared.popHead()</span><br><span class="line">		<span class="keyword">if</span> x == <span class="literal">nil</span> &#123;</span><br><span class="line">			x = p.getSlow(pid)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	runtime_procUnpin()</span><br><span class="line">	......</span><br><span class="line">	<span class="keyword">if</span> x == <span class="literal">nil</span> &amp;&amp; p.New != <span class="literal">nil</span> &#123;</span><br><span class="line">		x = p.New()</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> x</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Pool)</span> <span class="title">getSlow</span><span class="params">(pid <span class="keyword">int</span>)</span> <span class="title">interface</span></span>&#123;&#125; &#123;</span><br><span class="line">	<span class="comment">// See the comment in pin regarding ordering of the loads.</span></span><br><span class="line">	size := atomic.LoadUintptr(&amp;p.localSize) <span class="comment">// load-acquire</span></span><br><span class="line">	locals := p.local                        <span class="comment">// load-consume</span></span><br><span class="line">	<span class="comment">// Try to steal one element from other procs.</span></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="keyword">int</span>(size); i++ &#123;</span><br><span class="line">		l := indexLocal(locals, (pid+i+<span class="number">1</span>)%<span class="keyword">int</span>(size))</span><br><span class="line">		<span class="keyword">if</span> x, _ := l.shared.popTail(); x != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> x</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Try the victim cache. We do this after attempting to steal</span></span><br><span class="line">	<span class="comment">// from all primary caches because we want objects in the</span></span><br><span class="line">	<span class="comment">// victim cache to age out if at all possible.</span></span><br><span class="line">	size = atomic.LoadUintptr(&amp;p.victimSize)</span><br><span class="line">	<span class="keyword">if</span> <span class="keyword">uintptr</span>(pid) &gt;= size &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line">	locals = p.victim</span><br><span class="line">	l := indexLocal(locals, pid)</span><br><span class="line">	<span class="keyword">if</span> x := l.private; x != <span class="literal">nil</span> &#123;</span><br><span class="line">		l.private = <span class="literal">nil</span></span><br><span class="line">		<span class="keyword">return</span> x</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="keyword">int</span>(size); i++ &#123;</span><br><span class="line">		l := indexLocal(locals, (pid+i)%<span class="keyword">int</span>(size))</span><br><span class="line">		<span class="keyword">if</span> x, _ := l.shared.popTail(); x != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> x</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Mark the victim cache as empty for future gets don't bother</span></span><br><span class="line">	<span class="comment">// with it.</span></span><br><span class="line">	atomic.StoreUintptr(&amp;p.victimSize, <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我去掉了其中一些竞态分析的代码，Get的逻辑其实非常清晰。</p>
+<ul>
+<li>如果 private 不是空的，那就直接拿来用</li>
+<li>如果 private 是空的，那就先去本地的shared队列里面从头 pop 一个</li>
+<li>如果本地的 shared 也没有了，那 getSlow 去拿，其实就是去别的P的 shared 里面偷，偷不到回去 victim 幸存者里面找</li>
+<li>如果最后都没有，那就只能调用 New 方法创建一个了</li>
+</ul>
+<p>我随手画了一下，可能不是特别准确，意思到位了</p>
+<p><img src="http://blog.linkinstars.com/mweb/15732709504973.jpg" alt="-w566"></p>
+<h3 id="Put"><a href="#Put" class="headerlink" title="Put"></a>Put</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Put adds x to the pool.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Pool)</span> <span class="title">Put</span><span class="params">(x <span class="keyword">interface</span>&#123;&#125;)</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> x == <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	......</span><br><span class="line">	l, _ := p.pin()</span><br><span class="line">	<span class="keyword">if</span> l.private == <span class="literal">nil</span> &#123;</span><br><span class="line">		l.private = x</span><br><span class="line">		x = <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> x != <span class="literal">nil</span> &#123;</span><br><span class="line">		l.shared.pushHead(x)</span><br><span class="line">	&#125;</span><br><span class="line">	runtime_procUnpin()</span><br><span class="line">	......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>看完Get其实Put就很简单了</p>
+<ul>
+<li>如果 private 没有，就放在 private</li>
+<li>如果 private 有了，那么就放到 shared 队列的头部</li>
+</ul>
+<h2 id="实际测试"><a href="#实际测试" class="headerlink" title="实际测试"></a>实际测试</h2><p>让我们实际写个测试的案例来测测具体使用时会有什么样的变化</p>
+<h3 id="Put之后马上Get"><a href="#Put之后马上Get" class="headerlink" title="Put之后马上Get"></a>Put之后马上Get</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> pool = sync.Pool&#123;</span><br><span class="line">    New: <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="title">interface</span></span>&#123;&#125; &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"123"</span></span><br><span class="line">    &#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    t := pool.Get().(<span class="keyword">string</span>)</span><br><span class="line">    fmt.Println(t)</span><br><span class="line"></span><br><span class="line">    pool.Put(<span class="string">"321"</span>)</span><br><span class="line">    </span><br><span class="line">    t2 := pool.Get().(<span class="keyword">string</span>)</span><br><span class="line">    fmt.Println(t2)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出：<br>123<br>321</p>
+<h3 id="Put之后GC后Get"><a href="#Put之后GC后Get" class="headerlink" title="Put之后GC后Get"></a>Put之后GC后Get</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> pool = sync.Pool&#123;</span><br><span class="line">    New: <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="title">interface</span></span>&#123;&#125; &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"123"</span></span><br><span class="line">    &#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    t := pool.Get().(<span class="keyword">string</span>)</span><br><span class="line">    fmt.Println(t)</span><br><span class="line"></span><br><span class="line">    pool.Put(<span class="string">"321"</span>)</span><br><span class="line">    pool.Put(<span class="string">"321"</span>)</span><br><span class="line">    pool.Put(<span class="string">"321"</span>)</span><br><span class="line">    pool.Put(<span class="string">"321"</span>)</span><br><span class="line"></span><br><span class="line">    runtime.GC()</span><br><span class="line">    time.Sleep(<span class="number">1</span> * time.Second)</span><br><span class="line"></span><br><span class="line">    t2 := pool.Get().(<span class="keyword">string</span>)</span><br><span class="line">    fmt.Println(t2)</span><br><span class="line"></span><br><span class="line">    runtime.GC()</span><br><span class="line">    time.Sleep(<span class="number">1</span> * time.Second)</span><br><span class="line"></span><br><span class="line">    t2 = pool.Get().(<span class="keyword">string</span>)</span><br><span class="line">    fmt.Println(t2)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出：<br>123<br>321<br>123</p>
+<p>你知道为什么吗？</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这次总结来点不一样的，提几个问题吧。</p>
 <ol>
-<li>所有节点一开始都是follower状态</li>
-<li>当节点处于follower状态时，每个节点随机经过一段时间，<strong>如果没有收到leader的消息就会进入candidate状态</strong>（证明当前没有leader节点需要重新进行选举），如果收到信息就会继续保持follower状态</li>
-<li>当节点处于candidate就会要求别人给自己投票，<strong>收到大多数的节点的投票那就转变为leader状态</strong>，否则要么是别的节点成为了leader，要么就是因为特殊情况导致这次选举失败重新进行选举</li>
-<li>每次选举举办的时候有一个term，在每一个term中，<strong>每个节点只能投票一次</strong></li>
-<li>投票的时候必须投给当前数据至少和自己一样的节点，并且term大的优先</li>
+<li>什么情况下适合使用sync.Pool呢？</li>
+<li>sync.Pool的对象什么时候会被回收呢？</li>
+<li>sync.Pool是如何实现线程安全的？<br>如果你能回答上面的问题，证明你对它已经足够了解了，那么就可以尝试在具体的情况下使用它来玩玩了。试试吧~</li>
 </ol>
-<h2 id="日志复制规则"><a href="#日志复制规则" class="headerlink" title="日志复制规则"></a>日志复制规则</h2><p>etcd是通过日志复制来实现数据同步的<br><img src="http://blog.linkinstars.com/mweb/15603077783791.jpg" alt><br>这个图网上也很多，说明的是日志复制的规则<br>每个节点都有一份自己的日志，有的节点多，有的节点少，日志最多的肯定是leader。<br>上图还有几个要点，我看别人没提到，我就提一下：</p>
-<ol>
-<li>颜色代表term</li>
-<li>第四行表示的这个节点，第一term下复制了两个日志就异常挂掉了</li>
-<li>最终只有第三行这个follower和第一行的leader保持了同步</li>
-</ol>
-<h2 id="异常情况"><a href="#异常情况" class="headerlink" title="异常情况"></a>异常情况</h2><p>raft之所以厉害因为即使出现一些特殊情况，整个网络在一定的时间之后也能自动恢复并正常工作。</p>
-<h3 id="一个节点的异常"><a href="#一个节点的异常" class="headerlink" title="一个节点的异常"></a>一个节点的异常</h3><p>首先最常见的情况就是一个节点出现异常，有可能是这个节点的服务器挂了，或者别的什么原因。</p>
-<ul>
-<li>如果出现问题的这个节点是follower，那么没有关系，整个网络依旧能正常运行，当这个节点再次加入网络的时候也只需要同步后面的数据即可。</li>
-<li>如果出现问题的是leader，有一点麻烦，因为网络中没有leader节点了，那么就会重新进行选举，重新找一个leader，当这个异常节点恢复之后发现当前网络中有leader了，而且term还比自己大，那么自己就退位称为follower。</li>
-</ul>
-<h3 id="网络分区"><a href="#网络分区" class="headerlink" title="网络分区"></a>网络分区</h3><p>还有一种异常情况是由于网络导致的，网络出现异常，导致节点之间的通信存在异常，一部分节点与另一部分之间没有办法访问了。如下图所示：<br><img src="http://blog.linkinstars.com/mweb/15603110122471.jpg" alt></p>
-<p>上面三个follower没有办法与下面的节点进行通信。</p>
-<ul>
-<li>当客户端再次请求leader发送数据的时候，leader发现没有办法将数据同步给给大多数节点，它只能给自己和旁边的一个，此时leader没有办法给客户端反馈。</li>
-<li>上面三个节点由于收不到leader的消息，那么会认为网络中没有leader存在，会重新进行选举操作，因为当前上面有三个节点存在（只要有超过半数的节点参与选举就行），所以可以重新选举成功，选出新的leader告诉客户端，客户端就会重新发送数据到新的leader。</li>
-<li>当网络恢复之后又会找到最新的leader从而将数据同步至最新的状态。</li>
-</ul>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>总的来说，只要整个网络中存在大多数节点正常运行，那么etcd就是可用的，并且能够保证数据正确。当网络恢复之后也能将数据调整到最新的状态。<br>raft强大的地方在于它能自动的进行状态的变化，自动进行选举，并且选举遵循一定的策略，进而保证整个网络的正常运转。同时保证数据的一致性。<br>了解etcd的这个原理有助于我们后续的使用以及源码的阅读。</p>
 
       
     </div>
@@ -592,7 +615,7 @@
           </li>
           <li class="post-copyright-link">
             <strong>本文链接：</strong>
-            <a href="http://www.linkinstar.wiki//2019/06/12/golang/open-source-component/etcd-raft/" title="浅入深出ETCD之【raft原理】">http://www.linkinstar.wiki/2019/06/12/golang/open-source-component/etcd-raft/</a>
+            <a href="http://www.linkinstar.wiki//2019/11/09/golang/source-code/sync-pool-source-code/" title="golang中神奇的sync.Pool">http://www.linkinstar.wiki/2019/11/09/golang/source-code/sync-pool-source-code/</a>
           </li>
           <li class="post-copyright-license">
             <strong>版权声明： </strong>
@@ -605,9 +628,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/etcd/" rel="tag"># etcd</a>
-          
-            <a href="/tags/raft/" rel="tag"># raft</a>
+            <a href="/tags/sync-Pool/" rel="tag"># sync.Pool</a>
           
         </div>
       
@@ -620,8 +641,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/06/10/golang/open-source-component/etcd-brief/" rel="next" title="浅入深出ETCD之【简介与命令行使用】">
-                <i class="fa fa-chevron-left"></i> 浅入深出ETCD之【简介与命令行使用】
+              <a href="/2019/11/02/golang/basic/go-memory/" rel="next" title="图解golang内存分配">
+                <i class="fa fa-chevron-left"></i> 图解golang内存分配
               </a>
             
           </div>
@@ -629,10 +650,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/06/14/golang/open-source-component/etcd-cluster-client/" rel="prev" title="浅入深出ETCD之【集群部署与golang客户端使用】">
-                浅入深出ETCD之【集群部署与golang客户端使用】 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -879,7 +896,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#raft选举策略"><span class="nav-number">1.</span> <span class="nav-text">raft选举策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#大多数理论"><span class="nav-number">1.1.</span> <span class="nav-text">大多数理论</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#选举状态"><span class="nav-number">1.2.</span> <span class="nav-text">选举状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#选举过程与要点"><span class="nav-number">1.3.</span> <span class="nav-text">选举过程与要点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#日志复制规则"><span class="nav-number">2.</span> <span class="nav-text">日志复制规则</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异常情况"><span class="nav-number">3.</span> <span class="nav-text">异常情况</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#一个节点的异常"><span class="nav-number">3.1.</span> <span class="nav-text">一个节点的异常</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#网络分区"><span class="nav-number">3.2.</span> <span class="nav-text">网络分区</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#简单案例"><span class="nav-number">1.</span> <span class="nav-text">简单案例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#目的"><span class="nav-number">2.</span> <span class="nav-text">目的</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#来看看doc"><span class="nav-number">3.</span> <span class="nav-text">来看看doc</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源码分析"><span class="nav-number">4.</span> <span class="nav-text">源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#结构"><span class="nav-number">4.1.</span> <span class="nav-text">结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Get"><span class="nav-number">4.2.</span> <span class="nav-text">Get</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Put"><span class="nav-number">4.3.</span> <span class="nav-text">Put</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实际测试"><span class="nav-number">5.</span> <span class="nav-text">实际测试</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Put之后马上Get"><span class="nav-number">5.1.</span> <span class="nav-text">Put之后马上Get</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Put之后GC后Get"><span class="nav-number">5.2.</span> <span class="nav-text">Put之后GC后Get</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
             
 
           </div>

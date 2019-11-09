@@ -96,22 +96,22 @@
 
 
 
-  <meta name="description" content="这次我们来说说，有关于etcd原理的一些事情。之前我们已经了解到了etcd是一个分布式的k-v存储，那么它究竟是如何保证数据是如何复制到每个节点上面去的呢？又是如何保证在网络分区的情况下能正常工作下去？raft协议到底是什么？带着这些问题我们继续往下看。">
-<meta name="keywords" content="etcd,raft">
+  <meta name="description" content="我们知道所有程序运行都需要使用内存，而内存的管理和分配又是非常重要的，它决定了你的程序能不能在有限的资源内跑的更快。可以设想一下，如果你自己来设计的一个内存分配的规则，会遇到什么问题呢？如果你有了一大块内存你要怎么去合理的分配和使用呢？今天我们通过几张图来看看golang中的内存分配是怎样的。">
+<meta name="keywords" content="内存">
 <meta property="og:type" content="article">
-<meta property="og:title" content="浅入深出ETCD之【raft原理】">
-<meta property="og:url" content="https://linkinstar.gitee.io/2019/06/12/golang/open-source-component/etcd-raft/index.html">
+<meta property="og:title" content="图解golang内存分配">
+<meta property="og:url" content="https://linkinstar.gitee.io/2019/11/02/golang/basic/go-memory/index.html">
 <meta property="og:site_name" content="LinkinStar&#39;s Blog">
-<meta property="og:description" content="这次我们来说说，有关于etcd原理的一些事情。之前我们已经了解到了etcd是一个分布式的k-v存储，那么它究竟是如何保证数据是如何复制到每个节点上面去的呢？又是如何保证在网络分区的情况下能正常工作下去？raft协议到底是什么？带着这些问题我们继续往下看。">
+<meta property="og:description" content="我们知道所有程序运行都需要使用内存，而内存的管理和分配又是非常重要的，它决定了你的程序能不能在有限的资源内跑的更快。可以设想一下，如果你自己来设计的一个内存分配的规则，会遇到什么问题呢？如果你有了一大块内存你要怎么去合理的分配和使用呢？今天我们通过几张图来看看golang中的内存分配是怎样的。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://blog.linkinstars.com/mweb/15603076610892.jpg">
-<meta property="og:image" content="http://blog.linkinstars.com/mweb/15603077783791.jpg">
-<meta property="og:image" content="http://blog.linkinstars.com/mweb/15603110122471.jpg">
-<meta property="og:updated_time" content="2019-06-14T02:40:57.205Z">
+<meta property="og:image" content="http://blog.linkinstars.com/mweb/15726689114124.jpg">
+<meta property="og:image" content="http://blog.linkinstars.com/mweb/15726829058612.jpg">
+<meta property="og:image" content="http://blog.linkinstars.com/mweb/15726846463324.jpg">
+<meta property="og:updated_time" content="2019-11-09T06:11:10.359Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="浅入深出ETCD之【raft原理】">
-<meta name="twitter:description" content="这次我们来说说，有关于etcd原理的一些事情。之前我们已经了解到了etcd是一个分布式的k-v存储，那么它究竟是如何保证数据是如何复制到每个节点上面去的呢？又是如何保证在网络分区的情况下能正常工作下去？raft协议到底是什么？带着这些问题我们继续往下看。">
-<meta name="twitter:image" content="http://blog.linkinstars.com/mweb/15603076610892.jpg">
+<meta name="twitter:title" content="图解golang内存分配">
+<meta name="twitter:description" content="我们知道所有程序运行都需要使用内存，而内存的管理和分配又是非常重要的，它决定了你的程序能不能在有限的资源内跑的更快。可以设想一下，如果你自己来设计的一个内存分配的规则，会遇到什么问题呢？如果你有了一大块内存你要怎么去合理的分配和使用呢？今天我们通过几张图来看看golang中的内存分配是怎样的。">
+<meta name="twitter:image" content="http://blog.linkinstars.com/mweb/15726689114124.jpg">
 
 
 
@@ -119,7 +119,7 @@
 
   
   
-  <link rel="canonical" href="https://linkinstar.gitee.io/2019/06/12/golang/open-source-component/etcd-raft/">
+  <link rel="canonical" href="https://linkinstar.gitee.io/2019/11/02/golang/basic/go-memory/">
 
 
 
@@ -129,7 +129,7 @@
   };
 </script>
 
-  <title>浅入深出ETCD之【raft原理】 | LinkinStar's Blog</title>
+  <title>图解golang内存分配 | LinkinStar's Blog</title>
   
 
 
@@ -384,7 +384,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2019/06/12/golang/open-source-component/etcd-raft/">
+    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2019/11/02/golang/basic/go-memory/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="LinkinStar">
@@ -401,7 +401,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">浅入深出ETCD之【raft原理】
+          <h1 class="post-title" itemprop="name headline">图解golang内存分配
 
               
             
@@ -427,7 +427,7 @@
                 
               
 
-              <time title="创建时间：2019-06-12 00:00:00" itemprop="dateCreated datePublished" datetime="2019-06-12T00:00:00+08:00">2019-06-12</time>
+              <time title="创建时间：2019-11-02 00:00:00" itemprop="dateCreated datePublished" datetime="2019-11-02T00:00:00+08:00">2019-11-02</time>
             
 
             
@@ -445,7 +445,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/etcd/" itemprop="url" rel="index"><span itemprop="name">etcd</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/golang基础/" itemprop="url" rel="index"><span itemprop="name">golang基础</span></a></span>
 
                 
                 
@@ -487,50 +487,41 @@
       
 
       
-        <p>这次我们来说说，有关于etcd原理的一些事情。之前我们已经了解到了etcd是一个分布式的k-v存储，那么它究竟是如何保证数据是如何复制到每个节点上面去的呢？又是如何保证在网络分区的情况下能正常工作下去？raft协议到底是什么？带着这些问题我们继续往下看。</p>
+        <p>我们知道所有程序运行都需要使用内存，而内存的管理和分配又是非常重要的，它决定了你的程序能不能在有限的资源内跑的更快。可以设想一下，如果你自己来设计的一个内存分配的规则，会遇到什么问题呢？如果你有了一大块内存你要怎么去合理的分配和使用呢？今天我们通过几张图来看看golang中的内存分配是怎样的。</p>
 <a id="more"></a>
-<h2 id="raft选举策略"><a href="#raft选举策略" class="headerlink" title="raft选举策略"></a>raft选举策略</h2><p>我们知道etcd使用raft协议来保证整个分布式的节点网络能正常的运转并且能正确的将数据复制到每个节点上面去。那么什么是raft协议嘞？</p>
-<p>首先我们有这样一个背景：raft是想维护整一个网络，其中有一个领导人，这个领导人负责将收到的信息同步给网络中的其他所有节点，从而保证整个网络数据一致。</p>
-<p>如果你有一定的英文基础，我建议直接查看下面这个网站，它用动画非常清楚的描述了raft选举的整个过程：<a href="http://thesecretlivesofdata.com/raft/" target="_blank" rel="noopener">http://thesecretlivesofdata.com/raft/</a></p>
-<p>这个其实已经说明的超级棒了，如果你还看不懂，我下面会用最简单的几个要点来进行最简单的说明。</p>
-<h3 id="大多数理论"><a href="#大多数理论" class="headerlink" title="大多数理论"></a>大多数理论</h3><p>首先说明一个理论，叫做大多数理论，很简单，举个栗子：</p>
-<ul>
-<li>有10个人，如果你将苹果给其中的6个人（大多数），那么你随机选择5个人，一定有一个人会有苹果。</li>
-</ul>
-<p>在etcd中的应用：</p>
-<ul>
-<li>选举中只要有大多数（超过半数的人给你投票）你肯定就是票数最多的了，不可能有人比你更多。</li>
-<li>只需要将日志复制给大多数的节点，那么只要有一半的节点正常工作就能保证数据最新</li>
-</ul>
-<h3 id="选举状态"><a href="#选举状态" class="headerlink" title="选举状态"></a>选举状态</h3><p>下面是一些选举过程中节点的状态<br>leader 表示选举最终产生的领导人<br>candidate 候选状态，表示当前正在参与选举<br>follower 表示选举最终自己不是领导人，那自己就是从属节点</p>
-<h3 id="选举过程与要点"><a href="#选举过程与要点" class="headerlink" title="选举过程与要点"></a>选举过程与要点</h3><p><img src="http://blog.linkinstars.com/mweb/15603076610892.jpg" alt></p>
-<ol>
-<li>所有节点一开始都是follower状态</li>
-<li>当节点处于follower状态时，每个节点随机经过一段时间，<strong>如果没有收到leader的消息就会进入candidate状态</strong>（证明当前没有leader节点需要重新进行选举），如果收到信息就会继续保持follower状态</li>
-<li>当节点处于candidate就会要求别人给自己投票，<strong>收到大多数的节点的投票那就转变为leader状态</strong>，否则要么是别的节点成为了leader，要么就是因为特殊情况导致这次选举失败重新进行选举</li>
-<li>每次选举举办的时候有一个term，在每一个term中，<strong>每个节点只能投票一次</strong></li>
-<li>投票的时候必须投给当前数据至少和自己一样的节点，并且term大的优先</li>
+<p>前置知识：对golang的GPM模型有所了解，对GC有一定的了解，有助于你理解下面的内容。</p>
+<h2 id="想一想"><a href="#想一想" class="headerlink" title="想一想"></a>想一想</h2><p>我们首先来想一下，如果我们自己来分配内存的时候可能会遇到什么问题。</p>
+<h4 id="我想要512G，你能给吗？"><a href="#我想要512G，你能给吗？" class="headerlink" title="我想要512G，你能给吗？"></a>我想要512G，你能给吗？</h4><p>操作系统的内存不是你想要多少就给你多少的。比如我跟操作系统说我要512G内存，你赶紧给我，不给我我就掐死你，如果你是操作系统，是不是立马就想把我给结束了？</p>
+<h4 id="能随便分割吗？"><a href="#能随便分割吗？" class="headerlink" title="能随便分割吗？"></a>能随便分割吗？</h4><p>如果我拿到一块内存，挺大的，你把它想象成一块地，我今天要用这块地的这个部分，肯定是从中间切一块出来用，然后明天要另一个部分，然后再切出来一部分。如果随便切，今天要一块三角形，明天要一块圆形，那么肯定会留有很多小块的地方，那些地方没有办法被合理的使用，就会浪费。等到想再要一块正方形的地的时候发现没地方可以切了。</p>
+<h4 id="不用了我需要放回去吗？"><a href="#不用了我需要放回去吗？" class="headerlink" title="不用了我需要放回去吗？"></a>不用了我需要放回去吗？</h4><p>如果我占用了很大一块内存资源，然后用完了，现在不需要了，那自私的人肯定想着，我就偷偷一直占用不行吗？显然是不可以的，不然的话你的应用程序就每天占用着一台机器大量的资源不释放，别的人都没得用了，肯定想把你干掉。所以用完了要放回去。</p>
+<p>–<br>其实上面的问题就是内存分配常见的一些问题，那<strong>为了高效、合理利用内存</strong>，势必需要一些人的管理和帮助，下面我们就来看看那些在golang中的管理者，看看他们是如何帮助我们去管理和分配内存的。</p>
+<h2 id="内存的管理者"><a href="#内存的管理者" class="headerlink" title="内存的管理者"></a>内存的管理者</h2><p><img src="http://blog.linkinstars.com/mweb/15726689114124.jpg" alt="-w505"><br>这张图里面就是golang中内存的管理者们，下面我来依次介绍一下</p>
+<h3 id="OS"><a href="#OS" class="headerlink" title="OS"></a>OS</h3><p>首先是操作系统，他拥有着全部的机器内存，我们的程序必须向它要。但是他是大领导，很忙的，你不能没事总找他要，很烦，所以每次都会向他一大块内存（1M打底）他会给你一票地址，但是实际其实并不会直接给你分配内存，但是你用到了自然会有。</p>
+<h3 id="heap"><a href="#heap" class="headerlink" title="heap"></a>heap</h3><p>这个是我们程序中最大的内存持有区域，堆，他管理着那些很大的内存块，同时是他向操作系统去申请内存的，全局只有他一个大人物。他还需要将从操作系统拿过来的内存进行一定的划分，划分成一整块一整块的样子方便管理，同时记录内存的使用情况，方便整理和回收。</p>
+<h3 id="central"><a href="#central" class="headerlink" title="central"></a>central</h3><p>这个是二把手，有很多，他们会负责将内存划分成足够小的单元，同时需要向下提供内存的分配工作，这个时候就需要一些合理的分配措施了，这个我们后面再说。</p>
+<h3 id="cache"><a href="#cache" class="headerlink" title="cache"></a>cache</h3><p>这个是最后一个小领导了，管理着最终线程需要使用的内存资源，<strong>而且每个线程都会有一个独立的cache</strong>，一对一绑定，这样使用的时候就会直接从对应的cache中去取来使用，这样的好处是不用和别人发生争抢。如果所有的线程都从一个地方进行取用，那么势必会造成你也要用，我也要用的情况。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>从上面的图我们可以基本明白一个总体的思路是说：需要有人总体去把控所有内存资源的使用，做到统一的调度和管理，这样可以方便后续的回收和利用。同时需要下面有人负责最终使用的分配，从而能达到一个内存的快速分配而不发生争抢。</p>
+<h2 id="内存的分配结构"><a href="#内存的分配结构" class="headerlink" title="内存的分配结构"></a>内存的分配结构</h2><p>我们知道了内存的管理者是谁，那么现在我们再来看看内存到底是怎么划分的，究竟是切成一个个长方形还是切成一个个圆形了呢？<br><img src="http://blog.linkinstars.com/mweb/15726829058612.jpg" alt="-w594"></p>
+<p>这张图就表示了整个golang中内存的分配结构长什么样子。</p>
+<h3 id="arena"><a href="#arena" class="headerlink" title="arena"></a>arena</h3><p>这块区域最大，明显就是用来存放我们最终的对象，里面分成了一个个8K大小的房间，每个房间我们称为page。（这里虽然写了它是512G，但是你心里要有B数，你电脑根本没这么大的内存，其实操作系统只是给了你地址而已）同时几个page组合在一起的大房间又叫做mspan（这个是golang中内存管理的基本单元）</p>
+<h3 id="bitmap"><a href="#bitmap" class="headerlink" title="bitmap"></a>bitmap</h3><p>然后我们再来看第二大的bitmap，它是用来表示arena中存放的对象的一些信息，包括这个对象GC标志，还有标识这个对象是否包含指针。你肯定就好奇，干嘛要有这个呢？这其实也很好理解，golang在进行垃圾回收的时候是根据引用的可达性分析来确定一个对象是否可以被回收，同时采用的是三色标记法进行标记对象，所以这里需要有bitmap来保存这些信息。（具体如果不清楚垃圾回收的细节可以去看看我之前写的有关垃圾回收的部分）</p>
+<h3 id="spans"><a href="#spans" class="headerlink" title="spans"></a>spans</h3><p>最后是spans，这里保存了mspan的指针，这个也好理解，为了方便管理那一个个大房间嘛</p>
+<h2 id="内存分配"><a href="#内存分配" class="headerlink" title="内存分配"></a>内存分配</h2><p>那么最后我们来看看我们创建的一个对象最后究竟会经历些什么，是怎么样分配的呢？<br>首先要说明的是，golang很聪明的，如果一个变量可以分配在栈上，那么就不会被分配在堆上，这样可以有效的节约资源（具体我后续还会写别的来说明golang中的变量）。总之我们这里讨论的是分配在堆上的情况。<br><img src="http://blog.linkinstars.com/mweb/15726846463324.jpg" alt="-w794"><br>整个流程差不多类似就是这样，嗯，你只要把内存想象成房间，现在房价那么贵，你懂的</p>
+<h3 id="分配流程"><a href="#分配流程" class="headerlink" title="分配流程"></a>分配流程</h3><ol>
+<li>大对象： &gt;32KB 的对象，直接从heap上分配</li>
+<li>小对象： 16B &lt; obj &lt;= 32KB 计算规格在mcache中找到合适大小的mspan进行分配（你有多大就住多大的房子竟可能的不要浪费房子的空间）</li>
+<li>微小对象： &lt;=16B 的对象使用mcache的tiny分配器分配；（如果将多个微小对象组合起来，用单块内存（object）存储，可有效减少内存浪费。）</li>
 </ol>
-<h2 id="日志复制规则"><a href="#日志复制规则" class="headerlink" title="日志复制规则"></a>日志复制规则</h2><p>etcd是通过日志复制来实现数据同步的<br><img src="http://blog.linkinstars.com/mweb/15603077783791.jpg" alt><br>这个图网上也很多，说明的是日志复制的规则<br>每个节点都有一份自己的日志，有的节点多，有的节点少，日志最多的肯定是leader。<br>上图还有几个要点，我看别人没提到，我就提一下：</p>
+<p>秉持原则：给到最合适的大小，然后能凑一起的凑一起挤一挤</p>
+<h3 id="扩容"><a href="#扩容" class="headerlink" title="扩容"></a>扩容</h3><p>如果不够怎么办呢？不够肯定就要扩容了呗，当不够的时候就会向领导上报，逐层上报，最终想办法拿到内存。<br>如果cache没有相应规格大小的mspan，则向central申请<br>如果central没有相应规格大小的mspan，则向heap申请<br>如果heap中也没有合适大小的mspan，则向操作系统申请</p>
+<h3 id="回收"><a href="#回收" class="headerlink" title="回收"></a>回收</h3><p>最后还要记得，如果你用完了，不用了，会有后台的清洁工来回收掉，最终还是会还回去的。一方面呢：cache用完了还给central，central就可以给别的cache用；central用完了就会还给heap…最终都不用的还给操作系统</p>
+<h2 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h2><p>至此golang的内存分配也就说的差不多了，其中一些细节可能没有说到，可能你还需要看看别的文章来补一补。总结一下：</p>
 <ol>
-<li>颜色代表term</li>
-<li>第四行表示的这个节点，第一term下复制了两个日志就异常挂掉了</li>
-<li>最终只有第三行这个follower和第一行的leader保持了同步</li>
+<li>你多大人住多大的房间，不多给</li>
+<li>划分成合理的大小可以一起给一起回收，大小合适的分割才不会浪费</li>
+<li>用完还回去，需要标记怎么样算用完了</li>
+<li>每个人线程有独立的缓冲区来进行快速分配，不用抢来抢去</li>
 </ol>
-<h2 id="异常情况"><a href="#异常情况" class="headerlink" title="异常情况"></a>异常情况</h2><p>raft之所以厉害因为即使出现一些特殊情况，整个网络在一定的时间之后也能自动恢复并正常工作。</p>
-<h3 id="一个节点的异常"><a href="#一个节点的异常" class="headerlink" title="一个节点的异常"></a>一个节点的异常</h3><p>首先最常见的情况就是一个节点出现异常，有可能是这个节点的服务器挂了，或者别的什么原因。</p>
-<ul>
-<li>如果出现问题的这个节点是follower，那么没有关系，整个网络依旧能正常运行，当这个节点再次加入网络的时候也只需要同步后面的数据即可。</li>
-<li>如果出现问题的是leader，有一点麻烦，因为网络中没有leader节点了，那么就会重新进行选举，重新找一个leader，当这个异常节点恢复之后发现当前网络中有leader了，而且term还比自己大，那么自己就退位称为follower。</li>
-</ul>
-<h3 id="网络分区"><a href="#网络分区" class="headerlink" title="网络分区"></a>网络分区</h3><p>还有一种异常情况是由于网络导致的，网络出现异常，导致节点之间的通信存在异常，一部分节点与另一部分之间没有办法访问了。如下图所示：<br><img src="http://blog.linkinstars.com/mweb/15603110122471.jpg" alt></p>
-<p>上面三个follower没有办法与下面的节点进行通信。</p>
-<ul>
-<li>当客户端再次请求leader发送数据的时候，leader发现没有办法将数据同步给给大多数节点，它只能给自己和旁边的一个，此时leader没有办法给客户端反馈。</li>
-<li>上面三个节点由于收不到leader的消息，那么会认为网络中没有leader存在，会重新进行选举操作，因为当前上面有三个节点存在（只要有超过半数的节点参与选举就行），所以可以重新选举成功，选出新的leader告诉客户端，客户端就会重新发送数据到新的leader。</li>
-<li>当网络恢复之后又会找到最新的leader从而将数据同步至最新的状态。</li>
-</ul>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>总的来说，只要整个网络中存在大多数节点正常运行，那么etcd就是可用的，并且能够保证数据正确。当网络恢复之后也能将数据调整到最新的状态。<br>raft强大的地方在于它能自动的进行状态的变化，自动进行选举，并且选举遵循一定的策略，进而保证整个网络的正常运转。同时保证数据的一致性。<br>了解etcd的这个原理有助于我们后续的使用以及源码的阅读。</p>
 
       
     </div>
@@ -592,7 +583,7 @@
           </li>
           <li class="post-copyright-link">
             <strong>本文链接：</strong>
-            <a href="http://www.linkinstar.wiki//2019/06/12/golang/open-source-component/etcd-raft/" title="浅入深出ETCD之【raft原理】">http://www.linkinstar.wiki/2019/06/12/golang/open-source-component/etcd-raft/</a>
+            <a href="http://www.linkinstar.wiki//2019/11/02/golang/basic/go-memory/" title="图解golang内存分配">http://www.linkinstar.wiki/2019/11/02/golang/basic/go-memory/</a>
           </li>
           <li class="post-copyright-license">
             <strong>版权声明： </strong>
@@ -605,9 +596,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/etcd/" rel="tag"># etcd</a>
-          
-            <a href="/tags/raft/" rel="tag"># raft</a>
+            <a href="/tags/内存/" rel="tag"># 内存</a>
           
         </div>
       
@@ -620,8 +609,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/06/10/golang/open-source-component/etcd-brief/" rel="next" title="浅入深出ETCD之【简介与命令行使用】">
-                <i class="fa fa-chevron-left"></i> 浅入深出ETCD之【简介与命令行使用】
+              <a href="/2019/08/20/golang/open-source-component/gin/" rel="next" title="大话图解gin源码">
+                <i class="fa fa-chevron-left"></i> 大话图解gin源码
               </a>
             
           </div>
@@ -630,8 +619,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/06/14/golang/open-source-component/etcd-cluster-client/" rel="prev" title="浅入深出ETCD之【集群部署与golang客户端使用】">
-                浅入深出ETCD之【集群部署与golang客户端使用】 <i class="fa fa-chevron-right"></i>
+              <a href="/2019/11/09/golang/source-code/sync-pool-source-code/" rel="prev" title="golang中神奇的sync.Pool">
+                golang中神奇的sync.Pool <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -879,7 +868,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#raft选举策略"><span class="nav-number">1.</span> <span class="nav-text">raft选举策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#大多数理论"><span class="nav-number">1.1.</span> <span class="nav-text">大多数理论</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#选举状态"><span class="nav-number">1.2.</span> <span class="nav-text">选举状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#选举过程与要点"><span class="nav-number">1.3.</span> <span class="nav-text">选举过程与要点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#日志复制规则"><span class="nav-number">2.</span> <span class="nav-text">日志复制规则</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异常情况"><span class="nav-number">3.</span> <span class="nav-text">异常情况</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#一个节点的异常"><span class="nav-number">3.1.</span> <span class="nav-text">一个节点的异常</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#网络分区"><span class="nav-number">3.2.</span> <span class="nav-text">网络分区</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#想一想"><span class="nav-number">1.</span> <span class="nav-text">想一想</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#我想要512G，你能给吗？"><span class="nav-number">1.0.1.</span> <span class="nav-text">我想要512G，你能给吗？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#能随便分割吗？"><span class="nav-number">1.0.2.</span> <span class="nav-text">能随便分割吗？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#不用了我需要放回去吗？"><span class="nav-number">1.0.3.</span> <span class="nav-text">不用了我需要放回去吗？</span></a></li></ol></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#内存的管理者"><span class="nav-number">2.</span> <span class="nav-text">内存的管理者</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#OS"><span class="nav-number">2.1.</span> <span class="nav-text">OS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#heap"><span class="nav-number">2.2.</span> <span class="nav-text">heap</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#central"><span class="nav-number">2.3.</span> <span class="nav-text">central</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cache"><span class="nav-number">2.4.</span> <span class="nav-text">cache</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">2.5.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内存的分配结构"><span class="nav-number">3.</span> <span class="nav-text">内存的分配结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#arena"><span class="nav-number">3.1.</span> <span class="nav-text">arena</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bitmap"><span class="nav-number">3.2.</span> <span class="nav-text">bitmap</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#spans"><span class="nav-number">3.3.</span> <span class="nav-text">spans</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内存分配"><span class="nav-number">4.</span> <span class="nav-text">内存分配</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#分配流程"><span class="nav-number">4.1.</span> <span class="nav-text">分配流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#扩容"><span class="nav-number">4.2.</span> <span class="nav-text">扩容</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#回收"><span class="nav-number">4.3.</span> <span class="nav-text">回收</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结-1"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></div>
             
 
           </div>
