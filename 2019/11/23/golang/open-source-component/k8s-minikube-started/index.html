@@ -108,7 +108,7 @@
 <meta property="og:image" content="http://blog.linkinstars.com/mweb/15744936444210.jpg">
 <meta property="og:image" content="http://blog.linkinstars.com/mweb/15744959372693.jpg">
 <meta property="og:image" content="http://blog.linkinstars.com/mweb/15744966749719.jpg">
-<meta property="og:updated_time" content="2019-11-23T08:31:32.447Z">
+<meta property="og:updated_time" content="2019-11-23T08:33:41.164Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="快速上手k8s——minikube最小实现">
 <meta name="twitter:description" content="最近在研究k8s，就来写一个关于k8s快速上手，并记录采坑的点。需要的前置知识点：docker、k8s的一些基本概念，下面这个可能对你有帮助。https://juejin.im/post/5d1b2a656fb9a07edc0b7058">
@@ -504,17 +504,8 @@
 <li>Docker version 18.03.1-ce</li>
 </ul>
 <h3 id="安装环境"><a href="#安装环境" class="headerlink" title="安装环境"></a>安装环境</h3><p>大致步骤：<a href="https://minikube.sigs.k8s.io/docs/start/macos/" target="_blank" rel="noopener">https://minikube.sigs.k8s.io/docs/start/macos/</a></p>
-<ul>
-<li><code>brew install minikube</code></li>
-<li><code>brew install docker-machine-driver-vmware</code></li>
-<li><code>minikube start --vm-driver=vmware --image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers</code></li>
-</ul>
-<p>成功之后：</p>
-<ul>
-<li><code>minikube status</code> 查看minikube的状态</li>
-<li><code>minikube ip</code> 查看minikube的ip</li>
-<li><code>minikube dashboard</code> 打开dashboard展示k8s的状态</li>
-</ul>
+<p><code>brew install minikube</code><br><code>brew install docker-machine-driver-vmware</code><br><code>minikube start --vm-driver=vmware --image-repository=registry.cn-hangzhou.aliyuncs.com/google_containers</code></p>
+<p>成功之后：<br><code>minikube status</code> 查看minikube的状态<br><code>minikube ip</code> 查看minikube的ip<br><code>minikube dashboard</code> 打开dashboard展示k8s的状态</p>
 <h3 id="安装坑点"><a href="#安装坑点" class="headerlink" title="安装坑点"></a>安装坑点</h3><ul>
 <li>HyperKit最新版本可能存在问题，所以我使用VMware Fusion实现虚拟化的依赖</li>
 <li>国内<code>k8s.gcr.io</code>的相关镜像国内拉取不到，使用mirrorgooglecontainers也无法拉取到，所以使用阿里云的仓库 <a href="https://github.com/kubernetes/minikube/issues/3860" target="_blank" rel="noopener">https://github.com/kubernetes/minikube/issues/3860</a></li>
