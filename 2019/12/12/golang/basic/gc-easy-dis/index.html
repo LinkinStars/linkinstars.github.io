@@ -96,16 +96,20 @@
 
 
 
-  <meta name="description" content="No one but myself can do it. Don&apos;t worry. Be happy!">
-<meta property="og:type" content="website">
-<meta property="og:title" content="LinkinStar&#39;s Blog">
-<meta property="og:url" content="https://linkinstar.gitee.io/page/3/index.html">
+  <meta name="description" content="首先要说一些废话：之前我已经有博客写过golang的垃圾回收相关的内容，虽然很简略，但是涵盖了整体的流程，现在为啥又来写一遍呢？一方面有一些政治（你懂得）因素在里面，一方面最近又再研究。那么问题来了，那么多博客已经写过了它，我怎么把它讲出花来呢？我思前想后，于是想出了几个独特的角度来重新诠释一下golang的垃圾回收。 那首先如果再把整个gc过程简单说一遍，可能就没有人愿意听了，但是golang的">
+<meta name="keywords" content="gc">
+<meta property="og:type" content="article">
+<meta property="og:title" content="再看golang垃圾回收">
+<meta property="og:url" content="https://linkinstar.gitee.io/2019/12/12/golang/basic/gc-easy-dis/index.html">
 <meta property="og:site_name" content="LinkinStar&#39;s Blog">
-<meta property="og:description" content="No one but myself can do it. Don&apos;t worry. Be happy!">
+<meta property="og:description" content="首先要说一些废话：之前我已经有博客写过golang的垃圾回收相关的内容，虽然很简略，但是涵盖了整体的流程，现在为啥又来写一遍呢？一方面有一些政治（你懂得）因素在里面，一方面最近又再研究。那么问题来了，那么多博客已经写过了它，我怎么把它讲出花来呢？我思前想后，于是想出了几个独特的角度来重新诠释一下golang的垃圾回收。 那首先如果再把整个gc过程简单说一遍，可能就没有人愿意听了，但是golang的">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://blog.linkinstars.com/mweb/15756986738605.jpg">
+<meta property="og:updated_time" content="2019-12-14T10:52:20.483Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="LinkinStar&#39;s Blog">
-<meta name="twitter:description" content="No one but myself can do it. Don&apos;t worry. Be happy!">
+<meta name="twitter:title" content="再看golang垃圾回收">
+<meta name="twitter:description" content="首先要说一些废话：之前我已经有博客写过golang的垃圾回收相关的内容，虽然很简略，但是涵盖了整体的流程，现在为啥又来写一遍呢？一方面有一些政治（你懂得）因素在里面，一方面最近又再研究。那么问题来了，那么多博客已经写过了它，我怎么把它讲出花来呢？我思前想后，于是想出了几个独特的角度来重新诠释一下golang的垃圾回收。 那首先如果再把整个gc过程简单说一遍，可能就没有人愿意听了，但是golang的">
+<meta name="twitter:image" content="http://blog.linkinstars.com/mweb/15756986738605.jpg">
 
 
 
@@ -113,7 +117,7 @@
 
   
   
-  <link rel="canonical" href="https://linkinstar.gitee.io/page/3/">
+  <link rel="canonical" href="https://linkinstar.gitee.io/2019/12/12/golang/basic/gc-easy-dis/">
 
 
 
@@ -123,7 +127,7 @@
   };
 </script>
 
-  <title>LinkinStar's Blog</title>
+  <title>再看golang垃圾回收 | LinkinStar's Blog</title>
   
 
 
@@ -181,8 +185,7 @@
     
   
 
-  <div class="container sidebar-position-left 
-  ">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -359,34 +362,12 @@
           
             
 
-    
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-    
-
-  
-
-
           
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
 
   
 
@@ -401,7 +382,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2019/06/06/golang/source-code/point-unsafe/">
+    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2019/12/12/golang/basic/gc-easy-dis/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="LinkinStar">
@@ -418,10 +399,8 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/06/06/golang/source-code/point-unsafe/" class="post-title-link" itemprop="url">Golang指针与unsafe</a>
+          <h1 class="post-title" itemprop="name headline">再看golang垃圾回收
+
               
             
           </h1>
@@ -446,7 +425,7 @@
                 
               
 
-              <time title="创建时间：2019-06-06 00:00:00" itemprop="dateCreated datePublished" datetime="2019-06-06T00:00:00+08:00">2019-06-06</time>
+              <time title="创建时间：2019-12-12 00:00:00" itemprop="dateCreated datePublished" datetime="2019-12-12T00:00:00+08:00">2019-12-12</time>
             
 
             
@@ -464,7 +443,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/golang源码解析/" itemprop="url" rel="index"><span itemprop="name">golang源码解析</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/golang基础/" itemprop="url" rel="index"><span itemprop="name">golang基础</span></a></span>
 
                 
                 
@@ -480,6 +459,13 @@
           
           
 
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
           
 
           
@@ -499,18 +485,64 @@
       
 
       
-        
-          <p>我们知道在golang中是存在指针这个概念的。对于指针很多人有点忌惮（可能是因为之前学习过C语言），因为它会导致很多异常的问题。但是很多人学习之后发现，golang中的指针很简单，没有C那么复杂。所以今天就详细来说说指针。</p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/06/06/golang/source-code/point-unsafe/" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
+        <p>首先要说一些废话：<br>之前我已经有博客写过golang的垃圾回收相关的内容，虽然很简略，但是涵盖了整体的流程，现在为啥又来写一遍呢？一方面有一些政治（你懂得）因素在里面，一方面最近又再研究。那么问题来了，那么多博客已经写过了它，我怎么把它讲出花来呢？我思前想后，于是想出了几个独特的角度来重新诠释一下golang的垃圾回收。</p>
+<p>那首先如果再把整个gc过程简单说一遍，可能就没有人愿意听了，但是golang的gc说简单也简单说复杂其实也有很多细节，如何做到有自己的想法呢？于是我就强行举例了几个问题。</p>
+<a id="more"></a>
+<h2 id="问题-amp-角度"><a href="#问题-amp-角度" class="headerlink" title="问题&amp;角度"></a>问题&amp;角度</h2><p>在研究golang垃圾回收的时候，你有没有想过下面几个问题</p>
+<ol>
+<li>golang如果有两个对象循环互相引用，是否会出现永远回收不了的对象?</li>
+<li>golang的gc标记方式为什么用bfs而不是dfs?</li>
+<li>是否有可能永远不触发gc？</li>
+<li>为什么golang的gc不整理、不分代？</li>
+</ol>
+<h2 id="个人理解"><a href="#个人理解" class="headerlink" title="个人理解"></a>个人理解</h2><p>首先说明一下，这些问题都是我自己想的，也没有什么所谓的正确答案，所以下面也是我的个人理解，如果有问题可以在下方留言进行讨论。</p>
+<h3 id="问题1"><a href="#问题1" class="headerlink" title="问题1"></a>问题1</h3><ul>
+<li>golang如果有两个对象循环互相引用，是否会出现永远回收不了的对象?</li>
+</ul>
+<p>为什么会想到有这个问题呢？因为有人曾经问过，为什么golang里面不能有包的循环引用？其实这两个问题并没有相关性。。。包的循环引用和对象的循环引用是不一样的。我们来看看下面的代码。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> User <span class="keyword">struct</span> &#123;</span><br><span class="line">    Name <span class="keyword">string</span></span><br><span class="line">    Info *UserInfo</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> UserInfo <span class="keyword">struct</span> &#123;</span><br><span class="line">    Age <span class="keyword">int</span></span><br><span class="line">    U   *User</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        user := &amp;User&#123;</span><br><span class="line">            Name: <span class="string">"LinkinStar"</span>,</span><br><span class="line">        &#125;</span><br><span class="line">        userInfo := &amp;UserInfo&#123;</span><br><span class="line">            Age: <span class="number">24</span>,</span><br><span class="line">        &#125;</span><br><span class="line">        user.Info = userInfo</span><br><span class="line">        userInfo.U = user</span><br><span class="line">    &#125;()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先这样的代码肯定是可以编译通过的，而且明显两个对象就有互相引用，但是这样会导致gc无法回收这两个对象吗？</p>
+<p>明显不可能。。。</p>
+<p>因为golang的gc不是使用引用计数来完成的标记，并不是通过计算一个对象的引用数来计算一个对象是否会被回收，而是从root开始来进行寻找标记的。我们看下面这个图就很明确了。<br><img src="http://blog.linkinstars.com/mweb/15756986738605.jpg" alt></p>
+<p>其中A和D明显是相互引用的，只要A不用了，那么两者就会被回收。</p>
+<h3 id="问题2"><a href="#问题2" class="headerlink" title="问题2"></a>问题2</h3><ul>
+<li>golang的gc标记方式为什么用bfs而不是dfs?</li>
+</ul>
+<p>首先bfs是广度优先搜索，dfs是深度优先搜索，我们知道我们的三色标记是一层层往下走的，那为什么会这样设计呢？</p>
+<p>这个问题没有明确的答案，我说一下我个人的理解。</p>
+<ol>
+<li>针对gc来说，其实对象是很多的，而对象直接的引用层级其实是不深的，说白了，如果把整个对象的引用比作一颗树的话，那么树的高度或者说深度是不会很高的，而root会很多。</li>
+<li>后期引用的变动往往都发生在最底层，如果使用dfs那么很有可能已经被标记过的对象发生了引用变动，可能会影响部分性能。</li>
+<li>dfs需要递归实现，那么函数的调用必然会有入栈出栈，所以不太合适。</li>
+</ol>
+<h3 id="问题3"><a href="#问题3" class="headerlink" title="问题3"></a>问题3</h3><ul>
+<li>是否有可能永远不触发gc？</li>
+</ul>
+<p>我们知道触发gc的条件有几个：</p>
+<ol>
+<li>达到GC百分比上限</li>
+<li>达到一定的时间2分钟（sysmon）</li>
+<li>使用runtime.GC()</li>
+</ol>
+<p>那么是否有办法实现永远不触发gc呢？有的！<br>来看看下面这个代码：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"runtime"</span></span><br><span class="line">    <span class="string">"time"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        i := <span class="number">0</span> </span><br><span class="line">        <span class="keyword">for</span> i &lt; <span class="number">10</span> &#123;</span><br><span class="line">            i--</span><br><span class="line">            i++</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        array := <span class="built_in">make</span>([]<span class="keyword">int</span>, <span class="number">1000</span>)</span><br><span class="line">        <span class="keyword">for</span> &#123;</span><br><span class="line">            array = <span class="built_in">make</span>([]<span class="keyword">int</span>, <span class="number">1000</span>)</span><br><span class="line">            array = <span class="built_in">append</span>(array, <span class="number">1</span>)</span><br><span class="line">            time.Sleep(time.Millisecond * <span class="number">10</span>)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;()</span><br><span class="line">    </span><br><span class="line">    runtime.GC()</span><br><span class="line">    time.Sleep(time.Second * <span class="number">60</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果我们使用<code>GODEBUG=&quot;gctrace=1&quot;</code>打印出gc日志会发现，没有任何的输出。为什么呢？<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">    i := <span class="number">0</span> </span><br><span class="line">    <span class="keyword">for</span> i &lt; <span class="number">10</span> &#123;</span><br><span class="line">        i--</span><br><span class="line">        i++</span><br><span class="line">    &#125;</span><br><span class="line">&#125;()</span><br></pre></td></tr></table></figure></p>
+<p>原因就在这个地方，因为golang在想要gc的时候，需要保证所有的协程走到一个安全点，所谓的安全点是需要你有任何的函数调用都可以。而这里是没有任何函数调用的，也就是说没有安全点。所以golang没有办法触发gc，当我们在其中加入任意方法之后，就可以触发gc了。</p>
+<p>所以这也让我们在写程序的时候要注意，千万不能有死循环，并且当中没有任何函数调用（虽然在实际中很少存在）</p>
+<h3 id="问题4"><a href="#问题4" class="headerlink" title="问题4"></a>问题4</h3><ul>
+<li>为什么golang的gc不整理、不分代？</li>
+</ul>
+<p>下面是来自源码中的一段：</p>
+<ul>
+<li>The GC runs concurrently with mutator threads, is type accurate (aka precise), allows multiple GC thread to run in parallel. It is a concurrent mark and sweep that uses a write barrier. <strong>It is non-generational and non-compacting</strong>. Allocation is done using size segregated per P allocation areas to minimize fragmentation while eliminating locks in the common case.</li>
+</ul>
+<p>其中明确说明了是非分代和非整合的算法。</p>
+<p>对于这个问题，首先我不得不说的是，分代确实能很好的提高gc的效率，因为大多数对象使用的时间是很短的，而长时间占用的对象是很少的，这也是java中分代的原因。而对于整理，整理的话有利于内存的管理和回收，当对象被回收之后，会出现很多的内存碎片，而整理可以很好的重新规范内存，回收那些不需要的页。</p>
+<p>那么golang为啥不做呢？首先是复杂，我们看java分代回收的实现就非常的复杂，实现起来需要很大的力气，而当前的golang的gc效率已经可能已经满足需求了。然是就是整理，其实整理这块是由内存管理模块来管理的，而golang中的内存管理在分配的阶段已经利用了最小化的原则，每次给到的都是合适的大小，所以整理这块就交由他们进行来管了，gc这块只负责回收就可以了。</p>
+<h2 id="最后来个tool"><a href="#最后来个tool" class="headerlink" title="最后来个tool"></a>最后来个tool</h2><p>最后补充一个tool之前博客中只是说用gctrace来输出gc日志，而没有可视化的展示，而其实有这样的工具可以满足这样的要求。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"><span class="keyword">import</span> (	</span><br><span class="line">    <span class="string">"os"</span></span><br><span class="line">    <span class="string">"runtime/trace"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    f, err := os.Create(<span class="string">"trace.out"</span>)	</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;		</span><br><span class="line">       <span class="built_in">panic</span>(err)</span><br><span class="line">    &#125;	</span><br><span class="line">    <span class="keyword">defer</span> f.Close()</span><br><span class="line"></span><br><span class="line">    err = trace.Start(f)</span><br><span class="line">     <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line"> 	<span class="built_in">panic</span>(err)</span><br><span class="line">    &#125;	</span><br><span class="line">    <span class="keyword">defer</span> trace.Stop()  </span><br><span class="line">    <span class="comment">// Your program here</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在你的项目中添加如下的代码，然后在运行一段时间之后就可以通过go tool trace trace.out命令来在页面上查看整个项目gc的情况了。</p>
+
       
     </div>
 
@@ -526,357 +558,92 @@
       
     
     
+      <div>
+        <div id="reward-container">
+  <div>赞赏时记得备注邮箱，即可第一时间收到更新推送哦~</div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+
+    
+      
+      
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+      
+      
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/alipay.png" alt="LinkinStar 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+  </div>
+</div>
+
+      </div>
+    
 
     
 
     <footer class="post-footer">
       <div>
        
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+              <strong>本文作者：</strong>LinkinStar
+          </li>
+          <li class="post-copyright-link">
+            <strong>本文链接：</strong>
+            <a href="http://www.linkinstar.wiki//2019/12/12/golang/basic/gc-easy-dis/" title="再看golang垃圾回收">http://www.linkinstar.wiki/2019/12/12/golang/basic/gc-easy-dis/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明： </strong>
+            如无特殊声明，本博客均采用 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0 CN</a> 许可协议，请勿用于商业，转载请注明出处！
+          </li>
+        </ul>
+        
       </div>
 
       
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2019/06/03/golang/source-code/graphic-golang-map/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="LinkinStar">
-      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!">
-      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="LinkinStar's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/06/03/golang/source-code/graphic-golang-map/" class="post-title-link" itemprop="url">大话图解golang map源码详解</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2019-06-03 00:00:00" itemprop="dateCreated datePublished" datetime="2019-06-03T00:00:00+08:00">2019-06-03</time>
-            
-
-            
-          </span>
-
+        <div class="post-tags">
           
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/golang源码解析/" itemprop="url" rel="index"><span itemprop="name">golang源码解析</span></a></span>
-
-                
-                
-              
-            </span>
+            <a href="/tags/gc/" rel="tag"># gc</a>
           
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
         </div>
-      </header>
-    
+      
 
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
+      
       
       
 
       
-        
-          <p>网上分析golang中map的源码的博客已经非常多了，随便一搜就有，而且也非常详细，所以如果我再来写就有点画蛇添足了（而且我也写不好，手动滑稽）。但是我还是要写，略略略，这篇博客的意义在于能从几张图片，然后用我最通俗的文字，让没看过源码的人最快程度上了解golang中map是怎么样的。</p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/06/03/golang/source-code/graphic-golang-map/" rel="contents">
-                阅读全文 &raquo;
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/11/23/golang/open-source-component/k8s-minikube-started/" rel="next" title="快速上手k8s——minikube最小实现">
+                <i class="fa fa-chevron-left"></i> 快速上手k8s——minikube最小实现
               </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      <div>
-       
-      </div>
-
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2019/06/01/golang/source-code/rwmutex-mutex-source-code-review/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="LinkinStar">
-      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!">
-      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="LinkinStar's Blog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/06/01/golang/source-code/rwmutex-mutex-source-code-review/" class="post-title-link" itemprop="url">Golang 读写锁RWMutex 互斥锁Mutex 源码详解</a>
-              
             
-          </h1>
-        
+          </div>
 
-        <div class="post-meta">
-          <span class="post-time">
+          <span class="post-nav-divider"></span>
 
+          <div class="post-nav-prev post-nav-item">
             
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2019-06-01 00:00:00" itemprop="dateCreated datePublished" datetime="2019-06-01T00:00:00+08:00">2019-06-01</time>
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/golang源码解析/" itemprop="url" rel="index"><span itemprop="name">golang源码解析</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
+          </div>
         </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
       
 
       
-        
-          <p>Golang中有两种类型的锁，Mutex （互斥锁）和RWMutex（读写锁）对于这两种锁的使用这里就不多说了，本文主要侧重于从源码的角度分析这两种锁的具体实现。</p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/06/01/golang/source-code/rwmutex-mutex-source-code-review/" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      <div>
-       
-      </div>
-
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
       
     </footer>
   </div>
@@ -886,18 +653,19 @@
   </article>
 
 
-    
-  </section>
-
-  
-  <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span>
-  </nav>
-
+  </div>
 
 
           </div>
           
+
+  
+    <div class="comments" id="gitalk-container">
+    </div>
+
+  
+
+
 
         </div>
         
@@ -917,8 +685,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <div class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -1139,6 +916,23 @@
       </div>
 
       
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题-amp-角度"><span class="nav-number">1.</span> <span class="nav-text">问题&amp;角度</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#个人理解"><span class="nav-number">2.</span> <span class="nav-text">个人理解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#问题1"><span class="nav-number">2.1.</span> <span class="nav-text">问题1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题2"><span class="nav-number">2.2.</span> <span class="nav-text">问题2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题3"><span class="nav-number">2.3.</span> <span class="nav-text">问题3</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题4"><span class="nav-number">2.4.</span> <span class="nav-text">问题4</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最后来个tool"><span class="nav-number">3.</span> <span class="nav-text">最后来个tool</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
 
       
         <div class="back-to-top">
@@ -1275,6 +1069,10 @@
 
 
   
+  <script src="/js/scrollspy.js?v=7.1.1"></script>
+<script src="/js/post-details.js?v=7.1.1"></script>
+
+
 
   
 
@@ -1290,6 +1088,37 @@
 
   
 
+
+  
+    
+
+<script src="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+
+
+<script src="//cdn.jsdelivr.net/npm/js-md5@0.7.3/src/md5.min.js"></script>
+
+<script>
+  var gitalk = new Gitalk({
+    clientID: 'fb1c6a994a1f26c2655e',
+    clientSecret: '512d1338f3c8e48f1be73caf0661c005bf1c0425',
+    repo: 'linkinstars.github.io',
+    owner: 'LinkinStars',
+    admin: ['LinkinStars'],
+    id: md5(location.pathname),
+    
+      language: window.navigator.language || window.navigator.userLanguage,
+    
+    distractionFreeMode: 'true'
+  });
+  gitalk.render('gitalk-container');
+</script>
+
+  
 
 
   
