@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.1">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=7.1.1">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=7.1.1">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-32x32.png?v=7.1.1">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.1" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.1',
+    sidebar: {"position":"left","display":"always","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: true,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":true,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="所谓分布式锁，即在多个相同服务水平扩展时，对于同一资源，能稳定保证有且只有一个服务获得该资源 — by LinkinStar  其实对于分布式锁，也是属于那种看似简单，实则有很多细节的问题。很多人在被问到这个问题的时候，一上来就会说用redis嘛，setnx嘛，我知道我知道。但仅仅是这样就能搞定了吗？那么当我们在实现一个分布式锁的时候，我们究竟需要考虑些什么呢？">
+<meta name="keywords" content="distributed-lock">
+<meta property="og:type" content="article">
+<meta property="og:title" content="实现分布式锁，你能想到什么？">
+<meta property="og:url" content="https://linkinstar.gitee.io/2020/03/08/golang/architecture/distribute-lock/index.html">
+<meta property="og:site_name" content="LinkinStar&#39;s Blog">
+<meta property="og:description" content="所谓分布式锁，即在多个相同服务水平扩展时，对于同一资源，能稳定保证有且只有一个服务获得该资源 — by LinkinStar  其实对于分布式锁，也是属于那种看似简单，实则有很多细节的问题。很多人在被问到这个问题的时候，一上来就会说用redis嘛，setnx嘛，我知道我知道。但仅仅是这样就能搞定了吗？那么当我们在实现一个分布式锁的时候，我们究竟需要考虑些什么呢？">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-03-08T14:32:17.155Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="实现分布式锁，你能想到什么？">
+<meta name="twitter:description" content="所谓分布式锁，即在多个相同服务水平扩展时，对于同一资源，能稳定保证有且只有一个服务获得该资源 — by LinkinStar  其实对于分布式锁，也是属于那种看似简单，实则有很多细节的问题。很多人在被问到这个问题的时候，一上来就会说用redis嘛，setnx嘛，我知道我知道。但仅仅是这样就能搞定了吗？那么当我们在实现一个分布式锁的时候，我们究竟需要考虑些什么呢？">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="https://linkinstar.gitee.io/2020/03/08/golang/architecture/distribute-lock/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>实现分布式锁，你能想到什么？ | LinkinStar's Blog</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?89a776c473aa81d27c40ef9cfb9b569e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">LinkinStar's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2020/03/08/golang/architecture/distribute-lock/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="LinkinStar">
+      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!">
+      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LinkinStar's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">实现分布式锁，你能想到什么？
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-03-08 00:00:00" itemprop="dateCreated datePublished" datetime="2020-03-08T00:00:00+08:00">2020-03-08</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/architecture/" itemprop="url" rel="index"><span itemprop="name">architecture</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>所谓分布式锁，即在多个相同服务水平扩展时，对于同一资源，能稳定保证有且只有一个服务获得该资源 — by LinkinStar </p>
+<p>其实对于分布式锁，也是属于那种看似简单，实则有很多细节的问题。很多人在被问到这个问题的时候，一上来就会说用redis嘛，setnx嘛，我知道我知道。但仅仅是这样就能搞定了吗？那么当我们在实现一个分布式锁的时候，我们究竟需要考虑些什么呢？</p>
+<a id="more"></a>
+<h2 id="必考点"><a href="#必考点" class="headerlink" title="必考点"></a>必考点</h2><p>首先作为一个分布式锁，你一定要保证的是什么呢？</p>
+<ul>
+<li>不能有两个服务同时获取到一把锁（资源）</li>
+<li>不能出现有一个资源一直被锁住（锁一直被持有）</li>
+</ul>
+<p>我认为上面两点是必须要保证的，其他的点，比如锁的获取是否高效，锁获取的非阻塞等等是评价一个锁是否好用的点（当然也不是说不重要）</p>
+<p>下面我们一个个实现方案来说，来看看究竟有多少细节是我们需要考虑的。</p>
+<h2 id="redis实现"><a href="#redis实现" class="headerlink" title="redis实现"></a>redis实现</h2><p>先从最普遍的实现方案开始说起，redis。利用redis的特性，nx，资源不存在时才能够成功执行 set 操作，同时设置过期时间用于防止死锁</p>
+<h3 id="加锁"><a href="#加锁" class="headerlink" title="加锁"></a>加锁</h3><p>SET resource_key random_value NX PX lock-time</p>
+<h3 id="解锁"><a href="#解锁" class="headerlink" title="解锁"></a>解锁</h3><p>DEL resource_key</p>
+<p>面试者往往能给出这样的方案，那么这样的实现足够了吗？</p>
+<h3 id="问题1-解锁方式靠谱吗？"><a href="#问题1-解锁方式靠谱吗？" class="headerlink" title="问题1 解锁方式靠谱吗？"></a>问题1 解锁方式靠谱吗？</h3><p>上面的解锁方式是通过删除对应的key实现的。那么会有什么问题呢？<br>如果程序是我们自己写的，那么我们一定能保证，如果需要主动释放锁的话，必须要先要获取到锁。（我们可以这样强制编码）<br>那么问题来了，其实这个任何人都可能主动调用解锁，只要知道key就可以了，而key是肯定知道的。<br>那么，如果我主动捣乱，我可以说直接手动先删除这个key然后我就一定能重新拿到这个锁了，这显然有漏洞了。<br>其实不只是这样的场景，有一些场景下，获取锁和释放锁的人确实不是一个，那么就会存在问题。</p>
+<h3 id="问题1-解决"><a href="#问题1-解决" class="headerlink" title="问题1 解决"></a>问题1 解决</h3><p>方式1：强制规定只能使用过期解锁<br>方式2：验证存放的value是否为存放的时候的值来保证是同一人的行为<br>方式3：通过lua脚本进一步保证验证和是否为原子操作<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">if redis.get(&quot;resource_key&quot;) ==  &quot;random_value&quot;</span><br><span class="line">    return redis.del(&quot;resource_key&quot;)</span><br><span class="line">else </span><br><span class="line">    return 0</span><br></pre></td></tr></table></figure></p>
+<h3 id="问题2-redis挂了…"><a href="#问题2-redis挂了…" class="headerlink" title="问题2 redis挂了…"></a>问题2 redis挂了…</h3><p>redis万一挂了，那么对外来说，没有人能获取到锁，那么业务肯定会有问题。<br>这个时候小明马上会说了，那就redis集群，主从，哨兵…<br>那么相对应的问题就来了，如果在复制的过程中挂了，是否就有可能出现虽然获取到了锁但是锁丢失了的情况呢？</p>
+<h3 id="问题2-解决方案"><a href="#问题2-解决方案" class="headerlink" title="问题2 解决方案"></a>问题2 解决方案</h3><p>那么redis早就想到了解决方案，Redlock（红锁）<br>如果你是第一次听到这个名字可能会觉得它有点独特和高级，其实并没有。。。<br>它利用的就是抽屉原理，或者称为大多数原理，就是当你要获取锁的时候，如果有5个节点，你必须要拿到其中3个才可以。并且获取锁的时间共计时间要小于锁的超时时间。<br>更加详细的可以参考官网：<a href="https://redis.io/topics/distlock" target="_blank" rel="noopener">https://redis.io/topics/distlock</a><br>这样能保证在最多挂掉2个节点的情况下，依旧能正常的时候（原来是5个）</p>
+<h3 id="问题3-超时时间设定多久"><a href="#问题3-超时时间设定多久" class="headerlink" title="问题3 超时时间设定多久"></a>问题3 超时时间设定多久</h3><p>这个问题其实就很难了，无论是一开始的方案还是说对超时时间要求更高的redlock，超时时间的设定一直是一个难题；设定太长，可能在意外情况下会导致锁迟迟得不到释放；设定太短，事情还没做好，锁就被释放了；更有甚者提出，设定时间即使合适，那么由于网络、GC、等等不稳定因素也会导致意外情况发生。</p>
+<h3 id="问题3-解决"><a href="#问题3-解决" class="headerlink" title="问题3 解决"></a>问题3 解决</h3><p>其实问题在不好解决，因为问题本身存在不确定因素。所以我们不能从问题本身出发，那么就尝试从业务出发解决。（我总不能告诉你说’设定5分钟，这样是最好的’这样类似的话吧）<br>方案是说：当我们获取锁之后获得一个类似乐观锁的标记token（或者说version）比如当前是33，当我们做完事情之后，需要主动更新数据时，如果发现当前当前的version已经为34（已经出现了别人获取到锁并且更新了数据），那么此次操作将不进行。<br>虽然这样看来直接用乐观锁不就好了吗？后面我们会提到。</p>
+<h2 id="mysql实现"><a href="#mysql实现" class="headerlink" title="mysql实现"></a>mysql实现</h2><p>说完了 redis 的实现，那让我们来看看 mysql 的实现吧。mysql的实现方式就五花八门了，我们一个个来看看。</p>
+<h3 id="mysql实现的优点"><a href="#mysql实现的优点" class="headerlink" title="mysql实现的优点"></a>mysql实现的优点</h3><p>我先来说说 mysql 实现的优点吧，因为马上可能就会有人问，为什么要用 mysql 去实现呢？redis它不香吗？主要原因我想了一下：</p>
+<ul>
+<li>如果没有redis（当前项目中未使用）如果多引入一个中间件势必带来维护成本</li>
+<li>实现和使用简单（因为只需要操作mysql）</li>
+<li>如果出现意外不用慌张（mysql 都挂了，你的业务系统也就凉了，能不能拿到锁已经是次要的了，反正就是要死一起死）</li>
+</ul>
+<h3 id="方案1-主键锁"><a href="#方案1-主键锁" class="headerlink" title="方案1 主键锁"></a>方案1 主键锁</h3><p>这个是最容易想到的，利用主键的唯一性。</p>
+<ul>
+<li>获取锁就是插入一条记录（相同的主键插入不进去）</li>
+<li>释放锁就是删除一条记录</li>
+</ul>
+<h3 id="方案1-主键锁-问题"><a href="#方案1-主键锁-问题" class="headerlink" title="方案1 主键锁 问题"></a>方案1 主键锁 问题</h3><p>问题其实也是显而易见的</p>
+<ul>
+<li>没有超时时间，可能一直无法释放，这问题很大</li>
+<li>会一直造成 mysql 报错，并发下性能堪忧</li>
+</ul>
+<h3 id="方案1-主键锁-解决"><a href="#方案1-主键锁-解决" class="headerlink" title="方案1 主键锁 解决"></a>方案1 主键锁 解决</h3><ul>
+<li>可以设定一个入表时间，然后另外建立一个定时任务去清理过期的记录</li>
+<li>可以在程序中记录一下当前的id最大值，来减少冲突发生的情况</li>
+</ul>
+<p>总之这样的方式实现只能说在并发量不高，只是简单要保证实现的基础做是可以的</p>
+<h3 id="方案2-乐观锁"><a href="#方案2-乐观锁" class="headerlink" title="方案2 乐观锁"></a>方案2 乐观锁</h3><p>有关乐观锁就简单解释一下好了，就是添加一个 version 的字段，需要更新操作的时候，必须满足当前取出时的版本号。举个例子：我取出时的版本号是3，当我更新时那么就必须写着 update…… where version = 3 因为 mysql 的 mvcc 的控制能保证没有问题</p>
+<h3 id="方案2-乐观锁-问题"><a href="#方案2-乐观锁-问题" class="headerlink" title="方案2 乐观锁 问题"></a>方案2 乐观锁 问题</h3><p>其实乐观锁的问题就在需要给业务添加 version 字段，这个对于业务是入侵的。<br>其次在并发情况下会增加大量的数据库无用操作，如果数据量大的话也挺难顶的。（这也是为什么上面在redis实现中加入类似version控制，而不直接使用乐观锁控制的原因）</p>
+<h3 id="方案2-乐观锁-解决"><a href="#方案2-乐观锁-解决" class="headerlink" title="方案2 乐观锁 解决"></a>方案2 乐观锁 解决</h3><p>乐观锁其实挺乐观的，它就是用于哪些乐观的不会发生很大程度并发的情况，所以它的使用就看你的业务需求即可，有时即使没有 version 字段，也会合理使用。</p>
+<h3 id="方案3-悲观锁"><a href="#方案3-悲观锁" class="headerlink" title="方案3 悲观锁"></a>方案3 悲观锁</h3><p>网上搜一圈你就会发现如下的分布式锁的实现：<a href="https://www.jianshu.com/p/b76f409b2db2" target="_blank" rel="noopener">https://www.jianshu.com/p/b76f409b2db2</a></p>
+<ul>
+<li>开始事务</li>
+<li>使用 <code>for update</code> 进行查询（如果能查询就表示能获取到锁）</li>
+<li>做需要做的任务</li>
+<li>提交事务（解锁）</li>
+</ul>
+<h3 id="方案3-悲观锁-问题"><a href="#方案3-悲观锁-问题" class="headerlink" title="方案3 悲观锁 问题"></a>方案3 悲观锁 问题</h3><p>于是你就会发现这个方案虽然可行，但是存在很多问题</p>
+<ul>
+<li>通过提交来解锁，那么整个事务持续时间会很长（有可能，根据你做的任务有关）</li>
+<li>获取不到锁的会一直在等待，因为前一个问题导致</li>
+<li>没有超时时间，存在锁一直不释放的情况，并且有可能导致事务一直被开启</li>
+<li>高并发下 mysql 连接会很多</li>
+<li>…</li>
+</ul>
+<p>所以小明想要改动一下看看能不能做的更好，于是有了下面的改动方案</p>
+<h3 id="方案3-悲观锁-改动之旅"><a href="#方案3-悲观锁-改动之旅" class="headerlink" title="方案3 悲观锁 改动之旅"></a>方案3 悲观锁 改动之旅</h3><p>小明想到的第一个改动方案是，我要锁的 key 是 xxx</p>
+<ol>
+<li>BEGIN;</li>
+<li>SELECT * FROM lock_tab WHERE key = ‘xxx’ FOR UPDATE;</li>
+<li>INSERT xxx….;</li>
+<li>COMMIT;</li>
+</ol>
+<p>当第二个步骤查询到了之后：</p>
+<ul>
+<li>如果没有数据，证明服务正在持有锁，那么此时进行新增就可以了，由于悲观锁的存在，别的服务是没有办法同时进行插入操作的；</li>
+<li>如果有数据，证明已经有服务在持有锁，那么就直接放弃；</li>
+<li>释放锁通过删除这条记录去释放</li>
+</ul>
+<p>那么，你想想，这样有问题吗？</p>
+<p>有，问题就在释放锁的时候，这个删除操作有可能无法成功，因为有别的服务可能会持有悲观锁，特别是在并发量大，且重试较多的情况下，非常容易出现锁无法释放的情况。</p>
+<hr>
+<p>那再改改呗，手动删除这个操作肯定是不行的，这次小明想到超时机制，于是尝试加入字段过期时间，查询之后通过时间去判断是否超时，如果已经超时，也同时证明没有服务正在持有这把锁。<br>那这样会有问题吗？<br>有，当前这样查询是直接加的表锁。（当前表设计上没有索引）当我们要锁资源的时候我们肯定想的是最好去锁一行数据，而不要去锁整张表，这样不会影响到其他资源的抢锁，于是小明给表的key（资源名称）字段加了索引。测试了一下。</p>
+<p>当前表格中的数据<br>id key val<br>1  aa  a2<br>2  bb  b3<br>3  cc  c4</p>
+<p>T1</p>
+<ul>
+<li>BEGIN;</li>
+<li>SELECT * FROM lock_tab WHERE <code>key</code>=’aa’ FOR UPDATE;</li>
+</ul>
+<p>T2</p>
+<ul>
+<li>BEGIN;</li>
+<li>SELECT * FROM lock_tab WHERE <code>key</code>=’bb’ FOR UPDATE;（正常）</li>
+<li>COMMIT;</li>
+<li>BEGIN;</li>
+<li>SELECT * FROM lock_tab WHERE <code>key</code>=’aa’ FOR UPDATE;（卡主）</li>
+</ul>
+<p>发现T2查询bb可以正常执行，也就是说，两个不同的资源不会互相干扰了（如果锁表的情况下，T2查询bb就会卡主）</p>
+<p>还有问题吗？显然还有问题。<br>当前确实是行锁没错了，但是如果这个资源本身在表里面不存在会怎么样？<br>T1</p>
+<ul>
+<li>BEGIN;</li>
+<li>SELECT * FROM lock_tab WHERE <code>key</code>=’zz’ FOR UPDATE;</li>
+</ul>
+<p>T2</p>
+<ul>
+<li>BEGIN;</li>
+<li>SELECT * FROM lock_tab WHERE <code>key</code>=’zz’ FOR UPDATE;（正常???）</li>
+</ul>
+<p>没错这就是问题，当资源本身在表格中不存在的时候是能查询到的，也就是说可能造成有两个服务同时获取到锁，这是为什么呢？因为 mysql 当查询主键或索引无记录的并不会触发锁机制，也就是说，没东西锁，这个时候 mysql 是不会将                                                                                         行锁退化成表锁的。</p>
+<p>显然这样的方案不可行，那么如何解决呢？<br>看起来解决的方式也只有锁表了，不然的话就是必须在表中优先创建资源所占用的数据，这样或许也就只能针对特定的场景锁进行了。</p>
+<h3 id="方案3-悲观锁-总结"><a href="#方案3-悲观锁-总结" class="headerlink" title="方案3 悲观锁 总结"></a>方案3 悲观锁 总结</h3><p>那总的来说，对于悲观锁的实现，总结一下：</p>
+<ol>
+<li>如果只是单纯对于一个业务的某个场景，并且这个场景下持有锁的时间很短暂，那么选择第一种，直接开启事务，并在事务中获得锁，通过提交事务来释放锁。</li>
+<li>如果对于锁的业务不定，并且锁持有的时间较长，那么使用第二种，每次获取锁通过for update先锁表，然后通过插入数据来完成持有锁的操作，仅利用过期时间这一条件来释放锁，这样能最大程度的更快提交事务，不必占用过多资源也不会造成不必要的等待时间。</li>
+<li>如果面对已知数量的业务场景，可以明确提前给出锁的对象，那么使用第三种，在第二种方式的基础上，在表中加入提前创建锁的对象，并建立索引来完成对于行的锁定，从而不会影响其他资源的锁定。最大限度保证锁的细粒度。</li>
+</ol>
+<h2 id="ETCD实现"><a href="#ETCD实现" class="headerlink" title="ETCD实现"></a>ETCD实现</h2><p>说了redis、说了mysql、可能很多人认为下面提到的应该是zk了。其实zk也并不失为一种很好的解决方案，但是由于篇幅不想拉的过长，我更想介绍一下ETCD的实现。</p>
+<p>ETCD 在 K8S 火了之后也就自然被带火了，多的我就不介绍了，对于很多分布式场景存储的实现总会提到它，现在我们关注一下如何用它来实现分布式锁呢？</p>
+<h3 id="实现方案"><a href="#实现方案" class="headerlink" title="实现方案"></a>实现方案</h3><p>其实 ETCD 的实现分布式锁思路和 Redis 类似，只不过 ETCD 本身没有一个操作叫做SET NX或类似操作，我们需要使用 ETCD 的事务来帮助实现这个操作，从而实现如果查询到没有就set这样一个原子操作。下面是go实现中的部分代码片段。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">   kv := clientv3.NewKV(client)</span><br><span class="line">   txn := kv.Txn(context.TODO())</span><br><span class="line">txn.If(clientv3.Compare(clientv3.CreateRevision(<span class="string">"/lock-key/uuid"</span>), <span class="string">"="</span>, <span class="number">0</span>)).</span><br><span class="line">	Then(clientv3.OpPut(<span class="string">"/lock-key/uuid"</span>, <span class="string">"xxx"</span>, clientv3.WithLease(leaseId))).</span><br><span class="line">	Else(clientv3.OpGet(<span class="string">"/lock-key/uuid"</span>))</span><br><span class="line"></span><br><span class="line">txnResp, err := txn.Commit()</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">	fmt.Println(err)</span><br><span class="line">	<span class="keyword">return</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> !txnResp.Succeeded &#123;</span><br><span class="line">	fmt.Println(<span class="string">"锁被占用:"</span>, <span class="keyword">string</span>(txnResp.Responses[<span class="number">0</span>].GetResponseRange().Kvs[<span class="number">0</span>].Value))</span><br><span class="line">	<span class="keyword">return</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果仅仅只是这样，那我也不会单独拿出来重点说了，它可并不只是这样。</p>
+<ul>
+<li>ETCD 有着租约机制，什么意思呢？当你申请获得一个租约之后，它有一定的时间，在这个时间之内 key 都是有效的，但是租约到期了之后，key 就会被自动删除了。有点类似 redis 的过期，但是它有续租的概念，过一段时间可以主动进行续租，这样你又能获得一段时间的租约。</li>
+</ul>
+<p>那么利用这个租约机制，我们是可以实现出一种逻辑，就是当任务在进行的过程中，不断的去更新我们的租约，能保证我们在做任务的阶段一定是持有锁的，不会出现任务还在进行中，但是锁已经失效的情况。并且可以使用在任务时长无法控制的情况下，如：当前任务需要跑1分钟，可能下一次同一个任务需要跑1小时，无法确定合理的锁过期时间。</p>
+<p>下面是在go中，使用<code>lease.KeepAlive</code>自动续租，而用 context 的 cancelFunc 来取消自动续租。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">lease = clientv3.NewLease(client)</span><br><span class="line">leaseGrantResp, err := lease.Grant(context.TODO(), <span class="number">5</span>);</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">	<span class="keyword">return</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">leaseId = leaseGrantResp.ID</span><br><span class="line">ctx, cancelFunc = context.WithCancel(context.TODO())</span><br><span class="line"></span><br><span class="line"><span class="keyword">defer</span> cancelFunc()</span><br><span class="line"><span class="keyword">defer</span> lease.Revoke(context.TODO(), leaseId)</span><br><span class="line"></span><br><span class="line">keepRespChan, err = lease.KeepAlive(ctx, leaseId)</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">	<span class="keyword">return</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>仅仅是这样吗？etcd还有一个巧妙的 watch 机制，能监听一个 key 的变化，也就是说，当我没有获取到锁的时候，但是我又不想一直循环去调用 get 方法进行查询，那么让 watch 通知你可能不失为一种巧妙的解决方式（适用于一些特殊的等待场景，这里就不列举代码了）</p>
+<h3 id="实现总结"><a href="#实现总结" class="headerlink" title="实现总结"></a>实现总结</h3><p>ETCD 本身就是支持分布式的，所以在分布式锁的实现上没有前两者可能带来的单点问题，而本身基于 raft 实现的它，也同时避免了 redis 主从或集群下复制可能出现的尴尬问题。要说有什么问题，那么就是成本了，ETCD 在实际的业务使用场景中并不是非常常见的，所以如果要单独为它进行部署维护还是需要成本的。</p>
+<h2 id="其他实现方式"><a href="#其他实现方式" class="headerlink" title="其他实现方式"></a>其他实现方式</h2><ul>
+<li>Consul 是 Go 实现的一个轻量级 服务发现 、KV存储 的工具<br>对于它，知道的人可能就不多了，它也能实现分布式锁，而且实现起来也很简单，只需要实例一个session，用这个session去获取锁和释放锁就可以了。如果你正好在用 Consul 那用它来实现你需要的分布式锁，也可以作为你的一种选择吧</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>其实，回过头你会发现，我们实现分布式锁，其实要考虑的地方非常多，需要注意的问题也很多，并不是很多时候我们也在权衡考虑。为了保证一个分布式环境中的原子操作，其实说起来容易，做起来真的有点难。</p>
+<p>推荐下面几篇博客供你进一步学习：<br><a href="https://dbaplus.cn/news-159-2469-1.html（ZK实现分布式锁，以及分布式锁就够了吗？如何能做到高并发下也能好用呢？）" target="_blank" rel="noopener">https://dbaplus.cn/news-159-2469-1.html（ZK实现分布式锁，以及分布式锁就够了吗？如何能做到高并发下也能好用呢？）</a><br><a href="https://zhuanlan.zhihu.com/p/42056183" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/42056183</a><br><a href="https://mp.weixin.qq.com/s/1bPLk_VZhZ0QYNZS8LkviA（基于Redis的分布式锁真的安全吗？）" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/1bPLk_VZhZ0QYNZS8LkviA（基于Redis的分布式锁真的安全吗？）</a><br><a href="https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html（大佬说说分布式锁）" target="_blank" rel="noopener">https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html（大佬说说分布式锁）</a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div id="reward-container">
+  <div>赞赏时记得备注邮箱，即可第一时间收到更新推送哦~</div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+
+    
+      
+      
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+      
+      
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/alipay.png" alt="LinkinStar 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      <div>
+       
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+              <strong>本文作者：</strong>LinkinStar
+          </li>
+          <li class="post-copyright-link">
+            <strong>本文链接：</strong>
+            <a href="http://www.linkinstar.wiki//2020/03/08/golang/architecture/distribute-lock/" title="实现分布式锁，你能想到什么？">http://www.linkinstar.wiki/2020/03/08/golang/architecture/distribute-lock/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明： </strong>
+            如无特殊声明，本博客均采用 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0 CN</a> 许可协议，请勿用于商业，转载请注明出处！
+          </li>
+        </ul>
+        
+      </div>
+
+      
+        <div class="post-tags">
+          
+            <a href="/tags/distributed-lock/" rel="tag"># distributed-lock</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/03/01/golang/open-source-component/k8s-dis-deployment/" rel="next" title="初识deployment">
+                <i class="fa fa-chevron-left"></i> 初识deployment
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="gitalk-container">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="http://blog.linkinstars.com/LLX.jpg" alt="LinkinStar">
+            
+              <p class="site-author-name" itemprop="name">LinkinStar</p>
+              <div class="site-description motion-element" itemprop="description">No one but myself can do it.<br> Don't worry. Be happy!</div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">27</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">10</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">24</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/LinkinStars" title="GitHub &rarr; https://github.com/LinkinStars" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.jianshu.com/u/dcc4b2396fc4" title="简书 &rarr; https://www.jianshu.com/u/dcc4b2396fc4" rel="noopener" target="_blank"><i class="fa fa-fw fa-book"></i>简书</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.cnblogs.com/linkstar" title="博客园 &rarr; https://www.cnblogs.com/linkstar" rel="noopener" target="_blank"><i class="fa fa-fw fa-link"></i>博客园</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://weibo.com/u/5305440833" title="Weibo &rarr; https://weibo.com/u/5305440833" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://draveness.me/" title="https://draveness.me/" rel="noopener" target="_blank">面向信仰编程</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.flysnow.org/archives/" title="https://www.flysnow.org/archives/" rel="noopener" target="_blank">飞雪无情</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://xargin.com/" title="https://xargin.com/" rel="noopener" target="_blank">No Headback</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://colobu.com/" title="https://colobu.com/" rel="noopener" target="_blank">鸟窝</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://pengrl.com/" title="https://pengrl.com/" rel="noopener" target="_blank">pengrl</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://aleiwu.com/" title="https://aleiwu.com/" rel="noopener" target="_blank">aleiwu</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#必考点"><span class="nav-number">1.</span> <span class="nav-text">必考点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#redis实现"><span class="nav-number">2.</span> <span class="nav-text">redis实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#加锁"><span class="nav-number">2.1.</span> <span class="nav-text">加锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#解锁"><span class="nav-number">2.2.</span> <span class="nav-text">解锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题1-解锁方式靠谱吗？"><span class="nav-number">2.3.</span> <span class="nav-text">问题1 解锁方式靠谱吗？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题1-解决"><span class="nav-number">2.4.</span> <span class="nav-text">问题1 解决</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题2-redis挂了…"><span class="nav-number">2.5.</span> <span class="nav-text">问题2 redis挂了…</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题2-解决方案"><span class="nav-number">2.6.</span> <span class="nav-text">问题2 解决方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题3-超时时间设定多久"><span class="nav-number">2.7.</span> <span class="nav-text">问题3 超时时间设定多久</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题3-解决"><span class="nav-number">2.8.</span> <span class="nav-text">问题3 解决</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mysql实现"><span class="nav-number">3.</span> <span class="nav-text">mysql实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#mysql实现的优点"><span class="nav-number">3.1.</span> <span class="nav-text">mysql实现的优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案1-主键锁"><span class="nav-number">3.2.</span> <span class="nav-text">方案1 主键锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案1-主键锁-问题"><span class="nav-number">3.3.</span> <span class="nav-text">方案1 主键锁 问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案1-主键锁-解决"><span class="nav-number">3.4.</span> <span class="nav-text">方案1 主键锁 解决</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案2-乐观锁"><span class="nav-number">3.5.</span> <span class="nav-text">方案2 乐观锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案2-乐观锁-问题"><span class="nav-number">3.6.</span> <span class="nav-text">方案2 乐观锁 问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案2-乐观锁-解决"><span class="nav-number">3.7.</span> <span class="nav-text">方案2 乐观锁 解决</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案3-悲观锁"><span class="nav-number">3.8.</span> <span class="nav-text">方案3 悲观锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案3-悲观锁-问题"><span class="nav-number">3.9.</span> <span class="nav-text">方案3 悲观锁 问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案3-悲观锁-改动之旅"><span class="nav-number">3.10.</span> <span class="nav-text">方案3 悲观锁 改动之旅</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案3-悲观锁-总结"><span class="nav-number">3.11.</span> <span class="nav-text">方案3 悲观锁 总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ETCD实现"><span class="nav-number">4.</span> <span class="nav-text">ETCD实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#实现方案"><span class="nav-number">4.1.</span> <span class="nav-text">实现方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实现总结"><span class="nav-number">4.2.</span> <span class="nav-text">实现总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他实现方式"><span class="nav-number">5.</span> <span class="nav-text">其他实现方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">LinkinStar</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.1"></script>
+
+  <script src="/js/motion.js?v=7.1.1"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.1"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.1"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.1"></script>
+<script src="/js/post-details.js?v=7.1.1"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.1"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+    
+
+<script src="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+
+
+<script src="//cdn.jsdelivr.net/npm/js-md5@0.7.3/src/md5.min.js"></script>
+
+<script>
+  var gitalk = new Gitalk({
+    clientID: 'fb1c6a994a1f26c2655e',
+    clientSecret: '512d1338f3c8e48f1be73caf0661c005bf1c0425',
+    repo: 'linkinstars.github.io',
+    owner: 'LinkinStars',
+    admin: ['LinkinStars'],
+    id: md5(location.pathname),
+    
+      language: window.navigator.language || window.navigator.userLanguage,
+    
+    distractionFreeMode: 'true'
+  });
+  gitalk.render('gitalk-container');
+</script>
+
+  
+
+
+  
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('10');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"/live2dw/assets/shizuku.model.json"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
+</html>
