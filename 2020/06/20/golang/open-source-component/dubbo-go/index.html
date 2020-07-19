@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.1">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=7.1.1">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=7.1.1">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-32x32.png?v=7.1.1">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.1" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.1',
+    sidebar: {"position":"left","display":"always","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: true,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":true,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="每次技术调研总会发现自己学不动了怎么办？用已有的知识来拓展要学习的新知识就好了~ by LinkinStar最近需要调研使用 dubbo，之前完全是 0 基础，对于 dubbo 只存在于听说，今天上手实战一把，告诉你如何快速用 go 上手 dubboPS：以下的学习方式适用于很多新技术">
+<meta name="keywords" content="dubbo-go">
+<meta property="og:type" content="article">
+<meta property="og:title" content="快速上手 dubbo-go">
+<meta property="og:url" content="https://linkinstar.gitee.io/2020/06/20/golang/open-source-component/dubbo-go/index.html">
+<meta property="og:site_name" content="LinkinStar&#39;s Blog">
+<meta property="og:description" content="每次技术调研总会发现自己学不动了怎么办？用已有的知识来拓展要学习的新知识就好了~ by LinkinStar最近需要调研使用 dubbo，之前完全是 0 基础，对于 dubbo 只存在于听说，今天上手实战一把，告诉你如何快速用 go 上手 dubboPS：以下的学习方式适用于很多新技术">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://blog.linkinstars.com//blog/1240-20200719222110766.png">
+<meta property="og:image" content="http://blog.linkinstars.com//blog/1240-20200719222118263.png">
+<meta property="og:image" content="http://blog.linkinstars.com//blog/1240-20200719222122876.png">
+<meta property="og:updated_time" content="2020-07-19T14:22:03.480Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="快速上手 dubbo-go">
+<meta name="twitter:description" content="每次技术调研总会发现自己学不动了怎么办？用已有的知识来拓展要学习的新知识就好了~ by LinkinStar最近需要调研使用 dubbo，之前完全是 0 基础，对于 dubbo 只存在于听说，今天上手实战一把，告诉你如何快速用 go 上手 dubboPS：以下的学习方式适用于很多新技术">
+<meta name="twitter:image" content="http://blog.linkinstars.com//blog/1240-20200719222110766.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="https://linkinstar.gitee.io/2020/06/20/golang/open-source-component/dubbo-go/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>快速上手 dubbo-go | LinkinStar's Blog</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?89a776c473aa81d27c40ef9cfb9b569e";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">LinkinStar's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2020/06/20/golang/open-source-component/dubbo-go/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="LinkinStar">
+      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!">
+      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LinkinStar's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">快速上手 dubbo-go
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-06-20 00:00:00" itemprop="dateCreated datePublished" datetime="2020-06-20T00:00:00+08:00">2020-06-20</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/dubbo-go/" itemprop="url" rel="index"><span itemprop="name">dubbo-go</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>每次技术调研总会发现自己学不动了怎么办？用已有的知识来拓展要学习的新知识就好了~ by LinkinStar<br>最近需要调研使用 dubbo，之前完全是 0 基础，对于 dubbo 只存在于听说，今天上手实战一把，告诉你如何快速用 go 上手 dubbo<br>PS：以下的学习方式适用于很多新技术  </p>
+<a id="more"></a>
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p><strong>首先学习一个技术首先要看看它的整体架构和基本概念</strong>，每个技术都有着自己的名词解释和实现方式，如果文档齐全就简单很多。</p>
+<p><a href="http://dubbo.apache.org/zh-cn/docs/user/preface/background.html" target="_blank" rel="noopener">http://dubbo.apache.org/zh-cn/docs/user/preface/background.html</a></p>
+<p>大致浏览了背景、需求、架构之后基本上有一个大致概念</p>
+<p><img src="http://blog.linkinstars.com//blog/1240-20200719222110766.png" alt="image.png"></p>
+<p>其实整体架构和很多微服务的架构都是类似的，就是有一个注册中心管理所有的服务列表，服务提供方先向注册中心注册，而消费方向注册中心请求服务列表，通过服务列表调用最终的服务。总的来说 dubbo 将整个过程封装在了里面，而作为使用者的我们来说更加关心业务实现，它帮我们做好了治理的工作。</p>
+<p>然后我抓住了几个我想要知道的重点：</p>
+<ul>
+<li>注册中心可替换，官方推荐的是 zk</li>
+<li>如果有变更，注册中心将基于长连接推送变更数据给消费者，注册中心，服务提供者，服务消费者三者之间均为长连接</li>
+<li>基于软负载均衡算法，选一台提供者进行调用，如果调用失败，再选另一台调用</li>
+<li>消费者在本地缓存了提供者列表</li>
+</ul>
+<h2 id="实际上手"><a href="#实际上手" class="headerlink" title="实际上手"></a>实际上手</h2><p>官网文档中也给出如果使用 golang 开发，那么有 <a href="https://github.com/apache/dubbo-go" target="_blank" rel="noopener">https://github.com/apache/dubbo-go</a> 可以用，那么废话不多说，上手实践一把先。因为你看再多，都比不上实践一把来学的快。</p>
+<h3 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h3><p>大多数教程就会跟你说，一个 helloWorld 需要 zookeeper 环境，但是不告诉你如何搭建，因为这对于他们来说太简单了，而我不一样，我是 0 基础，那如何快速搭建一个需要调研项目的环境呢？最好的方式就是 docker。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">'3'</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line"><span class="attr">  zookeeper:</span></span><br><span class="line"><span class="attr">    image:</span> <span class="string">zookeeper</span></span><br><span class="line"><span class="attr">    ports:</span></span><br><span class="line"><span class="bullet">      -</span> <span class="number">2181</span><span class="string">:2181</span></span><br><span class="line"><span class="attr">  admin:</span></span><br><span class="line"><span class="attr">    image:</span> <span class="string">apache/dubbo-admin</span></span><br><span class="line"><span class="attr">    depends_on:</span></span><br><span class="line"><span class="bullet">      -</span> <span class="string">zookeeper</span></span><br><span class="line"><span class="attr">    ports:</span></span><br><span class="line"><span class="bullet">      -</span> <span class="number">8080</span><span class="string">:8080</span></span><br><span class="line"><span class="attr">    environment:</span></span><br><span class="line"><span class="bullet">      -</span> <span class="string">admin.registry.address=zookeeper://zookeeper:2181</span></span><br><span class="line"><span class="bullet">      -</span> <span class="string">admin.config-center=zookeeper://zookeeper:2181</span></span><br><span class="line"><span class="bullet">      -</span> <span class="string">admin.metadata-report.address=zookeeper://zookeeper:2181</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">'3'</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line"><span class="attr">  zookeeper:</span></span><br><span class="line"><span class="attr">    image:</span> <span class="string">zookeeper</span></span><br><span class="line"><span class="attr">    ports:</span></span><br><span class="line"><span class="bullet">      -</span> <span class="number">2181</span><span class="string">:2181</span></span><br><span class="line"><span class="attr">  admin:</span></span><br><span class="line"><span class="attr">    image:</span> <span class="string">chenchuxin/dubbo-admin</span></span><br><span class="line"><span class="attr">    depends_on:</span></span><br><span class="line"><span class="bullet">      -</span> <span class="string">zookeeper</span></span><br><span class="line"><span class="attr">    ports:</span></span><br><span class="line"><span class="bullet">      -</span> <span class="number">8080</span><span class="string">:8080</span></span><br><span class="line"><span class="attr">    environment:</span></span><br><span class="line"><span class="bullet">      -</span> <span class="string">dubbo.registry.address=zookeeper://zookeeper:2181</span></span><br><span class="line"><span class="bullet">      -</span> <span class="string">dubbo.admin.root.password=root</span></span><br><span class="line"><span class="bullet">      -</span> <span class="string">dubbo.admin.guest.password=guest</span></span><br></pre></td></tr></table></figure>
+<p>上面两个 docker-compose 文件一个是官方提供的管理工具，一个包含的是个人修改之后的管理工具，记住这里有个用户名密码是 root-root，看你喜欢</p>
+<p>废话不多说，直接创建 docker-compose.yaml 然后 <code>docker-compose up</code> 你就得到了一个环境，棒👍</p>
+<h3 id="样例下载"><a href="#样例下载" class="headerlink" title="样例下载"></a>样例下载</h3><p>有的技术会给出官方的实验样例，dubbo-go 也不例外</p>
+<p><a href="https://github.com/apache/dubbo-samples" target="_blank" rel="noopener">https://github.com/apache/dubbo-samples</a></p>
+<p>里面包含了 go 和 java 的样例，有了它你就能快速上手了，把它下载到本地</p>
+<h3 id="样例运行"><a href="#样例运行" class="headerlink" title="样例运行"></a>样例运行</h3><p>首先要做的第一步就是把 helloworld 给跑起来，进入 golang 目录，里面有个 README.md 看一下。然后开搞。</p>
+<p>打开一个终端运行服务方</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> ARCH=mac</span><br><span class="line"><span class="built_in">export</span> ENV=dev</span><br><span class="line"><span class="built_in">cd</span> helloworld/dubbo/go-server</span><br><span class="line">sh ./assembly/<span class="variable">$ARCH</span>/<span class="variable">$ENV</span>.sh</span><br><span class="line"><span class="built_in">cd</span> ./target/linux/user_info_server-0.3.1-20190517-0930-release</span><br><span class="line">sh ./bin/load.sh start</span><br></pre></td></tr></table></figure>
+<p>打开另一个终端运行客户端</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> ARCH=mac</span><br><span class="line"><span class="built_in">export</span> ENV=dev</span><br><span class="line"><span class="built_in">cd</span> helloworld/dubbo/go-client</span><br><span class="line">sh ./assembly/<span class="variable">$ARCH</span>/<span class="variable">$ENV</span>.sh</span><br><span class="line"><span class="built_in">cd</span> ./target/linux/user_info_client-0.3.1-20190517-0921-release</span><br><span class="line">sh ./bin/load_user_info_client.sh start</span><br></pre></td></tr></table></figure>
+<p>启动过程中会出现一些警告，问题不大，如果成功，那么客户端会有一个调用服务端的请求，并在控制台中以白色底色进行打印</p>
+<p><img src="http://blog.linkinstars.com//blog/1240-20200719222118263.png" alt="image.png"></p>
+<p>java 的服务也有相对应的启动方式，按照 README 中所说明的也可以进行注册和调用，并且 java 和 go 之间是可以互相调用的</p>
+<h3 id="查看服务"><a href="#查看服务" class="headerlink" title="查看服务"></a>查看服务</h3><p>因为我们部署的时候有一个 dubbo-admin 用于管理 zk 上注册的服务，我们可以访问本地的 8080 端口看到对应的服务情况</p>
+<p><img src="http://blog.linkinstars.com//blog/1240-20200719222122876.png" alt="image.png"></p>
+<p>至此你应该已经对于整体的链路调用有一个大致的认识，结合之前官网文档的中的架构图，应该也清晰了。</p>
+<h2 id="如何使用"><a href="#如何使用" class="headerlink" title="如何使用"></a>如何使用</h2><p>那么现在你已经运行起来了，那么势必就要来看看具体是如何进行使用的了。</p>
+<h3 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h3><p>服务端，也就是服务提供者；</p>
+<p>位置在：<code>dubbo-samples/golang/helloworld/dubbo/go-server/app</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 将服务进行注册</span></span><br><span class="line">config.SetProviderService(<span class="built_in">new</span>(UserProvider))</span><br><span class="line"><span class="comment">// 注册对象的hessian序列化</span></span><br><span class="line">hessian.RegisterPOJO(&amp;User&#123;&#125;)</span><br></pre></td></tr></table></figure>
+<p>是不是看起来其实很简单，其实重点就是上面两句代码了</p>
+<p>对于服务本身来说</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> UserProvider <span class="keyword">struct</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(u *UserProvider)</span> <span class="title">GetUser</span><span class="params">(ctx context.Context, req []<span class="keyword">interface</span>&#123;&#125;)</span> <span class="params">(*User, error)</span></span> &#123;</span><br><span class="line">	<span class="built_in">println</span>(<span class="string">"req:%#v"</span>, req)</span><br><span class="line">	rsp := User&#123;<span class="string">"A001"</span>, <span class="string">"Alex Stocks"</span>, <span class="number">18</span>, time.Now()&#125;</span><br><span class="line">	<span class="built_in">println</span>(<span class="string">"rsp:%#v"</span>, rsp)</span><br><span class="line">	<span class="keyword">return</span> &amp;rsp, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(u *UserProvider)</span> <span class="title">Reference</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="string">"UserProvider"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其实就是需要实现下面那个接口就可以了</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// rpc service interface</span></span><br><span class="line"><span class="keyword">type</span> RPCService <span class="keyword">interface</span> &#123;</span><br><span class="line">	Reference() <span class="keyword">string</span> <span class="comment">// rpc service id or reference id</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中有一步骤不要忘记了是config.Load()，会加载配置文件的相关配置，不然你以为注册中心的地址等等是在哪里配置的呢？</p>
+<h3 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h3><p>看了服务端，其实客户端也就很简单了</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">config.SetConsumerService(userProvider)</span><br><span class="line">hessian.RegisterPOJO(&amp;User&#123;&#125;)</span><br></pre></td></tr></table></figure>
+<p>其实也是差不多的，也需要注册一个消费服务，并将序列化方式给注册上去</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">user := &amp;User&#123;&#125;</span><br><span class="line">err := userProvider.GetUser(context.TODO(), []<span class="keyword">interface</span>&#123;&#125;&#123;<span class="string">"A001"</span>&#125;, user)</span><br></pre></td></tr></table></figure>
+<p>使用也就很简单了，同样的也需要实现 Reference 接口</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> UserProvider <span class="keyword">struct</span> &#123;</span><br><span class="line">	GetUser <span class="function"><span class="keyword">func</span><span class="params">(ctx context.Context, req []<span class="keyword">interface</span>&#123;&#125;, rsp *User)</span> <span class="title">error</span></span></span><br><span class="line"><span class="function">&#125;</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="title">func</span> <span class="params">(u *UserProvider)</span> <span class="title">Reference</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="string">"UserProvider"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="回头想想"><a href="#回头想想" class="headerlink" title="回头想想"></a>回头想想</h3><p>当我们看完了代码的上的使用，再回头想想 dubbo 的作用，你就会发现其实 dubbo 帮你做的事情真的屏蔽了很多。</p>
+<ul>
+<li>你不需要关心服务是怎么注册的</li>
+<li>你不需要关心服务是怎么获取的</li>
+<li>你不需要关系服务是怎么调用的</li>
+<li>甚至序列化的过程都是基本透明的</li>
+</ul>
+<p>想对比来说，如果让你自己去是实现微服务，那是不是说，你需要实现服务的拉取，服务的负载均衡，服务的发现，序列化…..</p>
+<p>这下你应该明白了 dubbo 是做什么的也就明白了它为什么会出现了</p>
+<h2 id="其他能力"><a href="#其他能力" class="headerlink" title="其他能力"></a>其他能力</h2><p>当你学习了一个技术的基本使用之后，要学习其他的能力，以便在使用的过程中不会出现自己重复造轮子或者说有轮子没用到的情况，<a href="https://github.com/apache/dubbo-samples" target="_blank" rel="noopener">https://github.com/apache/dubbo-samples</a> 不止有 helloworld 还要很多别的案例供你参考，你可以继续看看并进行试验。</p>
+<h3 id="支持扩展"><a href="#支持扩展" class="headerlink" title="支持扩展"></a>支持扩展</h3><p><a href="https://github.com/apache/dubbo-go" target="_blank" rel="noopener">https://github.com/apache/dubbo-go</a></p>
+<p>在 Feature list 中列举了 dubbo-go 所支持的相关功能，比如序列化，比如注册中心，在比如过滤器。</p>
+<p>也就是说，在使用 dubbo-go 的时候相关功能都是插件化的，想用什么就看你自己了，比如注册中心我想用 etcd，比如调用的协议我想换成 grpc 都可以。</p>
+<h2 id="相关问题"><a href="#相关问题" class="headerlink" title="相关问题"></a>相关问题</h2><p><strong>对于一个技术调研，那么肯定会有相关问题等着你去发现去考虑。</strong></p>
+<p>下面是我能想到的一些问题：</p>
+<ul>
+<li>当前 dubbo-go 的版本最高在 1.4，所对应的 dubbo 版本应该是 2.6.x，如果调用更高版本的服务是否会有问题</li>
+<li>java 和 go 之间互相调用，各种类型转换之间是否存在问题，是否容易出现无法正确反序列化的问题</li>
+<li>….</li>
+</ul>
+<h2 id="后续学习"><a href="#后续学习" class="headerlink" title="后续学习"></a>后续学习</h2><p>那么上面只是说能让你上手 dubbo-go，但是实际使用可能存在距离。为什么这么说呢？如果你在不动里面任何的原理情况下，那么如果遇到问题，你很可能就束手无策了。比如如果线上服务无法正常发现，你应该如何排查？调用过程中出现问题如何定位？</p>
+<p>所以后续你需要做的是：</p>
+<ul>
+<li>看看整体设计架构和思路，明白整条链路调用过程和规则</li>
+<li>学习它的接口设计，为什么别人设计的接口能兼容那么多的注册中心？如果让你来设计你怎么设计呢？</li>
+<li>性能也很重要，网上说性能很不错，为什么呢？什么地方做了优化，负载均衡的算法是怎么样的，你能自定义吗？</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>总的来说，对于 dubbo-go 整体的使用上还是非常好上手的，自己想了一下，如果当前项目想要接入的话，主要是服务的暴露、序列化方式、鉴权调整等存在开发工作。</p>
+<p>上面砖头也抛的差不多了，对于你快速上手应该没有问题了，剩下的就要靠你自己了。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+      <div>
+        <div id="reward-container">
+  <div>赞赏时记得备注邮箱，即可第一时间收到更新推送哦~</div>
+  <button id="reward-button" disable="enable" onclick="var qr = document.getElementById(&quot;qr&quot;); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+
+    
+      
+      
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付">
+        <p>微信支付</p>
+      </div>
+    
+      
+      
+        
+      
+      <div style="display: inline-block">
+        <img src="/images/alipay.png" alt="LinkinStar 支付宝">
+        <p>支付宝</p>
+      </div>
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      <div>
+       
+        <ul class="post-copyright">
+          <li class="post-copyright-author">
+              <strong>本文作者：</strong>LinkinStar
+          </li>
+          <li class="post-copyright-link">
+            <strong>本文链接：</strong>
+            <a href="http://www.linkinstar.wiki//2020/06/20/golang/open-source-component/dubbo-go/" title="快速上手 dubbo-go">http://www.linkinstar.wiki/2020/06/20/golang/open-source-component/dubbo-go/</a>
+          </li>
+          <li class="post-copyright-license">
+            <strong>版权声明： </strong>
+            如无特殊声明，本博客均采用 <a href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0 CN</a> 许可协议，请勿用于商业，转载请注明出处！
+          </li>
+        </ul>
+        
+      </div>
+
+      
+        <div class="post-tags">
+          
+            <a href="/tags/dubbo-go/" rel="tag"># dubbo-go</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/06/14/linux/memory/" rel="next" title="你的内存还好吗">
+                <i class="fa fa-chevron-left"></i> 你的内存还好吗
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/06/27/linux/io/" rel="prev" title="你的 IO 还好吗">
+                你的 IO 还好吗 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="gitalk-container">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="http://blog.linkinstars.com/LLX.jpg" alt="LinkinStar">
+            
+              <p class="site-author-name" itemprop="name">LinkinStar</p>
+              <div class="site-description motion-element" itemprop="description">No one but myself can do it.<br> Don't worry. Be happy!</div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">14</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">36</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/LinkinStars" title="GitHub &rarr; https://github.com/LinkinStars" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.jianshu.com/u/dcc4b2396fc4" title="简书 &rarr; https://www.jianshu.com/u/dcc4b2396fc4" rel="noopener" target="_blank"><i class="fa fa-fw fa-book"></i>简书</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.cnblogs.com/linkstar" title="博客园 &rarr; https://www.cnblogs.com/linkstar" rel="noopener" target="_blank"><i class="fa fa-fw fa-link"></i>博客园</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://weibo.com/u/5305440833" title="Weibo &rarr; https://weibo.com/u/5305440833" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://draveness.me/" title="https://draveness.me/" rel="noopener" target="_blank">面向信仰编程</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.flysnow.org/archives/" title="https://www.flysnow.org/archives/" rel="noopener" target="_blank">飞雪无情</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://xargin.com/" title="https://xargin.com/" rel="noopener" target="_blank">No Headback</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://colobu.com/" title="https://colobu.com/" rel="noopener" target="_blank">鸟窝</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://pengrl.com/" title="https://pengrl.com/" rel="noopener" target="_blank">pengrl</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://aleiwu.com/" title="https://aleiwu.com/" rel="noopener" target="_blank">aleiwu</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本概念"><span class="nav-number">1.</span> <span class="nav-text">基本概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实际上手"><span class="nav-number">2.</span> <span class="nav-text">实际上手</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#环境搭建"><span class="nav-number">2.1.</span> <span class="nav-text">环境搭建</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#样例下载"><span class="nav-number">2.2.</span> <span class="nav-text">样例下载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#样例运行"><span class="nav-number">2.3.</span> <span class="nav-text">样例运行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查看服务"><span class="nav-number">2.4.</span> <span class="nav-text">查看服务</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如何使用"><span class="nav-number">3.</span> <span class="nav-text">如何使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#服务端"><span class="nav-number">3.1.</span> <span class="nav-text">服务端</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#客户端"><span class="nav-number">3.2.</span> <span class="nav-text">客户端</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#回头想想"><span class="nav-number">3.3.</span> <span class="nav-text">回头想想</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他能力"><span class="nav-number">4.</span> <span class="nav-text">其他能力</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#支持扩展"><span class="nav-number">4.1.</span> <span class="nav-text">支持扩展</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#相关问题"><span class="nav-number">5.</span> <span class="nav-text">相关问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后续学习"><span class="nav-number">6.</span> <span class="nav-text">后续学习</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+            <span id="scrollpercent"><span>0</span>%</span>
+          
+        </div>
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">LinkinStar</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="//cdn.jsdelivr.net/npm/jquery@2/dist/jquery.min.js"></script>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/velocity-animate@1/velocity.min.js"></script>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/velocity-animate@1/velocity.ui.min.js"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.1"></script>
+
+  <script src="/js/motion.js?v=7.1.1"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.1"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.1"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.1"></script>
+<script src="/js/post-details.js?v=7.1.1"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.1"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+    
+
+<script src="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+
+
+<script src="//cdn.jsdelivr.net/npm/js-md5@0.7.3/src/md5.min.js"></script>
+
+<script>
+  var gitalk = new Gitalk({
+    clientID: 'fb1c6a994a1f26c2655e',
+    clientSecret: '512d1338f3c8e48f1be73caf0661c005bf1c0425',
+    repo: 'linkinstars.github.io',
+    owner: 'LinkinStars',
+    admin: ['LinkinStars'],
+    id: md5(location.pathname),
+    
+      language: window.navigator.language || window.navigator.userLanguage,
+    
+    distractionFreeMode: 'true'
+  });
+  gitalk.render('gitalk-container');
+</script>
+
+  
+
+
+  
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('10');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"/live2dw/assets/shizuku.model.json"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
+</html>
