@@ -15,11 +15,11 @@
 
 
 <html class="theme-next gemini use-motion" lang="zh-CN">
-<head><meta name="generator" content="Hexo 3.8.0">
-  <meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
 
 
 
@@ -46,9 +46,9 @@
 
   
 
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css"/>
 
-<link rel="stylesheet" href="/css/main.css?v=7.1.1">
+<link rel="stylesheet" href="/css/main.css?v=7.1.1"/>
 
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=7.1.1">
@@ -71,7 +71,7 @@
 <script id="hexo.configurations">
   var NexT = window.NexT || {};
   var CONFIG = {
-    root: '/',
+    root: '',
     scheme: 'Gemini',
     version: '7.1.1',
     sidebar: {"position":"left","display":"always","offset":12,"onmobile":false,"dimmer":false},
@@ -99,17 +99,17 @@
 
 
   <meta name="description" content="所谓分布式锁，即在多个相同服务水平扩展时，对于同一资源，能稳定保证有且只有一个服务获得该资源 — by LinkinStar  其实对于分布式锁，也是属于那种看似简单，实则有很多细节的问题。很多人在被问到这个问题的时候，一上来就会说用redis嘛，setnx嘛，我知道我知道。但仅仅是这样就能搞定了吗？那么当我们在实现一个分布式锁的时候，我们究竟需要考虑些什么呢？">
-<meta name="keywords" content="distributed-lock">
 <meta property="og:type" content="article">
 <meta property="og:title" content="实现分布式锁，你能想到什么？">
 <meta property="og:url" content="https://linkinstar.gitee.io/2020/03/08/golang/architecture/distribute-lock/index.html">
 <meta property="og:site_name" content="LinkinStar&#39;s Blog">
 <meta property="og:description" content="所谓分布式锁，即在多个相同服务水平扩展时，对于同一资源，能稳定保证有且只有一个服务获得该资源 — by LinkinStar  其实对于分布式锁，也是属于那种看似简单，实则有很多细节的问题。很多人在被问到这个问题的时候，一上来就会说用redis嘛，setnx嘛，我知道我知道。但仅仅是这样就能搞定了吗？那么当我们在实现一个分布式锁的时候，我们究竟需要考虑些什么呢？">
-<meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-03-08T14:32:17.155Z">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-03-07T16:00:00.000Z">
+<meta property="article:modified_time" content="2020-03-08T14:32:17.155Z">
+<meta property="article:author" content="LinkinStar">
+<meta property="article:tag" content="distributed-lock">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="实现分布式锁，你能想到什么？">
-<meta name="twitter:description" content="所谓分布式锁，即在多个相同服务水平扩展时，对于同一资源，能稳定保证有且只有一个服务获得该资源 — by LinkinStar  其实对于分布式锁，也是属于那种看似简单，实则有很多细节的问题。很多人在被问到这个问题的时候，一上来就会说用redis嘛，setnx嘛，我知道我知道。但仅仅是这样就能搞定了吗？那么当我们在实现一个分布式锁的时候，我们究竟需要考虑些什么呢？">
 
 
 
@@ -117,7 +117,7 @@
 
   
   
-  <link rel="canonical" href="https://linkinstar.gitee.io/2020/03/08/golang/architecture/distribute-lock/">
+  <link rel="canonical" href="https://linkinstar.gitee.io/2020/03/08/golang/architecture/distribute-lock/"/>
 
 
 
@@ -176,7 +176,7 @@
   </style>
 </noscript>
 
-</head>
+<meta name="generator" content="Hexo 5.4.0"></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
 
@@ -233,7 +233,7 @@
 
     
 
-    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>首页</a>
 
   </li>
         
@@ -250,7 +250,7 @@
 
     
 
-    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br>分类</a>
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br/>分类</a>
 
   </li>
         
@@ -267,7 +267,7 @@
 
     
 
-    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>标签</a>
 
   </li>
         
@@ -284,7 +284,7 @@
 
     
 
-    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br>归档</a>
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br/>归档</a>
 
   </li>
         
@@ -301,7 +301,7 @@
 
     
 
-    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>关于</a>
 
   </li>
 
@@ -312,7 +312,7 @@
             <a href="javascript:;" class="popup-trigger">
           
             
-              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br/>搜索</a>
         </li>
       
     </ul>
@@ -332,7 +332,9 @@
       <i class="fa fa-times-circle"></i>
     </span>
     <div class="local-search-input-wrapper">
-      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
     </div>
   </div>
   <div id="local-search-result"></div>
@@ -382,16 +384,16 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2020/03/08/golang/architecture/distribute-lock/">
+    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2020/03/08/golang/architecture/distribute-lock/"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="LinkinStar">
-      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!">
-      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg">
+      <meta itemprop="name" content="LinkinStar"/>
+      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!"/>
+      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg"/>
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="LinkinStar's Blog">
+      <meta itemprop="name" content="LinkinStar's Blog"/>
     </span>
 
     
@@ -461,7 +463,8 @@
 
           
             <span class="post-meta-divider">|</span>
-            <span class="post-meta-item-icon">
+            <span class="post-meta-item-icon"
+            >
             <i class="fa fa-eye"></i>
              阅读次数： 
             <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
@@ -487,7 +490,7 @@
       
         <p>所谓分布式锁，即在多个相同服务水平扩展时，对于同一资源，能稳定保证有且只有一个服务获得该资源 — by LinkinStar </p>
 <p>其实对于分布式锁，也是属于那种看似简单，实则有很多细节的问题。很多人在被问到这个问题的时候，一上来就会说用redis嘛，setnx嘛，我知道我知道。但仅仅是这样就能搞定了吗？那么当我们在实现一个分布式锁的时候，我们究竟需要考虑些什么呢？</p>
-<a id="more"></a>
+<span id="more"></span>
 <h2 id="必考点"><a href="#必考点" class="headerlink" title="必考点"></a>必考点</h2><p>首先作为一个分布式锁，你一定要保证的是什么呢？</p>
 <ul>
 <li>不能有两个服务同时获取到一把锁（资源）</li>
@@ -500,9 +503,9 @@
 <h3 id="解锁"><a href="#解锁" class="headerlink" title="解锁"></a>解锁</h3><p>DEL resource_key</p>
 <p>面试者往往能给出这样的方案，那么这样的实现足够了吗？</p>
 <h3 id="问题1-解锁方式靠谱吗？"><a href="#问题1-解锁方式靠谱吗？" class="headerlink" title="问题1 解锁方式靠谱吗？"></a>问题1 解锁方式靠谱吗？</h3><p>上面的解锁方式是通过删除对应的key实现的。那么会有什么问题呢？<br>如果程序是我们自己写的，那么我们一定能保证，如果需要主动释放锁的话，必须要先要获取到锁。（我们可以这样强制编码）<br>那么问题来了，其实这个任何人都可能主动调用解锁，只要知道key就可以了，而key是肯定知道的。<br>那么，如果我主动捣乱，我可以说直接手动先删除这个key然后我就一定能重新拿到这个锁了，这显然有漏洞了。<br>其实不只是这样的场景，有一些场景下，获取锁和释放锁的人确实不是一个，那么就会存在问题。</p>
-<h3 id="问题1-解决"><a href="#问题1-解决" class="headerlink" title="问题1 解决"></a>问题1 解决</h3><p>方式1：强制规定只能使用过期解锁<br>方式2：验证存放的value是否为存放的时候的值来保证是同一人的行为<br>方式3：通过lua脚本进一步保证验证和是否为原子操作<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">if redis.get(&quot;resource_key&quot;) ==  &quot;random_value&quot;</span><br><span class="line">    return redis.del(&quot;resource_key&quot;)</span><br><span class="line">else </span><br><span class="line">    return 0</span><br></pre></td></tr></table></figure></p>
+<h3 id="问题1-解决"><a href="#问题1-解决" class="headerlink" title="问题1 解决"></a>问题1 解决</h3><p>方式1：强制规定只能使用过期解锁<br>方式2：验证存放的value是否为存放的时候的值来保证是同一人的行为<br>方式3：通过lua脚本进一步保证验证和是否为原子操作<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">if redis.get(&quot;resource_key&quot;) ==  &quot;random_value&quot;</span><br><span class="line">    return redis.del(&quot;resource_key&quot;)</span><br><span class="line">else </span><br><span class="line">    return 0</span><br></pre></td></tr></table></figure></p>
 <h3 id="问题2-redis挂了…"><a href="#问题2-redis挂了…" class="headerlink" title="问题2 redis挂了…"></a>问题2 redis挂了…</h3><p>redis万一挂了，那么对外来说，没有人能获取到锁，那么业务肯定会有问题。<br>这个时候小明马上会说了，那就redis集群，主从，哨兵…<br>那么相对应的问题就来了，如果在复制的过程中挂了，是否就有可能出现虽然获取到了锁但是锁丢失了的情况呢？</p>
-<h3 id="问题2-解决方案"><a href="#问题2-解决方案" class="headerlink" title="问题2 解决方案"></a>问题2 解决方案</h3><p>那么redis早就想到了解决方案，Redlock（红锁）<br>如果你是第一次听到这个名字可能会觉得它有点独特和高级，其实并没有。。。<br>它利用的就是抽屉原理，或者称为大多数原理，就是当你要获取锁的时候，如果有5个节点，你必须要拿到其中3个才可以。并且获取锁的时间共计时间要小于锁的超时时间。<br>更加详细的可以参考官网：<a href="https://redis.io/topics/distlock" target="_blank" rel="noopener">https://redis.io/topics/distlock</a><br>这样能保证在最多挂掉2个节点的情况下，依旧能正常的时候（原来是5个）</p>
+<h3 id="问题2-解决方案"><a href="#问题2-解决方案" class="headerlink" title="问题2 解决方案"></a>问题2 解决方案</h3><p>那么redis早就想到了解决方案，Redlock（红锁）<br>如果你是第一次听到这个名字可能会觉得它有点独特和高级，其实并没有。。。<br>它利用的就是抽屉原理，或者称为大多数原理，就是当你要获取锁的时候，如果有5个节点，你必须要拿到其中3个才可以。并且获取锁的时间共计时间要小于锁的超时时间。<br>更加详细的可以参考官网：<a target="_blank" rel="noopener" href="https://redis.io/topics/distlock">https://redis.io/topics/distlock</a><br>这样能保证在最多挂掉2个节点的情况下，依旧能正常的时候（原来是5个）</p>
 <h3 id="问题3-超时时间设定多久"><a href="#问题3-超时时间设定多久" class="headerlink" title="问题3 超时时间设定多久"></a>问题3 超时时间设定多久</h3><p>这个问题其实就很难了，无论是一开始的方案还是说对超时时间要求更高的redlock，超时时间的设定一直是一个难题；设定太长，可能在意外情况下会导致锁迟迟得不到释放；设定太短，事情还没做好，锁就被释放了；更有甚者提出，设定时间即使合适，那么由于网络、GC、等等不稳定因素也会导致意外情况发生。</p>
 <h3 id="问题3-解决"><a href="#问题3-解决" class="headerlink" title="问题3 解决"></a>问题3 解决</h3><p>其实问题在不好解决，因为问题本身存在不确定因素。所以我们不能从问题本身出发，那么就尝试从业务出发解决。（我总不能告诉你说’设定5分钟，这样是最好的’这样类似的话吧）<br>方案是说：当我们获取锁之后获得一个类似乐观锁的标记token（或者说version）比如当前是33，当我们做完事情之后，需要主动更新数据时，如果发现当前当前的version已经为34（已经出现了别人获取到锁并且更新了数据），那么此次操作将不进行。<br>虽然这样看来直接用乐观锁不就好了吗？后面我们会提到。</p>
 <h2 id="mysql实现"><a href="#mysql实现" class="headerlink" title="mysql实现"></a>mysql实现</h2><p>说完了 redis 的实现，那让我们来看看 mysql 的实现吧。mysql的实现方式就五花八门了，我们一个个来看看。</p>
@@ -530,7 +533,7 @@
 <h3 id="方案2-乐观锁"><a href="#方案2-乐观锁" class="headerlink" title="方案2 乐观锁"></a>方案2 乐观锁</h3><p>有关乐观锁就简单解释一下好了，就是添加一个 version 的字段，需要更新操作的时候，必须满足当前取出时的版本号。举个例子：我取出时的版本号是3，当我更新时那么就必须写着 update…… where version = 3 因为 mysql 的 mvcc 的控制能保证没有问题</p>
 <h3 id="方案2-乐观锁-问题"><a href="#方案2-乐观锁-问题" class="headerlink" title="方案2 乐观锁 问题"></a>方案2 乐观锁 问题</h3><p>其实乐观锁的问题就在需要给业务添加 version 字段，这个对于业务是入侵的。<br>其次在并发情况下会增加大量的数据库无用操作，如果数据量大的话也挺难顶的。（这也是为什么上面在redis实现中加入类似version控制，而不直接使用乐观锁控制的原因）</p>
 <h3 id="方案2-乐观锁-解决"><a href="#方案2-乐观锁-解决" class="headerlink" title="方案2 乐观锁 解决"></a>方案2 乐观锁 解决</h3><p>乐观锁其实挺乐观的，它就是用于哪些乐观的不会发生很大程度并发的情况，所以它的使用就看你的业务需求即可，有时即使没有 version 字段，也会合理使用。</p>
-<h3 id="方案3-悲观锁"><a href="#方案3-悲观锁" class="headerlink" title="方案3 悲观锁"></a>方案3 悲观锁</h3><p>网上搜一圈你就会发现如下的分布式锁的实现：<a href="https://www.jianshu.com/p/b76f409b2db2" target="_blank" rel="noopener">https://www.jianshu.com/p/b76f409b2db2</a></p>
+<h3 id="方案3-悲观锁"><a href="#方案3-悲观锁" class="headerlink" title="方案3 悲观锁"></a>方案3 悲观锁</h3><p>网上搜一圈你就会发现如下的分布式锁的实现：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/b76f409b2db2">https://www.jianshu.com/p/b76f409b2db2</a></p>
 <ul>
 <li>开始事务</li>
 <li>使用 <code>for update</code> 进行查询（如果能查询就表示能获取到锁）</li>
@@ -599,7 +602,7 @@
 <h2 id="ETCD实现"><a href="#ETCD实现" class="headerlink" title="ETCD实现"></a>ETCD实现</h2><p>说了redis、说了mysql、可能很多人认为下面提到的应该是zk了。其实zk也并不失为一种很好的解决方案，但是由于篇幅不想拉的过长，我更想介绍一下ETCD的实现。</p>
 <p>ETCD 在 K8S 火了之后也就自然被带火了，多的我就不介绍了，对于很多分布式场景存储的实现总会提到它，现在我们关注一下如何用它来实现分布式锁呢？</p>
 <h3 id="实现方案"><a href="#实现方案" class="headerlink" title="实现方案"></a>实现方案</h3><p>其实 ETCD 的实现分布式锁思路和 Redis 类似，只不过 ETCD 本身没有一个操作叫做SET NX或类似操作，我们需要使用 ETCD 的事务来帮助实现这个操作，从而实现如果查询到没有就set这样一个原子操作。下面是go实现中的部分代码片段。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">   kv := clientv3.NewKV(client)</span><br><span class="line">   txn := kv.Txn(context.TODO())</span><br><span class="line">txn.If(clientv3.Compare(clientv3.CreateRevision(<span class="string">"/lock-key/uuid"</span>), <span class="string">"="</span>, <span class="number">0</span>)).</span><br><span class="line">	Then(clientv3.OpPut(<span class="string">"/lock-key/uuid"</span>, <span class="string">"xxx"</span>, clientv3.WithLease(leaseId))).</span><br><span class="line">	Else(clientv3.OpGet(<span class="string">"/lock-key/uuid"</span>))</span><br><span class="line"></span><br><span class="line">txnResp, err := txn.Commit()</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">	fmt.Println(err)</span><br><span class="line">	<span class="keyword">return</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> !txnResp.Succeeded &#123;</span><br><span class="line">	fmt.Println(<span class="string">"锁被占用:"</span>, <span class="keyword">string</span>(txnResp.Responses[<span class="number">0</span>].GetResponseRange().Kvs[<span class="number">0</span>].Value))</span><br><span class="line">	<span class="keyword">return</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">   kv := clientv3.NewKV(client)</span><br><span class="line">   txn := kv.Txn(context.TODO())</span><br><span class="line">txn.If(clientv3.Compare(clientv3.CreateRevision(<span class="string">&quot;/lock-key/uuid&quot;</span>), <span class="string">&quot;=&quot;</span>, <span class="number">0</span>)).</span><br><span class="line">	Then(clientv3.OpPut(<span class="string">&quot;/lock-key/uuid&quot;</span>, <span class="string">&quot;xxx&quot;</span>, clientv3.WithLease(leaseId))).</span><br><span class="line">	Else(clientv3.OpGet(<span class="string">&quot;/lock-key/uuid&quot;</span>))</span><br><span class="line"></span><br><span class="line">txnResp, err := txn.Commit()</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">	fmt.Println(err)</span><br><span class="line">	<span class="keyword">return</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> !txnResp.Succeeded &#123;</span><br><span class="line">	fmt.Println(<span class="string">&quot;锁被占用:&quot;</span>, <span class="keyword">string</span>(txnResp.Responses[<span class="number">0</span>].GetResponseRange().Kvs[<span class="number">0</span>].Value))</span><br><span class="line">	<span class="keyword">return</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>如果仅仅只是这样，那我也不会单独拿出来重点说了，它可并不只是这样。</p>
 <ul>
 <li>ETCD 有着租约机制，什么意思呢？当你申请获得一个租约之后，它有一定的时间，在这个时间之内 key 都是有效的，但是租约到期了之后，key 就会被自动删除了。有点类似 redis 的过期，但是它有续租的概念，过一段时间可以主动进行续租，这样你又能获得一段时间的租约。</li>
@@ -613,7 +616,7 @@
 <li>Consul 是 Go 实现的一个轻量级 服务发现 、KV存储 的工具<br>对于它，知道的人可能就不多了，它也能实现分布式锁，而且实现起来也很简单，只需要实例一个session，用这个session去获取锁和释放锁就可以了。如果你正好在用 Consul 那用它来实现你需要的分布式锁，也可以作为你的一种选择吧</li>
 </ul>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>其实，回过头你会发现，我们实现分布式锁，其实要考虑的地方非常多，需要注意的问题也很多，并不是很多时候我们也在权衡考虑。为了保证一个分布式环境中的原子操作，其实说起来容易，做起来真的有点难。</p>
-<p>推荐下面几篇博客供你进一步学习：<br><a href="https://dbaplus.cn/news-159-2469-1.html（ZK实现分布式锁，以及分布式锁就够了吗？如何能做到高并发下也能好用呢？）" target="_blank" rel="noopener">https://dbaplus.cn/news-159-2469-1.html（ZK实现分布式锁，以及分布式锁就够了吗？如何能做到高并发下也能好用呢？）</a><br><a href="https://zhuanlan.zhihu.com/p/42056183" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/42056183</a><br><a href="https://mp.weixin.qq.com/s/1bPLk_VZhZ0QYNZS8LkviA（基于Redis的分布式锁真的安全吗？）" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/1bPLk_VZhZ0QYNZS8LkviA（基于Redis的分布式锁真的安全吗？）</a><br><a href="https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html（大佬说说分布式锁）" target="_blank" rel="noopener">https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html（大佬说说分布式锁）</a></p>
+<p>推荐下面几篇博客供你进一步学习：<br><a target="_blank" rel="noopener" href="https://dbaplus.cn/news-159-2469-1.html（ZK实现分布式锁，以及分布式锁就够了吗？如何能做到高并发下也能好用呢？）">https://dbaplus.cn/news-159-2469-1.html（ZK实现分布式锁，以及分布式锁就够了吗？如何能做到高并发下也能好用呢？）</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/42056183">https://zhuanlan.zhihu.com/p/42056183</a><br><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/1bPLk_VZhZ0QYNZS8LkviA（基于Redis的分布式锁真的安全吗？）">https://mp.weixin.qq.com/s/1bPLk_VZhZ0QYNZS8LkviA（基于Redis的分布式锁真的安全吗？）</a><br><a target="_blank" rel="noopener" href="https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html（大佬说说分布式锁）">https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html（大佬说说分布式锁）</a></p>
 
       
     </div>
@@ -644,7 +647,7 @@
         
       
       <div style="display: inline-block">
-        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付">
+        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付"/>
         <p>微信支付</p>
       </div>
     
@@ -653,7 +656,7 @@
         
       
       <div style="display: inline-block">
-        <img src="/images/alipay.png" alt="LinkinStar 支付宝">
+        <img src="/images/alipay.png" alt="LinkinStar 支付宝"/>
         <p>支付宝</p>
       </div>
     
@@ -671,11 +674,11 @@
        
         <ul class="post-copyright">
           <li class="post-copyright-author">
-              <strong>本文作者：</strong>LinkinStar
+              <strong>本文作者：</strong>
           </li>
           <li class="post-copyright-link">
             <strong>本文链接：</strong>
-            <a href="http://www.linkinstar.wiki//2020/03/08/golang/architecture/distribute-lock/" title="实现分布式锁，你能想到什么？">http://www.linkinstar.wiki/2020/03/08/golang/architecture/distribute-lock/</a>
+            <a target="_blank" rel="noopener" href="http://www.linkinstar.wiki//2020/03/08/golang/architecture/distribute-lock/" title="实现分布式锁，你能想到什么？">http://www.linkinstar.wiki/2020/03/08/golang/architecture/distribute-lock/</a>
           </li>
           <li class="post-copyright-license">
             <strong>版权声明： </strong>
@@ -701,7 +704,7 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2020/03/01/golang/open-source-component/k8s-dis-deployment/" rel="next" title="细说kubernetes - 初识deployment">
+              <a href="/2020/03/01/k8s/k8s-dis-deployment/" rel="next" title="细说kubernetes - 初识deployment">
                 <i class="fa fa-chevron-left"></i> 细说kubernetes - 初识deployment
               </a>
             
@@ -775,7 +778,9 @@
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
-              <img class="site-author-image" itemprop="image" src="http://blog.linkinstars.com/LLX.jpg" alt="LinkinStar">
+              <img class="site-author-image" itemprop="image"
+                src="http://blog.linkinstars.com/LLX.jpg"
+                alt="LinkinStar"/>
             
               <p class="site-author-name" itemprop="name">LinkinStar</p>
               <div class="site-description motion-element" itemprop="description">No one but myself can do it.<br> Don't worry. Be happy!</div>
@@ -786,9 +791,9 @@
               
                 <div class="site-state-item site-state-posts">
                 
-                  <a href="/archives/">
+                  <a href="/archives/%20%7C%7C%20folder-open-o">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">50</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -800,7 +805,7 @@
                 <div class="site-state-item site-state-categories">
                   
                     
-                      <a href="/categories/">
+                      <a href="/categories/%20%7C%7C%20cubes">
                     
                   
                     
@@ -833,7 +838,23 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -845,7 +866,7 @@
                 <div class="site-state-item site-state-tags">
                   
                     
-                      <a href="/tags/">
+                      <a href="/tags/%20%7C%7C%20tags">
                     
                   
                     
@@ -922,7 +943,23 @@
                     
                       
                     
-                    <span class="site-state-item-count">36</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">44</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -1042,7 +1079,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#必考点"><span class="nav-number">1.</span> <span class="nav-text">必考点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#redis实现"><span class="nav-number">2.</span> <span class="nav-text">redis实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#加锁"><span class="nav-number">2.1.</span> <span class="nav-text">加锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#解锁"><span class="nav-number">2.2.</span> <span class="nav-text">解锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题1-解锁方式靠谱吗？"><span class="nav-number">2.3.</span> <span class="nav-text">问题1 解锁方式靠谱吗？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题1-解决"><span class="nav-number">2.4.</span> <span class="nav-text">问题1 解决</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题2-redis挂了…"><span class="nav-number">2.5.</span> <span class="nav-text">问题2 redis挂了…</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题2-解决方案"><span class="nav-number">2.6.</span> <span class="nav-text">问题2 解决方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题3-超时时间设定多久"><span class="nav-number">2.7.</span> <span class="nav-text">问题3 超时时间设定多久</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题3-解决"><span class="nav-number">2.8.</span> <span class="nav-text">问题3 解决</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mysql实现"><span class="nav-number">3.</span> <span class="nav-text">mysql实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#mysql实现的优点"><span class="nav-number">3.1.</span> <span class="nav-text">mysql实现的优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案1-主键锁"><span class="nav-number">3.2.</span> <span class="nav-text">方案1 主键锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案1-主键锁-问题"><span class="nav-number">3.3.</span> <span class="nav-text">方案1 主键锁 问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案1-主键锁-解决"><span class="nav-number">3.4.</span> <span class="nav-text">方案1 主键锁 解决</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案2-乐观锁"><span class="nav-number">3.5.</span> <span class="nav-text">方案2 乐观锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案2-乐观锁-问题"><span class="nav-number">3.6.</span> <span class="nav-text">方案2 乐观锁 问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案2-乐观锁-解决"><span class="nav-number">3.7.</span> <span class="nav-text">方案2 乐观锁 解决</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案3-悲观锁"><span class="nav-number">3.8.</span> <span class="nav-text">方案3 悲观锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案3-悲观锁-问题"><span class="nav-number">3.9.</span> <span class="nav-text">方案3 悲观锁 问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案3-悲观锁-改动之旅"><span class="nav-number">3.10.</span> <span class="nav-text">方案3 悲观锁 改动之旅</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方案3-悲观锁-总结"><span class="nav-number">3.11.</span> <span class="nav-text">方案3 悲观锁 总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ETCD实现"><span class="nav-number">4.</span> <span class="nav-text">ETCD实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#实现方案"><span class="nav-number">4.1.</span> <span class="nav-text">实现方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实现总结"><span class="nav-number">4.2.</span> <span class="nav-text">实现总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他实现方式"><span class="nav-number">5.</span> <span class="nav-text">其他实现方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BF%85%E8%80%83%E7%82%B9"><span class="nav-number">1.</span> <span class="nav-text">必考点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#redis%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">redis实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A0%E9%94%81"><span class="nav-number">2.1.</span> <span class="nav-text">加锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E9%94%81"><span class="nav-number">2.2.</span> <span class="nav-text">解锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%981-%E8%A7%A3%E9%94%81%E6%96%B9%E5%BC%8F%E9%9D%A0%E8%B0%B1%E5%90%97%EF%BC%9F"><span class="nav-number">2.3.</span> <span class="nav-text">问题1 解锁方式靠谱吗？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%981-%E8%A7%A3%E5%86%B3"><span class="nav-number">2.4.</span> <span class="nav-text">问题1 解决</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%982-redis%E6%8C%82%E4%BA%86%E2%80%A6"><span class="nav-number">2.5.</span> <span class="nav-text">问题2 redis挂了…</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%982-%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">2.6.</span> <span class="nav-text">问题2 解决方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%983-%E8%B6%85%E6%97%B6%E6%97%B6%E9%97%B4%E8%AE%BE%E5%AE%9A%E5%A4%9A%E4%B9%85"><span class="nav-number">2.7.</span> <span class="nav-text">问题3 超时时间设定多久</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%983-%E8%A7%A3%E5%86%B3"><span class="nav-number">2.8.</span> <span class="nav-text">问题3 解决</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mysql%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.</span> <span class="nav-text">mysql实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#mysql%E5%AE%9E%E7%8E%B0%E7%9A%84%E4%BC%98%E7%82%B9"><span class="nav-number">3.1.</span> <span class="nav-text">mysql实现的优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%A1%881-%E4%B8%BB%E9%94%AE%E9%94%81"><span class="nav-number">3.2.</span> <span class="nav-text">方案1 主键锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%A1%881-%E4%B8%BB%E9%94%AE%E9%94%81-%E9%97%AE%E9%A2%98"><span class="nav-number">3.3.</span> <span class="nav-text">方案1 主键锁 问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%A1%881-%E4%B8%BB%E9%94%AE%E9%94%81-%E8%A7%A3%E5%86%B3"><span class="nav-number">3.4.</span> <span class="nav-text">方案1 主键锁 解决</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%A1%882-%E4%B9%90%E8%A7%82%E9%94%81"><span class="nav-number">3.5.</span> <span class="nav-text">方案2 乐观锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%A1%882-%E4%B9%90%E8%A7%82%E9%94%81-%E9%97%AE%E9%A2%98"><span class="nav-number">3.6.</span> <span class="nav-text">方案2 乐观锁 问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%A1%882-%E4%B9%90%E8%A7%82%E9%94%81-%E8%A7%A3%E5%86%B3"><span class="nav-number">3.7.</span> <span class="nav-text">方案2 乐观锁 解决</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%A1%883-%E6%82%B2%E8%A7%82%E9%94%81"><span class="nav-number">3.8.</span> <span class="nav-text">方案3 悲观锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%A1%883-%E6%82%B2%E8%A7%82%E9%94%81-%E9%97%AE%E9%A2%98"><span class="nav-number">3.9.</span> <span class="nav-text">方案3 悲观锁 问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%A1%883-%E6%82%B2%E8%A7%82%E9%94%81-%E6%94%B9%E5%8A%A8%E4%B9%8B%E6%97%85"><span class="nav-number">3.10.</span> <span class="nav-text">方案3 悲观锁 改动之旅</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%A1%883-%E6%82%B2%E8%A7%82%E9%94%81-%E6%80%BB%E7%BB%93"><span class="nav-number">3.11.</span> <span class="nav-text">方案3 悲观锁 总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ETCD%E5%AE%9E%E7%8E%B0"><span class="nav-number">4.</span> <span class="nav-text">ETCD实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%A1%88"><span class="nav-number">4.1.</span> <span class="nav-text">实现方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E6%80%BB%E7%BB%93"><span class="nav-number">4.2.</span> <span class="nav-text">实现总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F"><span class="nav-number">5.</span> <span class="nav-text">其他实现方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
             
 
           </div>
@@ -1070,7 +1107,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>
@@ -1212,7 +1249,7 @@
 
 
 
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css"/>
 
 
 
@@ -1448,7 +1485,7 @@
 
                   // select top N slices in content
 
-                  var upperBound = parseInt('10');
+                  var upperBound = parseInt('5');
                   if (upperBound >= 0) {
                     slicesOfContent = slicesOfContent.slice(0, upperBound);
                   }
@@ -1590,5 +1627,5 @@
 
   
 
-<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"/live2dw/assets/shizuku.model.json"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"live2d-widget-model-shizuku"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
 </html>

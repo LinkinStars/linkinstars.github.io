@@ -15,11 +15,11 @@
 
 
 <html class="theme-next gemini use-motion" lang="zh-CN">
-<head><meta name="generator" content="Hexo 3.8.0">
-  <meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
 
 
 
@@ -46,9 +46,9 @@
 
   
 
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css"/>
 
-<link rel="stylesheet" href="/css/main.css?v=7.1.1">
+<link rel="stylesheet" href="/css/main.css?v=7.1.1"/>
 
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=7.1.1">
@@ -71,7 +71,7 @@
 <script id="hexo.configurations">
   var NexT = window.NexT || {};
   var CONFIG = {
-    root: '/',
+    root: '',
     scheme: 'Gemini',
     version: '7.1.1',
     sidebar: {"position":"left","display":"always","offset":12,"onmobile":false,"dimmer":false},
@@ -99,18 +99,18 @@
 
 
   <meta name="description" content="最近在研究terraform，采了一圈坑，记录一下。 什么是terraform？terraform 通过代码配置实现物理机等一些资源的分配。简单说就是，写一个配置文件，启动，就能帮你购买一台云的机器，或者说申请到oss的资源，或者是别的什么。具体功能见官网。">
-<meta name="keywords" content="terraform">
 <meta property="og:type" content="article">
 <meta property="og:title" content="快速上手terraform —— 阿里云OSS和ECS的创建">
 <meta property="og:url" content="https://linkinstar.gitee.io/2019/11/10/golang/open-source-component/terraform-aliyun-oss-ecs-test/index.html">
 <meta property="og:site_name" content="LinkinStar&#39;s Blog">
 <meta property="og:description" content="最近在研究terraform，采了一圈坑，记录一下。 什么是terraform？terraform 通过代码配置实现物理机等一些资源的分配。简单说就是，写一个配置文件，启动，就能帮你购买一台云的机器，或者说申请到oss的资源，或者是别的什么。具体功能见官网。">
-<meta property="og:locale" content="zh-CN">
+<meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://blog.linkinstars.com/mweb/15733034184247.jpg">
-<meta property="og:updated_time" content="2019-11-09T13:28:08.802Z">
+<meta property="article:published_time" content="2019-11-09T16:00:00.000Z">
+<meta property="article:modified_time" content="2019-11-09T13:28:08.802Z">
+<meta property="article:author" content="LinkinStar">
+<meta property="article:tag" content="terraform">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="快速上手terraform —— 阿里云OSS和ECS的创建">
-<meta name="twitter:description" content="最近在研究terraform，采了一圈坑，记录一下。 什么是terraform？terraform 通过代码配置实现物理机等一些资源的分配。简单说就是，写一个配置文件，启动，就能帮你购买一台云的机器，或者说申请到oss的资源，或者是别的什么。具体功能见官网。">
 <meta name="twitter:image" content="http://blog.linkinstars.com/mweb/15733034184247.jpg">
 
 
@@ -119,7 +119,7 @@
 
   
   
-  <link rel="canonical" href="https://linkinstar.gitee.io/2019/11/10/golang/open-source-component/terraform-aliyun-oss-ecs-test/">
+  <link rel="canonical" href="https://linkinstar.gitee.io/2019/11/10/golang/open-source-component/terraform-aliyun-oss-ecs-test/"/>
 
 
 
@@ -178,7 +178,7 @@
   </style>
 </noscript>
 
-</head>
+<meta name="generator" content="Hexo 5.4.0"></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
 
@@ -235,7 +235,7 @@
 
     
 
-    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>首页</a>
 
   </li>
         
@@ -252,7 +252,7 @@
 
     
 
-    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br>分类</a>
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br/>分类</a>
 
   </li>
         
@@ -269,7 +269,7 @@
 
     
 
-    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>标签</a>
 
   </li>
         
@@ -286,7 +286,7 @@
 
     
 
-    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br>归档</a>
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br/>归档</a>
 
   </li>
         
@@ -303,7 +303,7 @@
 
     
 
-    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>关于</a>
 
   </li>
 
@@ -314,7 +314,7 @@
             <a href="javascript:;" class="popup-trigger">
           
             
-              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br/>搜索</a>
         </li>
       
     </ul>
@@ -334,7 +334,9 @@
       <i class="fa fa-times-circle"></i>
     </span>
     <div class="local-search-input-wrapper">
-      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
     </div>
   </div>
   <div id="local-search-result"></div>
@@ -384,16 +386,16 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2019/11/10/golang/open-source-component/terraform-aliyun-oss-ecs-test/">
+    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2019/11/10/golang/open-source-component/terraform-aliyun-oss-ecs-test/"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="LinkinStar">
-      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!">
-      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg">
+      <meta itemprop="name" content="LinkinStar"/>
+      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!"/>
+      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg"/>
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="LinkinStar's Blog">
+      <meta itemprop="name" content="LinkinStar's Blog"/>
     </span>
 
     
@@ -463,7 +465,8 @@
 
           
             <span class="post-meta-divider">|</span>
-            <span class="post-meta-item-icon">
+            <span class="post-meta-item-icon"
+            >
             <i class="fa fa-eye"></i>
              阅读次数： 
             <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
@@ -488,30 +491,28 @@
 
       
         <p>最近在研究terraform，采了一圈坑，记录一下。</p>
-<p>什么是terraform？terraform 通过代码配置实现物理机等一些资源的分配。简单说就是，写一个配置文件，启动，就能帮你购买一台云的机器，或者说申请到oss的资源，或者是别的什么。具体功能见官网。<br><a id="more"></a></p>
-<p><a href="https://www.terraform.io/docs/index.html" target="_blank" rel="noopener">https://www.terraform.io/docs/index.html</a></p>
+<p>什么是terraform？terraform 通过代码配置实现物理机等一些资源的分配。简单说就是，写一个配置文件，启动，就能帮你购买一台云的机器，或者说申请到oss的资源，或者是别的什么。具体功能见官网。<br><span id="more"></span></p>
+<p><a target="_blank" rel="noopener" href="https://www.terraform.io/docs/index.html">https://www.terraform.io/docs/index.html</a></p>
 <p>名词解释：provider你可以把它看做各个厂商对terraform提供的插件，terraform可以调用这些插件从而实现对资源的操作管理。<br>terraform流程：init -&gt; plan -&gt; apply -&gt; destroy<br>对应为：初始化，计划验证，实际应用，销毁</p>
 <h2 id="最小demo"><a href="#最小demo" class="headerlink" title="最小demo"></a>最小demo</h2><p>我将用一个最小的demo来演示它怎么干活的：通过terraform来创建一个阿里云的oss<br>（以下没有利益相关）只是因为阿里云我有账号而已，其他供应商也有。</p>
 <p>我的本地环境：macOS</p>
-<h3 id="步骤1-下载相关资源"><a href="#步骤1-下载相关资源" class="headerlink" title="步骤1 下载相关资源"></a>步骤1 下载相关资源</h3><p>下载对应的客户端：<a href="https://www.terraform.io/downloads.html" target="_blank" rel="noopener">https://www.terraform.io/downloads.html</a><br>下载解压后得到：terraform的客户端，将它复制到 <code>/usr/local/bin</code> 目录下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ terraform -version</span><br><span class="line">Terraform v0.12.13</span><br></pre></td></tr></table></figure></p>
-<p>验证一下，输出版本正常的话就好了</p>
-<p>下载阿里云对应provider：<a href="https://releases.hashicorp.com/terraform-provider-alicloud/1.60.0/" target="_blank" rel="noopener">https://releases.hashicorp.com/terraform-provider-alicloud/1.60.0/</a><br>我下载的版本为：terraform-provider-alicloud_1.60.0_darwin_amd64.zip</p>
+<h3 id="步骤1-下载相关资源"><a href="#步骤1-下载相关资源" class="headerlink" title="步骤1 下载相关资源"></a>步骤1 下载相关资源</h3><p>下载对应的客户端：<a target="_blank" rel="noopener" href="https://www.terraform.io/downloads.html">https://www.terraform.io/downloads.html</a><br>下载解压后得到：terraform的客户端，将它复制到 <code>/usr/local/bin</code> 目录下<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ terraform -version</span><br><span class="line">Terraform v0.12.13</span><br></pre></td></tr></table></figure><br>验证一下，输出版本正常的话就好了</p>
+<p>下载阿里云对应provider：<a target="_blank" rel="noopener" href="https://releases.hashicorp.com/terraform-provider-alicloud/1.60.0/">https://releases.hashicorp.com/terraform-provider-alicloud/1.60.0/</a><br>我下载的版本为：terraform-provider-alicloud_1.60.0_darwin_amd64.zip</p>
 <p>放置到一个你喜欢的目录下，我这边为<code>/Users/LinkinStar/Documents/tf-plugin</code></p>
-<h3 id="步骤2-申请阿里云相关资源"><a href="#步骤2-申请阿里云相关资源" class="headerlink" title="步骤2 申请阿里云相关资源"></a>步骤2 申请阿里云相关资源</h3><p>创建你的阿里云账号，这个不多说了。然后需要创建一个ram用户<br><a href="https://ram.console.aliyun.com/" target="_blank" rel="noopener">https://ram.console.aliyun.com/</a><br>用户管理 -&gt; 新建用户 -&gt; 保存好AccessKey和Secret</p>
+<h3 id="步骤2-申请阿里云相关资源"><a href="#步骤2-申请阿里云相关资源" class="headerlink" title="步骤2 申请阿里云相关资源"></a>步骤2 申请阿里云相关资源</h3><p>创建你的阿里云账号，这个不多说了。然后需要创建一个ram用户<br><a target="_blank" rel="noopener" href="https://ram.console.aliyun.com/">https://ram.console.aliyun.com/</a><br>用户管理 -&gt; 新建用户 -&gt; 保存好AccessKey和Secret</p>
 <p>注意！这里还需要对用户进行授权，点击授权给到相关权限就行，我给了全部，方便测试</p>
-<h3 id="步骤3-编写文件"><a href="#步骤3-编写文件" class="headerlink" title="步骤3 编写文件"></a>步骤3 编写文件</h3><p>随便创建一个工作目录，然后创建一个tf文件main.tf<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"># Configure the Alicloud Provider</span><br><span class="line">provider &quot;alicloud&quot; &#123;</span><br><span class="line">  access_key = &quot;LTAIaskjfhadsklfhklasdjfhdsakjlfhdask&quot;</span><br><span class="line">  secret_key = &quot;6GPashfjksladfhdjskafhdsklajfdhaljfhajfl&quot;</span><br><span class="line">  region     = &quot;cn-beijing&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">resource &quot;alicloud_oss_bucket&quot; &quot;bucket-acl&quot; &#123;</span><br><span class="line">  bucket = &quot;bucket-123456654321-acl&quot;</span><br><span class="line">  acl    = &quot;private&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="步骤3-编写文件"><a href="#步骤3-编写文件" class="headerlink" title="步骤3 编写文件"></a>步骤3 编写文件</h3><p>随便创建一个工作目录，然后创建一个tf文件main.tf<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"># Configure the Alicloud Provider</span><br><span class="line">provider &quot;alicloud&quot; &#123;</span><br><span class="line">  access_key = &quot;LTAIaskjfhadsklfhklasdjfhdsakjlfhdask&quot;</span><br><span class="line">  secret_key = &quot;6GPashfjksladfhdjskafhdsklajfdhaljfhajfl&quot;</span><br><span class="line">  region     = &quot;cn-beijing&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">resource &quot;alicloud_oss_bucket&quot; &quot;bucket-acl&quot; &#123;</span><br><span class="line">  bucket = &quot;bucket-123456654321-acl&quot;</span><br><span class="line">  acl    = &quot;private&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>其中 access_key 和 secret_key 为你刚才申请ram的信息<br>bucket 的名称你随便取一个</p>
-<h3 id="步骤4-运行命令"><a href="#步骤4-运行命令" class="headerlink" title="步骤4 运行命令"></a>步骤4 运行命令</h3><h4 id="init"><a href="#init" class="headerlink" title="init"></a>init</h4><p>以下命令均在tf文件当前目录下运行<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">terraform init -plugin-dir=/Users/LinkinStar/Documents/tf-plugin</span><br></pre></td></tr></table></figure></p>
-<p>注意后面的目录是我们刚才下载的provider的目录<br>出现 Terraform has been successfully initialized! 为成功</p>
-<h4 id="plan"><a href="#plan" class="headerlink" title="plan"></a>plan</h4><p>然后使用命令 <code>terraform plan</code> 出现以下信息<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">  # alicloud_oss_bucket.bucket-acl will be created</span><br><span class="line">  + resource &quot;alicloud_oss_bucket&quot; &quot;bucket-acl&quot; &#123;</span><br><span class="line">      + acl               = &quot;private&quot;</span><br><span class="line">      + bucket            = &quot;bucket-123456654321-acl&quot;</span><br><span class="line">      + creation_date     = (known after apply)</span><br><span class="line">      + extranet_endpoint = (known after apply)</span><br><span class="line">      + force_destroy     = false</span><br><span class="line">      + id                = (known after apply)</span><br><span class="line">      + intranet_endpoint = (known after apply)</span><br><span class="line">      + location          = (known after apply)</span><br><span class="line">      + owner             = (known after apply)</span><br><span class="line">      + storage_class     = &quot;Standard&quot;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">Plan: 1 to add, 0 to change, 0 to destroy.</span><br></pre></td></tr></table></figure></p>
+<h3 id="步骤4-运行命令"><a href="#步骤4-运行命令" class="headerlink" title="步骤4 运行命令"></a>步骤4 运行命令</h3><h4 id="init"><a href="#init" class="headerlink" title="init"></a>init</h4><p>以下命令均在tf文件当前目录下运行<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">terraform init -plugin-dir=/Users/LinkinStar/Documents/tf-plugin</span><br></pre></td></tr></table></figure><br>注意后面的目录是我们刚才下载的provider的目录<br>出现 Terraform has been successfully initialized! 为成功</p>
+<h4 id="plan"><a href="#plan" class="headerlink" title="plan"></a>plan</h4><p>然后使用命令 <code>terraform plan</code> 出现以下信息<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">  # alicloud_oss_bucket.bucket-acl will be created</span><br><span class="line">  + resource &quot;alicloud_oss_bucket&quot; &quot;bucket-acl&quot; &#123;</span><br><span class="line">      + acl               = &quot;private&quot;</span><br><span class="line">      + bucket            = &quot;bucket-123456654321-acl&quot;</span><br><span class="line">      + creation_date     = (known after apply)</span><br><span class="line">      + extranet_endpoint = (known after apply)</span><br><span class="line">      + force_destroy     = false</span><br><span class="line">      + id                = (known after apply)</span><br><span class="line">      + intranet_endpoint = (known after apply)</span><br><span class="line">      + location          = (known after apply)</span><br><span class="line">      + owner             = (known after apply)</span><br><span class="line">      + storage_class     = &quot;Standard&quot;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">Plan: 1 to add, 0 to change, 0 to destroy.</span><br></pre></td></tr></table></figure></p>
 <h4 id="apply"><a href="#apply" class="headerlink" title="apply"></a>apply</h4><p>运行命令 <code>terraform apply</code> 过程中需要输出yes确认<br>出现以下信息就证明成功了：<br><code>Apply complete! Resources: 1 added, 0 changed, 0 destroyed.</code></p>
-<p>你可以到：<a href="https://oss.console.aliyun.com/overview" target="_blank" rel="noopener">https://oss.console.aliyun.com/overview</a><br>查看OSS是否已经被创建</p>
+<p>你可以到：<a target="_blank" rel="noopener" href="https://oss.console.aliyun.com/overview">https://oss.console.aliyun.com/overview</a><br>查看OSS是否已经被创建</p>
 <h4 id="destroy"><a href="#destroy" class="headerlink" title="destroy"></a>destroy</h4><p>最后运行命令 <code>terraform destroy</code> 过程中需要输出yes确认<br>刚才创建的OSS资源就会被销毁，你可以再在网上刷新一下查看</p>
 <p>以上就是通过terraform进行的资源操作，同样的，你可以修改tf文件进行更多资源的操作</p>
-<h2 id="对ECS进行操作"><a href="#对ECS进行操作" class="headerlink" title="对ECS进行操作"></a>对ECS进行操作</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"># Configure the Alicloud Provider</span><br><span class="line">provider &quot;alicloud&quot; &#123;</span><br><span class="line">  access_key = &quot;LTAIaskjfhadsklfhklasdjfhdsakjlfhdask&quot;</span><br><span class="line">  secret_key = &quot;6GPashfjksladfhdjskafhdsklajfdhaljfhajfl&quot;</span><br><span class="line">  region     = &quot;cn-hangzhou&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"># Create a new ECS instance for a VPC</span><br><span class="line">resource &quot;alicloud_security_group&quot; &quot;group&quot; &#123;</span><br><span class="line">  name        = &quot;tf_test_foo&quot;</span><br><span class="line">  description = &quot;foo&quot;</span><br><span class="line">  vpc_id      = &quot;$&#123;alicloud_vpc.vpc.id&#125;&quot;</span><br><span class="line">&#125;</span><br><span class="line">resource &quot;alicloud_vpc&quot; &quot;vpc&quot; &#123;</span><br><span class="line">  name       = &quot;tf_test_foo&quot;</span><br><span class="line">  cidr_block = &quot;172.16.0.0/12&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">resource &quot;alicloud_vswitch&quot; &quot;vswitch&quot; &#123;</span><br><span class="line">  vpc_id            = &quot;$&#123;alicloud_vpc.vpc.id&#125;&quot;</span><br><span class="line">  cidr_block        = &quot;172.16.0.0/21&quot;</span><br><span class="line">  availability_zone = &quot;cn-hangzhou-i&quot;</span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line">resource &quot;alicloud_instance&quot; &quot;instance&quot; &#123;</span><br><span class="line">  availability_zone = &quot;cn-hangzhou-i&quot;</span><br><span class="line">  security_groups   = &quot;$&#123;alicloud_security_group.group.*.id&#125;&quot;</span><br><span class="line">  instance_type              = &quot;ecs.t6-c2m1.large&quot;</span><br><span class="line">  system_disk_category       = &quot;cloud_efficiency&quot;</span><br><span class="line">  image_id                   = &quot;ubuntu_18_04_64_20G_alibase_20190624.vhd&quot;</span><br><span class="line">  instance_name              = &quot;test_foo&quot;</span><br><span class="line">  vswitch_id                 = &quot;$&#123;alicloud_vswitch.vswitch.id&#125;&quot;</span><br><span class="line">  </span><br><span class="line">  internet_max_bandwidth_out = 0</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="对ECS进行操作"><a href="#对ECS进行操作" class="headerlink" title="对ECS进行操作"></a>对ECS进行操作</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"># Configure the Alicloud Provider</span><br><span class="line">provider &quot;alicloud&quot; &#123;</span><br><span class="line">  access_key = &quot;LTAIaskjfhadsklfhklasdjfhdsakjlfhdask&quot;</span><br><span class="line">  secret_key = &quot;6GPashfjksladfhdjskafhdsklajfdhaljfhajfl&quot;</span><br><span class="line">  region     = &quot;cn-hangzhou&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"># Create a new ECS instance for a VPC</span><br><span class="line">resource &quot;alicloud_security_group&quot; &quot;group&quot; &#123;</span><br><span class="line">  name        = &quot;tf_test_foo&quot;</span><br><span class="line">  description = &quot;foo&quot;</span><br><span class="line">  vpc_id      = &quot;$&#123;alicloud_vpc.vpc.id&#125;&quot;</span><br><span class="line">&#125;</span><br><span class="line">resource &quot;alicloud_vpc&quot; &quot;vpc&quot; &#123;</span><br><span class="line">  name       = &quot;tf_test_foo&quot;</span><br><span class="line">  cidr_block = &quot;172.16.0.0/12&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">resource &quot;alicloud_vswitch&quot; &quot;vswitch&quot; &#123;</span><br><span class="line">  vpc_id            = &quot;$&#123;alicloud_vpc.vpc.id&#125;&quot;</span><br><span class="line">  cidr_block        = &quot;172.16.0.0/21&quot;</span><br><span class="line">  availability_zone = &quot;cn-hangzhou-i&quot;</span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line">resource &quot;alicloud_instance&quot; &quot;instance&quot; &#123;</span><br><span class="line">  availability_zone = &quot;cn-hangzhou-i&quot;</span><br><span class="line">  security_groups   = &quot;$&#123;alicloud_security_group.group.*.id&#125;&quot;</span><br><span class="line">  instance_type              = &quot;ecs.t6-c2m1.large&quot;</span><br><span class="line">  system_disk_category       = &quot;cloud_efficiency&quot;</span><br><span class="line">  image_id                   = &quot;ubuntu_18_04_64_20G_alibase_20190624.vhd&quot;</span><br><span class="line">  instance_name              = &quot;test_foo&quot;</span><br><span class="line">  vswitch_id                 = &quot;$&#123;alicloud_vswitch.vswitch.id&#125;&quot;</span><br><span class="line">  </span><br><span class="line">  internet_max_bandwidth_out = 0</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p><img src="http://blog.linkinstars.com/mweb/15733034184247.jpg" alt></p>
 <p>需要注意的是你的账户余额必须&gt;100块，否则会提示余额不足，我这边tf里面写的是非常便宜几分钱一个小时的机器，所以问题不大，你要是害怕你可以不测（再说一遍本文没有利益相关）</p>
-<h2 id="相关资源总结"><a href="#相关资源总结" class="headerlink" title="相关资源总结"></a>相关资源总结</h2><p>provider下载地址：<a href="https://releases.hashicorp.com/" target="_blank" rel="noopener">https://releases.hashicorp.com/</a><br>provider相关文档：<a href="https://www.terraform.io/docs/providers/index.html" target="_blank" rel="noopener">https://www.terraform.io/docs/providers/index.html</a></p>
+<h2 id="相关资源总结"><a href="#相关资源总结" class="headerlink" title="相关资源总结"></a>相关资源总结</h2><p>provider下载地址：<a target="_blank" rel="noopener" href="https://releases.hashicorp.com/">https://releases.hashicorp.com/</a><br>provider相关文档：<a target="_blank" rel="noopener" href="https://www.terraform.io/docs/providers/index.html">https://www.terraform.io/docs/providers/index.html</a></p>
 <h2 id="坑点"><a href="#坑点" class="headerlink" title="坑点"></a>坑点</h2><ul>
 <li>国内的墙导致直接执行init是不可以的，它会去官方拉取provider但是会报错，必须手动下载provider并指定-plugin-dir，呼吸不到外面的新鲜空气有点难受。</li>
 <li>terraform的文档都是英文的并且provider给到的参数选项不全，不知道该填什么。</li>
@@ -552,7 +553,7 @@
         
       
       <div style="display: inline-block">
-        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付">
+        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付"/>
         <p>微信支付</p>
       </div>
     
@@ -561,7 +562,7 @@
         
       
       <div style="display: inline-block">
-        <img src="/images/alipay.png" alt="LinkinStar 支付宝">
+        <img src="/images/alipay.png" alt="LinkinStar 支付宝"/>
         <p>支付宝</p>
       </div>
     
@@ -579,11 +580,11 @@
        
         <ul class="post-copyright">
           <li class="post-copyright-author">
-              <strong>本文作者：</strong>LinkinStar
+              <strong>本文作者：</strong>
           </li>
           <li class="post-copyright-link">
             <strong>本文链接：</strong>
-            <a href="http://www.linkinstar.wiki//2019/11/10/golang/open-source-component/terraform-aliyun-oss-ecs-test/" title="快速上手terraform —— 阿里云OSS和ECS的创建">http://www.linkinstar.wiki/2019/11/10/golang/open-source-component/terraform-aliyun-oss-ecs-test/</a>
+            <a target="_blank" rel="noopener" href="http://www.linkinstar.wiki//2019/11/10/golang/open-source-component/terraform-aliyun-oss-ecs-test/" title="快速上手terraform —— 阿里云OSS和ECS的创建">http://www.linkinstar.wiki/2019/11/10/golang/open-source-component/terraform-aliyun-oss-ecs-test/</a>
           </li>
           <li class="post-copyright-license">
             <strong>版权声明： </strong>
@@ -619,7 +620,7 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/11/23/golang/open-source-component/k8s-minikube-started/" rel="prev" title="快速上手kubernetes——minikube最小实现">
+              <a href="/2019/11/23/k8s/k8s-minikube-started/" rel="prev" title="快速上手kubernetes——minikube最小实现">
                 快速上手kubernetes——minikube最小实现 <i class="fa fa-chevron-right"></i>
               </a>
             
@@ -683,7 +684,9 @@
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
-              <img class="site-author-image" itemprop="image" src="http://blog.linkinstars.com/LLX.jpg" alt="LinkinStar">
+              <img class="site-author-image" itemprop="image"
+                src="http://blog.linkinstars.com/LLX.jpg"
+                alt="LinkinStar"/>
             
               <p class="site-author-name" itemprop="name">LinkinStar</p>
               <div class="site-description motion-element" itemprop="description">No one but myself can do it.<br> Don't worry. Be happy!</div>
@@ -694,9 +697,9 @@
               
                 <div class="site-state-item site-state-posts">
                 
-                  <a href="/archives/">
+                  <a href="/archives/%20%7C%7C%20folder-open-o">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">50</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -708,7 +711,7 @@
                 <div class="site-state-item site-state-categories">
                   
                     
-                      <a href="/categories/">
+                      <a href="/categories/%20%7C%7C%20cubes">
                     
                   
                     
@@ -741,7 +744,23 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -753,7 +772,7 @@
                 <div class="site-state-item site-state-tags">
                   
                     
-                      <a href="/tags/">
+                      <a href="/tags/%20%7C%7C%20tags">
                     
                   
                     
@@ -830,7 +849,23 @@
                     
                       
                     
-                    <span class="site-state-item-count">36</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">44</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -950,7 +985,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#最小demo"><span class="nav-number">1.</span> <span class="nav-text">最小demo</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#步骤1-下载相关资源"><span class="nav-number">1.1.</span> <span class="nav-text">步骤1 下载相关资源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#步骤2-申请阿里云相关资源"><span class="nav-number">1.2.</span> <span class="nav-text">步骤2 申请阿里云相关资源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#步骤3-编写文件"><span class="nav-number">1.3.</span> <span class="nav-text">步骤3 编写文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#步骤4-运行命令"><span class="nav-number">1.4.</span> <span class="nav-text">步骤4 运行命令</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#init"><span class="nav-number">1.4.1.</span> <span class="nav-text">init</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#plan"><span class="nav-number">1.4.2.</span> <span class="nav-text">plan</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#apply"><span class="nav-number">1.4.3.</span> <span class="nav-text">apply</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#destroy"><span class="nav-number">1.4.4.</span> <span class="nav-text">destroy</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#对ECS进行操作"><span class="nav-number">2.</span> <span class="nav-text">对ECS进行操作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#相关资源总结"><span class="nav-number">3.</span> <span class="nav-text">相关资源总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#坑点"><span class="nav-number">4.</span> <span class="nav-text">坑点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E5%B0%8Fdemo"><span class="nav-number">1.</span> <span class="nav-text">最小demo</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A41-%E4%B8%8B%E8%BD%BD%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90"><span class="nav-number">1.1.</span> <span class="nav-text">步骤1 下载相关资源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A42-%E7%94%B3%E8%AF%B7%E9%98%BF%E9%87%8C%E4%BA%91%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90"><span class="nav-number">1.2.</span> <span class="nav-text">步骤2 申请阿里云相关资源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A43-%E7%BC%96%E5%86%99%E6%96%87%E4%BB%B6"><span class="nav-number">1.3.</span> <span class="nav-text">步骤3 编写文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A44-%E8%BF%90%E8%A1%8C%E5%91%BD%E4%BB%A4"><span class="nav-number">1.4.</span> <span class="nav-text">步骤4 运行命令</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#init"><span class="nav-number">1.4.1.</span> <span class="nav-text">init</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#plan"><span class="nav-number">1.4.2.</span> <span class="nav-text">plan</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#apply"><span class="nav-number">1.4.3.</span> <span class="nav-text">apply</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#destroy"><span class="nav-number">1.4.4.</span> <span class="nav-text">destroy</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9ECS%E8%BF%9B%E8%A1%8C%E6%93%8D%E4%BD%9C"><span class="nav-number">2.</span> <span class="nav-text">对ECS进行操作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E8%B5%84%E6%BA%90%E6%80%BB%E7%BB%93"><span class="nav-number">3.</span> <span class="nav-text">相关资源总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9D%91%E7%82%B9"><span class="nav-number">4.</span> <span class="nav-text">坑点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
             
 
           </div>
@@ -978,7 +1013,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>
@@ -1120,7 +1155,7 @@
 
 
 
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css"/>
 
 
 
@@ -1356,7 +1391,7 @@
 
                   // select top N slices in content
 
-                  var upperBound = parseInt('10');
+                  var upperBound = parseInt('5');
                   if (upperBound >= 0) {
                     slicesOfContent = slicesOfContent.slice(0, upperBound);
                   }
@@ -1498,5 +1533,5 @@
 
   
 
-<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"/live2dw/assets/shizuku.model.json"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"live2d-widget-model-shizuku"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
 </html>

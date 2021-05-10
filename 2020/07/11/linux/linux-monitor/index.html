@@ -15,11 +15,11 @@
 
 
 <html class="theme-next gemini use-motion" lang="zh-CN">
-<head><meta name="generator" content="Hexo 3.8.0">
-  <meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
 
 
 
@@ -46,9 +46,9 @@
 
   
 
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css"/>
 
-<link rel="stylesheet" href="/css/main.css?v=7.1.1">
+<link rel="stylesheet" href="/css/main.css?v=7.1.1"/>
 
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=7.1.1">
@@ -71,7 +71,7 @@
 <script id="hexo.configurations">
   var NexT = window.NexT || {};
   var CONFIG = {
-    root: '/',
+    root: '',
     scheme: 'Gemini',
     version: '7.1.1',
     sidebar: {"position":"left","display":"always","offset":12,"onmobile":false,"dimmer":false},
@@ -99,21 +99,21 @@
 
 
   <meta name="description" content="最近在分析线上问题，需要监控 Linux 相关指标，如果只是用命令，总是只能知道当前的值，无法记录过程。而设备不是云厂商的设备，所以没有相关监控，zabbix 有，但是没有相关权限可以看到。所以找到一些好用的监控小方案。">
-<meta name="keywords" content="monitor">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux 图形化监控工具">
 <meta property="og:url" content="https://linkinstar.gitee.io/2020/07/11/linux/linux-monitor/index.html">
 <meta property="og:site_name" content="LinkinStar&#39;s Blog">
 <meta property="og:description" content="最近在分析线上问题，需要监控 Linux 相关指标，如果只是用命令，总是只能知道当前的值，无法记录过程。而设备不是云厂商的设备，所以没有相关监控，zabbix 有，但是没有相关权限可以看到。所以找到一些好用的监控小方案。">
-<meta property="og:locale" content="zh-CN">
+<meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://blog.linkinstars.com//blog/1240.png">
 <meta property="og:image" content="http://blog.linkinstars.com//blog/1240-20200719221546178.png">
 <meta property="og:image" content="http://blog.linkinstars.com//blog/1240-20200719221552304.png">
 <meta property="og:image" content="http://blog.linkinstars.com//blog/1240-20200719221557146.png">
-<meta property="og:updated_time" content="2020-07-19T14:17:38.781Z">
+<meta property="article:published_time" content="2020-07-10T16:00:00.000Z">
+<meta property="article:modified_time" content="2020-07-19T14:17:38.781Z">
+<meta property="article:author" content="LinkinStar">
+<meta property="article:tag" content="monitor">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Linux 图形化监控工具">
-<meta name="twitter:description" content="最近在分析线上问题，需要监控 Linux 相关指标，如果只是用命令，总是只能知道当前的值，无法记录过程。而设备不是云厂商的设备，所以没有相关监控，zabbix 有，但是没有相关权限可以看到。所以找到一些好用的监控小方案。">
 <meta name="twitter:image" content="http://blog.linkinstars.com//blog/1240.png">
 
 
@@ -122,7 +122,7 @@
 
   
   
-  <link rel="canonical" href="https://linkinstar.gitee.io/2020/07/11/linux/linux-monitor/">
+  <link rel="canonical" href="https://linkinstar.gitee.io/2020/07/11/linux/linux-monitor/"/>
 
 
 
@@ -181,7 +181,7 @@
   </style>
 </noscript>
 
-</head>
+<meta name="generator" content="Hexo 5.4.0"></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
 
@@ -238,7 +238,7 @@
 
     
 
-    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>首页</a>
 
   </li>
         
@@ -255,7 +255,7 @@
 
     
 
-    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br>分类</a>
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br/>分类</a>
 
   </li>
         
@@ -272,7 +272,7 @@
 
     
 
-    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>标签</a>
 
   </li>
         
@@ -289,7 +289,7 @@
 
     
 
-    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br>归档</a>
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br/>归档</a>
 
   </li>
         
@@ -306,7 +306,7 @@
 
     
 
-    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>关于</a>
 
   </li>
 
@@ -317,7 +317,7 @@
             <a href="javascript:;" class="popup-trigger">
           
             
-              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br/>搜索</a>
         </li>
       
     </ul>
@@ -337,7 +337,9 @@
       <i class="fa fa-times-circle"></i>
     </span>
     <div class="local-search-input-wrapper">
-      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
     </div>
   </div>
   <div id="local-search-result"></div>
@@ -387,16 +389,16 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2020/07/11/linux/linux-monitor/">
+    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2020/07/11/linux/linux-monitor/"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="LinkinStar">
-      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!">
-      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg">
+      <meta itemprop="name" content="LinkinStar"/>
+      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!"/>
+      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg"/>
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="LinkinStar's Blog">
+      <meta itemprop="name" content="LinkinStar's Blog"/>
     </span>
 
     
@@ -466,7 +468,8 @@
 
           
             <span class="post-meta-divider">|</span>
-            <span class="post-meta-item-icon">
+            <span class="post-meta-item-icon"
+            >
             <i class="fa fa-eye"></i>
              阅读次数： 
             <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
@@ -491,7 +494,7 @@
 
       
         <p>最近在分析线上问题，需要监控 Linux 相关指标，如果只是用命令，总是只能知道当前的值，无法记录过程。而设备不是云厂商的设备，所以没有相关监控，zabbix 有，但是没有相关权限可以看到。所以找到一些好用的监控小方案。</p>
-<a id="more"></a>
+<span id="more"></span>
 <h2 id="nmon"><a href="#nmon" class="headerlink" title="nmon"></a>nmon</h2><h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>yum install nmon</p>
 <h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><p><img src="http://blog.linkinstars.com//blog/1240.png" alt="image.png"></p>
 <h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
@@ -500,7 +503,7 @@
 <li>不是特别好看（毕竟是控制台要求也不能太高），精度相对低，只能有个大概峰值</li>
 </ul>
 <h2 id="bottom"><a href="#bottom" class="headerlink" title="bottom"></a>bottom</h2><h3 id="安装-1"><a href="#安装-1" class="headerlink" title="安装"></a>安装</h3><p>因为是 rust 搞的，所以可能有相关依赖，需要手动处理</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/ClementTsang/bottom/releases/download/0.4.5/bottom_x86_64-unknown-linux-gnu.tar.gz</span><br><span class="line">tar xvf bottom_x86_64-unknown-linux-gnu.tar.gz</span><br><span class="line">./btm</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果出现以下错误需要安装 glibc </span></span><br><span class="line"><span class="comment"># /btm: /lib64/libc.so.6: version `GLIBC_2.18' not found (required by ./btm)</span></span><br><span class="line">curl -O http://ftp.gnu.org/gnu/glibc/glibc-2.18.tar.gz</span><br><span class="line">tar zxf glibc-2.18.tar.gz</span><br><span class="line"><span class="built_in">cd</span> glibc-2.18/</span><br><span class="line">mkdir build</span><br><span class="line"><span class="built_in">cd</span> build/</span><br><span class="line">../configure --prefix=/usr</span><br><span class="line">make -j2</span><br><span class="line">make install</span><br><span class="line"></span><br><span class="line">./btm</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/ClementTsang/bottom/releases/download/0.4.5/bottom_x86_64-unknown-linux-gnu.tar.gz</span><br><span class="line">tar xvf bottom_x86_64-unknown-linux-gnu.tar.gz</span><br><span class="line">./btm</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果出现以下错误需要安装 glibc </span></span><br><span class="line"><span class="comment"># /btm: /lib64/libc.so.6: version `GLIBC_2.18&#x27; not found (required by ./btm)</span></span><br><span class="line">curl -O http://ftp.gnu.org/gnu/glibc/glibc-2.18.tar.gz</span><br><span class="line">tar zxf glibc-2.18.tar.gz</span><br><span class="line"><span class="built_in">cd</span> glibc-2.18/</span><br><span class="line">mkdir build</span><br><span class="line"><span class="built_in">cd</span> build/</span><br><span class="line">../configure --prefix=/usr</span><br><span class="line">make -j2</span><br><span class="line">make install</span><br><span class="line"></span><br><span class="line">./btm</span><br></pre></td></tr></table></figure>
 <h3 id="使用-1"><a href="#使用-1" class="headerlink" title="使用"></a>使用</h3><p><img src="http://blog.linkinstars.com//blog/1240-20200719221546178.png" alt="image.png"></p>
 <h3 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h3><ul>
 <li>不错，也还挺好看的，因为用点绘制，所以更加好看一丢丢</li>
@@ -508,7 +511,7 @@
 </ul>
 <h2 id="netdata"><a href="#netdata" class="headerlink" title="netdata"></a>netdata</h2><h3 id="安装-2"><a href="#安装-2" class="headerlink" title="安装"></a>安装</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># make sure you run `bash` for your shell</span></span><br><span class="line">bash</span><br><span class="line"></span><br><span class="line"><span class="comment"># install Netdata directly from GitHub source</span></span><br><span class="line">bash &lt;(curl -Ss https://my-netdata.io/kickstart.sh)</span><br></pre></td></tr></table></figure>
 <p>或者直接 docker</p>
-<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="keyword">run</span><span class="bash"> -d --name=netdata \</span></span><br><span class="line"><span class="bash">  -p 19999:19999 \</span></span><br><span class="line"><span class="bash">  -v netdatalib:/var/lib/netdata \</span></span><br><span class="line"><span class="bash">  -v netdatacache:/var/cache/netdata \</span></span><br><span class="line"><span class="bash">  -v /etc/passwd:/host/etc/passwd:ro \</span></span><br><span class="line"><span class="bash">  -v /etc/group:/host/etc/group:ro \</span></span><br><span class="line"><span class="bash">  -v /proc:/host/proc:ro \</span></span><br><span class="line"><span class="bash">  -v /sys:/host/sys:ro \</span></span><br><span class="line"><span class="bash">  -v /etc/os-release:/host/etc/os-release:ro \</span></span><br><span class="line"><span class="bash">  --restart unless-stopped \</span></span><br><span class="line"><span class="bash">  --<span class="built_in">cap</span>-add SYS_PTRACE \</span></span><br><span class="line"><span class="bash">  --security-opt apparmor=unconfined \</span></span><br><span class="line"><span class="bash">  netdata/netdata</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="keyword">run</span><span class="bash"> -d --name=netdata \</span></span><br><span class="line"><span class="bash">  -p 19999:19999 \</span></span><br><span class="line"><span class="bash">  -v netdatalib:/var/lib/netdata \</span></span><br><span class="line"><span class="bash">  -v netdatacache:/var/cache/netdata \</span></span><br><span class="line"><span class="bash">  -v /etc/passwd:/host/etc/passwd:ro \</span></span><br><span class="line"><span class="bash">  -v /etc/group:/host/etc/group:ro \</span></span><br><span class="line"><span class="bash">  -v /proc:/host/proc:ro \</span></span><br><span class="line"><span class="bash">  -v /sys:/host/sys:ro \</span></span><br><span class="line"><span class="bash">  -v /etc/os-release:/host/etc/os-release:ro \</span></span><br><span class="line"><span class="bash">  --restart unless-stopped \</span></span><br><span class="line"><span class="bash">  --cap-add SYS_PTRACE \</span></span><br><span class="line"><span class="bash">  --security-opt apparmor=unconfined \</span></span><br><span class="line"><span class="bash">  netdata/netdata</span></span><br></pre></td></tr></table></figure>
 <h3 id="使用-2"><a href="#使用-2" class="headerlink" title="使用"></a>使用</h3><p><img src="http://blog.linkinstars.com//blog/1240-20200719221552304.png" alt="image.png"></p>
 <h3 id="总结-2"><a href="#总结-2" class="headerlink" title="总结"></a>总结</h3><ul>
 <li>如果手动安装的话，依赖很多，虽然官方提供了一键安装，整体安装过程还是比较长的</li>
@@ -517,9 +520,9 @@
 <li>网上说安装后会影响服务器运行速度，这个监控指标很多，确实所以本身会占用一定服务器资源，需要注意</li>
 </ul>
 <h2 id="grafana-influxdb-telegraf"><a href="#grafana-influxdb-telegraf" class="headerlink" title="grafana + influxdb + telegraf"></a>grafana + influxdb + telegraf</h2><h3 id="安装-3"><a href="#安装-3" class="headerlink" title="安装"></a>安装</h3><ul>
-<li><p>我这边因为线上本身就有前两个的环境，所以只需要装个 telegraf 就能搞定，如果你没有，也可以手动装个，具体步骤可以参考 <a href="https://www.jianshu.com/p/2fd3e9252a41" target="_blank" rel="noopener">https://www.jianshu.com/p/2fd3e9252a41</a></p>
+<li><p>我这边因为线上本身就有前两个的环境，所以只需要装个 telegraf 就能搞定，如果你没有，也可以手动装个，具体步骤可以参考 <a target="_blank" rel="noopener" href="https://www.jianshu.com/p/2fd3e9252a41">https://www.jianshu.com/p/2fd3e9252a41</a></p>
 </li>
-<li><p>其实原本想用 Prometheus + Grafana 的，但是线上暂时没有 Prometheus 之前也用过，这里就不做展示了，其实也很方便 <a href="https://www.jianshu.com/p/8d2c020313f0" target="_blank" rel="noopener">https://www.jianshu.com/p/8d2c020313f0</a></p>
+<li><p>其实原本想用 Prometheus + Grafana 的，但是线上暂时没有 Prometheus 之前也用过，这里就不做展示了，其实也很方便 <a target="_blank" rel="noopener" href="https://www.jianshu.com/p/8d2c020313f0">https://www.jianshu.com/p/8d2c020313f0</a></p>
 </li>
 </ul>
 <h3 id="使用-3"><a href="#使用-3" class="headerlink" title="使用"></a>使用</h3><p><img src="http://blog.linkinstars.com//blog/1240-20200719221557146.png" alt="image.png"></p>
@@ -561,7 +564,7 @@
         
       
       <div style="display: inline-block">
-        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付">
+        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付"/>
         <p>微信支付</p>
       </div>
     
@@ -570,7 +573,7 @@
         
       
       <div style="display: inline-block">
-        <img src="/images/alipay.png" alt="LinkinStar 支付宝">
+        <img src="/images/alipay.png" alt="LinkinStar 支付宝"/>
         <p>支付宝</p>
       </div>
     
@@ -588,11 +591,11 @@
        
         <ul class="post-copyright">
           <li class="post-copyright-author">
-              <strong>本文作者：</strong>LinkinStar
+              <strong>本文作者：</strong>
           </li>
           <li class="post-copyright-link">
             <strong>本文链接：</strong>
-            <a href="http://www.linkinstar.wiki//2020/07/11/linux/linux-monitor/" title="Linux 图形化监控工具">http://www.linkinstar.wiki/2020/07/11/linux/linux-monitor/</a>
+            <a target="_blank" rel="noopener" href="http://www.linkinstar.wiki//2020/07/11/linux/linux-monitor/" title="Linux 图形化监控工具">http://www.linkinstar.wiki/2020/07/11/linux/linux-monitor/</a>
           </li>
           <li class="post-copyright-license">
             <strong>版权声明： </strong>
@@ -692,7 +695,9 @@
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
-              <img class="site-author-image" itemprop="image" src="http://blog.linkinstars.com/LLX.jpg" alt="LinkinStar">
+              <img class="site-author-image" itemprop="image"
+                src="http://blog.linkinstars.com/LLX.jpg"
+                alt="LinkinStar"/>
             
               <p class="site-author-name" itemprop="name">LinkinStar</p>
               <div class="site-description motion-element" itemprop="description">No one but myself can do it.<br> Don't worry. Be happy!</div>
@@ -703,9 +708,9 @@
               
                 <div class="site-state-item site-state-posts">
                 
-                  <a href="/archives/">
+                  <a href="/archives/%20%7C%7C%20folder-open-o">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">50</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -717,7 +722,7 @@
                 <div class="site-state-item site-state-categories">
                   
                     
-                      <a href="/categories/">
+                      <a href="/categories/%20%7C%7C%20cubes">
                     
                   
                     
@@ -750,7 +755,23 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -762,7 +783,7 @@
                 <div class="site-state-item site-state-tags">
                   
                     
-                      <a href="/tags/">
+                      <a href="/tags/%20%7C%7C%20tags">
                     
                   
                     
@@ -839,7 +860,23 @@
                     
                       
                     
-                    <span class="site-state-item-count">36</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">44</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -959,7 +996,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#nmon"><span class="nav-number">1.</span> <span class="nav-text">nmon</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装"><span class="nav-number">1.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用"><span class="nav-number">1.2.</span> <span class="nav-text">使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">1.3.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#bottom"><span class="nav-number">2.</span> <span class="nav-text">bottom</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装-1"><span class="nav-number">2.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用-1"><span class="nav-number">2.2.</span> <span class="nav-text">使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结-1"><span class="nav-number">2.3.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#netdata"><span class="nav-number">3.</span> <span class="nav-text">netdata</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装-2"><span class="nav-number">3.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用-2"><span class="nav-number">3.2.</span> <span class="nav-text">使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结-2"><span class="nav-number">3.3.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#grafana-influxdb-telegraf"><span class="nav-number">4.</span> <span class="nav-text">grafana + influxdb + telegraf</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装-3"><span class="nav-number">4.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用-3"><span class="nav-number">4.2.</span> <span class="nav-text">使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结-3"><span class="nav-number">4.3.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结-4"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#nmon"><span class="nav-number">1.</span> <span class="nav-text">nmon</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85"><span class="nav-number">1.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8"><span class="nav-number">1.2.</span> <span class="nav-text">使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.3.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#bottom"><span class="nav-number">2.</span> <span class="nav-text">bottom</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85-1"><span class="nav-number">2.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-1"><span class="nav-number">2.2.</span> <span class="nav-text">使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93-1"><span class="nav-number">2.3.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#netdata"><span class="nav-number">3.</span> <span class="nav-text">netdata</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85-2"><span class="nav-number">3.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-2"><span class="nav-number">3.2.</span> <span class="nav-text">使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93-2"><span class="nav-number">3.3.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#grafana-influxdb-telegraf"><span class="nav-number">4.</span> <span class="nav-text">grafana + influxdb + telegraf</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85-3"><span class="nav-number">4.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-3"><span class="nav-number">4.2.</span> <span class="nav-text">使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93-3"><span class="nav-number">4.3.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93-4"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
             
 
           </div>
@@ -987,7 +1024,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>
@@ -1129,7 +1166,7 @@
 
 
 
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css"/>
 
 
 
@@ -1365,7 +1402,7 @@
 
                   // select top N slices in content
 
-                  var upperBound = parseInt('10');
+                  var upperBound = parseInt('5');
                   if (upperBound >= 0) {
                     slicesOfContent = slicesOfContent.slice(0, upperBound);
                   }
@@ -1507,5 +1544,5 @@
 
   
 
-<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"/live2dw/assets/shizuku.model.json"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"live2d-widget-model-shizuku"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
 </html>

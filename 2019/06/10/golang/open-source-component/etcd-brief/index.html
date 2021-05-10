@@ -15,11 +15,11 @@
 
 
 <html class="theme-next gemini use-motion" lang="zh-CN">
-<head><meta name="generator" content="Hexo 3.8.0">
-  <meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
 
 
 
@@ -46,9 +46,9 @@
 
   
 
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css"/>
 
-<link rel="stylesheet" href="/css/main.css?v=7.1.1">
+<link rel="stylesheet" href="/css/main.css?v=7.1.1"/>
 
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=7.1.1">
@@ -71,7 +71,7 @@
 <script id="hexo.configurations">
   var NexT = window.NexT || {};
   var CONFIG = {
-    root: '/',
+    root: '',
     scheme: 'Gemini',
     version: '7.1.1',
     sidebar: {"position":"left","display":"always","offset":12,"onmobile":false,"dimmer":false},
@@ -99,18 +99,18 @@
 
 
   <meta name="description" content="你知道etcd吗？随着k8s的使用广泛之后，etcd被非常多的人所知道，同时又因为它可靠的分布式特性被很多人喜欢。所以，我准备有几篇博文来记录一下，从基本使用到线上部署再到原理分析，做一个系列。那么，今天先来说说它的简介与命令行的使用。">
-<meta name="keywords" content="etcd">
 <meta property="og:type" content="article">
 <meta property="og:title" content="浅入深出ETCD之【简介与命令行使用】">
 <meta property="og:url" content="https://linkinstar.gitee.io/2019/06/10/golang/open-source-component/etcd-brief/index.html">
 <meta property="og:site_name" content="LinkinStar&#39;s Blog">
 <meta property="og:description" content="你知道etcd吗？随着k8s的使用广泛之后，etcd被非常多的人所知道，同时又因为它可靠的分布式特性被很多人喜欢。所以，我准备有几篇博文来记录一下，从基本使用到线上部署再到原理分析，做一个系列。那么，今天先来说说它的简介与命令行的使用。">
-<meta property="og:locale" content="zh-CN">
+<meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://blog.linkinstars.com/mweb/15601472125417.jpg">
-<meta property="og:updated_time" content="2019-06-10T06:44:35.416Z">
+<meta property="article:published_time" content="2019-06-09T16:00:00.000Z">
+<meta property="article:modified_time" content="2019-06-10T06:44:35.416Z">
+<meta property="article:author" content="LinkinStar">
+<meta property="article:tag" content="etcd">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="浅入深出ETCD之【简介与命令行使用】">
-<meta name="twitter:description" content="你知道etcd吗？随着k8s的使用广泛之后，etcd被非常多的人所知道，同时又因为它可靠的分布式特性被很多人喜欢。所以，我准备有几篇博文来记录一下，从基本使用到线上部署再到原理分析，做一个系列。那么，今天先来说说它的简介与命令行的使用。">
 <meta name="twitter:image" content="http://blog.linkinstars.com/mweb/15601472125417.jpg">
 
 
@@ -119,7 +119,7 @@
 
   
   
-  <link rel="canonical" href="https://linkinstar.gitee.io/2019/06/10/golang/open-source-component/etcd-brief/">
+  <link rel="canonical" href="https://linkinstar.gitee.io/2019/06/10/golang/open-source-component/etcd-brief/"/>
 
 
 
@@ -178,7 +178,7 @@
   </style>
 </noscript>
 
-</head>
+<meta name="generator" content="Hexo 5.4.0"></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
 
@@ -235,7 +235,7 @@
 
     
 
-    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>首页</a>
 
   </li>
         
@@ -252,7 +252,7 @@
 
     
 
-    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br>分类</a>
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br/>分类</a>
 
   </li>
         
@@ -269,7 +269,7 @@
 
     
 
-    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>标签</a>
 
   </li>
         
@@ -286,7 +286,7 @@
 
     
 
-    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br>归档</a>
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br/>归档</a>
 
   </li>
         
@@ -303,7 +303,7 @@
 
     
 
-    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>关于</a>
 
   </li>
 
@@ -314,7 +314,7 @@
             <a href="javascript:;" class="popup-trigger">
           
             
-              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br/>搜索</a>
         </li>
       
     </ul>
@@ -334,7 +334,9 @@
       <i class="fa fa-times-circle"></i>
     </span>
     <div class="local-search-input-wrapper">
-      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
     </div>
   </div>
   <div id="local-search-result"></div>
@@ -384,16 +386,16 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2019/06/10/golang/open-source-component/etcd-brief/">
+    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2019/06/10/golang/open-source-component/etcd-brief/"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="LinkinStar">
-      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!">
-      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg">
+      <meta itemprop="name" content="LinkinStar"/>
+      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!"/>
+      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg"/>
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="LinkinStar's Blog">
+      <meta itemprop="name" content="LinkinStar's Blog"/>
     </span>
 
     
@@ -463,7 +465,8 @@
 
           
             <span class="post-meta-divider">|</span>
-            <span class="post-meta-item-icon">
+            <span class="post-meta-item-icon"
+            >
             <i class="fa fa-eye"></i>
              阅读次数： 
             <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
@@ -488,7 +491,7 @@
 
       
         <p>你知道etcd吗？随着k8s的使用广泛之后，etcd被非常多的人所知道，同时又因为它可靠的分布式特性被很多人喜欢。所以，我准备有几篇博文来记录一下，从基本使用到线上部署再到原理分析，做一个系列。那么，今天先来说说它的简介与命令行的使用。</p>
-<a id="more"></a>
+<span id="more"></span>
 <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><h3 id="ETCD是什么"><a href="#ETCD是什么" class="headerlink" title="ETCD是什么"></a>ETCD是什么</h3><p>我个人总结为下面用几个要点：</p>
 <ul>
 <li>高可用K-V存储，就类似于redis一样的键值对存储。</li>
@@ -519,7 +522,7 @@
 <li>选举leader需要半数以上的节点参与</li>
 <li>etcd是支持事务操作的，可以if第一次a提交正常，then提交b，else不提交b</li>
 </ul>
-<h2 id="本地单节点部署"><a href="#本地单节点部署" class="headerlink" title="本地单节点部署"></a>本地单节点部署</h2><p>我们一开始学习和测试的时候只需要在本地部署一个单节点就可以了，单节点的部署比较方便这边简单说明一下。<br>首先下载对应的版本：<a href="https://github.com/etcd-io/etcd/releases" target="_blank" rel="noopener">https://github.com/etcd-io/etcd/releases</a><br>我这边使用的mac对应的darwin-amd64的版本，其他版本应该类似。<br>下载解压之后有两个文件比较重要：</p>
+<h2 id="本地单节点部署"><a href="#本地单节点部署" class="headerlink" title="本地单节点部署"></a>本地单节点部署</h2><p>我们一开始学习和测试的时候只需要在本地部署一个单节点就可以了，单节点的部署比较方便这边简单说明一下。<br>首先下载对应的版本：<a target="_blank" rel="noopener" href="https://github.com/etcd-io/etcd/releases">https://github.com/etcd-io/etcd/releases</a><br>我这边使用的mac对应的darwin-amd64的版本，其他版本应该类似。<br>下载解压之后有两个文件比较重要：</p>
 <ul>
 <li>etcd 这个是节点</li>
 <li>etcdctl 这个是客户端<br>进入所在目录使用命令进行启动和使用</li>
@@ -535,8 +538,7 @@
 <p>–prefix意思是取出所有前缀为/aaa的key</p>
 </blockquote>
 <h3 id="watch"><a href="#watch" class="headerlink" title="watch"></a>watch</h3><p>新开一个窗口使用命令watch进行监听<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">➜ ./etcdctl watch /aaa/a</span><br></pre></td></tr></table></figure></p>
-<p>然后对/aaa/a这个key的操作全部都会被监听到<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">➜ ./etcdctl put /aaa/a 123</span><br><span class="line">OK</span><br><span class="line">➜ ./etcdctl del /aaa/a</span><br><span class="line">1</span><br></pre></td></tr></table></figure></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">➜ ./etcdctl watch /aaa/a</span><br><span class="line">PUT</span><br><span class="line">/aaa/a</span><br><span class="line">123</span><br><span class="line">DELETE</span><br><span class="line">/aaa/a</span><br></pre></td></tr></table></figure>
+<p>然后对/aaa/a这个key的操作全部都会被监听到<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">➜ ./etcdctl put /aaa/a 123</span><br><span class="line">OK</span><br><span class="line">➜ ./etcdctl del /aaa/a</span><br><span class="line">1</span><br></pre></td></tr></table></figure><br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">➜ ./etcdctl watch /aaa/a</span><br><span class="line">PUT</span><br><span class="line">/aaa/a</span><br><span class="line">123</span><br><span class="line">DELETE</span><br><span class="line">/aaa/a</span><br></pre></td></tr></table></figure></p>
 <h3 id="lease"><a href="#lease" class="headerlink" title="lease"></a>lease</h3><p>创建一个60s的租约<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">➜ ./etcdctl lease grant 60</span><br><span class="line">lease 694d6b2b7d7e6a0c granted with TTL(60s)</span><br></pre></td></tr></table></figure></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">➜ ./etcdctl put /aaa/a 123 --lease=694d6b2b7d7e6a0c</span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
 <p>put的时候使用租约注意，这里需要输入上面租约的16进制标识符<br>然后监听的地方会发现，60秒后，/aaa/a这个key被自动删除了</p>
@@ -578,7 +580,7 @@
         
       
       <div style="display: inline-block">
-        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付">
+        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付"/>
         <p>微信支付</p>
       </div>
     
@@ -587,7 +589,7 @@
         
       
       <div style="display: inline-block">
-        <img src="/images/alipay.png" alt="LinkinStar 支付宝">
+        <img src="/images/alipay.png" alt="LinkinStar 支付宝"/>
         <p>支付宝</p>
       </div>
     
@@ -605,11 +607,11 @@
        
         <ul class="post-copyright">
           <li class="post-copyright-author">
-              <strong>本文作者：</strong>LinkinStar
+              <strong>本文作者：</strong>
           </li>
           <li class="post-copyright-link">
             <strong>本文链接：</strong>
-            <a href="http://www.linkinstar.wiki//2019/06/10/golang/open-source-component/etcd-brief/" title="浅入深出ETCD之【简介与命令行使用】">http://www.linkinstar.wiki/2019/06/10/golang/open-source-component/etcd-brief/</a>
+            <a target="_blank" rel="noopener" href="http://www.linkinstar.wiki//2019/06/10/golang/open-source-component/etcd-brief/" title="浅入深出ETCD之【简介与命令行使用】">http://www.linkinstar.wiki/2019/06/10/golang/open-source-component/etcd-brief/</a>
           </li>
           <li class="post-copyright-license">
             <strong>版权声明： </strong>
@@ -709,7 +711,9 @@
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
-              <img class="site-author-image" itemprop="image" src="http://blog.linkinstars.com/LLX.jpg" alt="LinkinStar">
+              <img class="site-author-image" itemprop="image"
+                src="http://blog.linkinstars.com/LLX.jpg"
+                alt="LinkinStar"/>
             
               <p class="site-author-name" itemprop="name">LinkinStar</p>
               <div class="site-description motion-element" itemprop="description">No one but myself can do it.<br> Don't worry. Be happy!</div>
@@ -720,9 +724,9 @@
               
                 <div class="site-state-item site-state-posts">
                 
-                  <a href="/archives/">
+                  <a href="/archives/%20%7C%7C%20folder-open-o">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">50</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -734,7 +738,7 @@
                 <div class="site-state-item site-state-categories">
                   
                     
-                      <a href="/categories/">
+                      <a href="/categories/%20%7C%7C%20cubes">
                     
                   
                     
@@ -767,7 +771,23 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -779,7 +799,7 @@
                 <div class="site-state-item site-state-tags">
                   
                     
-                      <a href="/tags/">
+                      <a href="/tags/%20%7C%7C%20tags">
                     
                   
                     
@@ -856,7 +876,23 @@
                     
                       
                     
-                    <span class="site-state-item-count">36</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">44</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -976,7 +1012,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#简介"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ETCD是什么"><span class="nav-number">1.1.</span> <span class="nav-text">ETCD是什么</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据复制"><span class="nav-number">1.2.</span> <span class="nav-text">数据复制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#存储结构"><span class="nav-number">1.3.</span> <span class="nav-text">存储结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#watch机制和lease租约"><span class="nav-number">1.4.</span> <span class="nav-text">watch机制和lease租约</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#还有一些小点"><span class="nav-number">1.5.</span> <span class="nav-text">还有一些小点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#本地单节点部署"><span class="nav-number">2.</span> <span class="nav-text">本地单节点部署</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#简单命令行操作"><span class="nav-number">3.</span> <span class="nav-text">简单命令行操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#put"><span class="nav-number">3.1.</span> <span class="nav-text">put</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#get"><span class="nav-number">3.2.</span> <span class="nav-text">get</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#watch"><span class="nav-number">3.3.</span> <span class="nav-text">watch</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#lease"><span class="nav-number">3.4.</span> <span class="nav-text">lease</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ETCD%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">1.1.</span> <span class="nav-text">ETCD是什么</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%A4%8D%E5%88%B6"><span class="nav-number">1.2.</span> <span class="nav-text">数据复制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84"><span class="nav-number">1.3.</span> <span class="nav-text">存储结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#watch%E6%9C%BA%E5%88%B6%E5%92%8Clease%E7%A7%9F%E7%BA%A6"><span class="nav-number">1.4.</span> <span class="nav-text">watch机制和lease租约</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%98%E6%9C%89%E4%B8%80%E4%BA%9B%E5%B0%8F%E7%82%B9"><span class="nav-number">1.5.</span> <span class="nav-text">还有一些小点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%AC%E5%9C%B0%E5%8D%95%E8%8A%82%E7%82%B9%E9%83%A8%E7%BD%B2"><span class="nav-number">2.</span> <span class="nav-text">本地单节点部署</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E5%8D%95%E5%91%BD%E4%BB%A4%E8%A1%8C%E6%93%8D%E4%BD%9C"><span class="nav-number">3.</span> <span class="nav-text">简单命令行操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#put"><span class="nav-number">3.1.</span> <span class="nav-text">put</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#get"><span class="nav-number">3.2.</span> <span class="nav-text">get</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#watch"><span class="nav-number">3.3.</span> <span class="nav-text">watch</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#lease"><span class="nav-number">3.4.</span> <span class="nav-text">lease</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
             
 
           </div>
@@ -1004,7 +1040,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>
@@ -1146,7 +1182,7 @@
 
 
 
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css"/>
 
 
 
@@ -1382,7 +1418,7 @@
 
                   // select top N slices in content
 
-                  var upperBound = parseInt('10');
+                  var upperBound = parseInt('5');
                   if (upperBound >= 0) {
                     slicesOfContent = slicesOfContent.slice(0, upperBound);
                   }
@@ -1524,5 +1560,5 @@
 
   
 
-<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"/live2dw/assets/shizuku.model.json"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"live2d-widget-model-shizuku"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
 </html>

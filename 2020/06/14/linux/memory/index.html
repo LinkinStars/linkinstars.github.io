@@ -15,11 +15,11 @@
 
 
 <html class="theme-next gemini use-motion" lang="zh-CN">
-<head><meta name="generator" content="Hexo 3.8.0">
-  <meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
 
 
 
@@ -46,9 +46,9 @@
 
   
 
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css"/>
 
-<link rel="stylesheet" href="/css/main.css?v=7.1.1">
+<link rel="stylesheet" href="/css/main.css?v=7.1.1"/>
 
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=7.1.1">
@@ -71,7 +71,7 @@
 <script id="hexo.configurations">
   var NexT = window.NexT || {};
   var CONFIG = {
-    root: '/',
+    root: '',
     scheme: 'Gemini',
     version: '7.1.1',
     sidebar: {"position":"left","display":"always","offset":12,"onmobile":false,"dimmer":false},
@@ -99,17 +99,17 @@
 
 
   <meta name="description" content="内存问题往往是线上环境最容易导致的问题，因为其实对于程序来说，内存总是不够用的。而大多数我们在线上遇到的问题总是一个叫 OOM 的，导致这个问题的原因也有很多，今天我们就来看看，如何在线上定位或者排查这样的问题。">
-<meta name="keywords" content="内存">
 <meta property="og:type" content="article">
 <meta property="og:title" content="你的内存还好吗">
 <meta property="og:url" content="https://linkinstar.gitee.io/2020/06/14/linux/memory/index.html">
 <meta property="og:site_name" content="LinkinStar&#39;s Blog">
 <meta property="og:description" content="内存问题往往是线上环境最容易导致的问题，因为其实对于程序来说，内存总是不够用的。而大多数我们在线上遇到的问题总是一个叫 OOM 的，导致这个问题的原因也有很多，今天我们就来看看，如何在线上定位或者排查这样的问题。">
-<meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-06-14T14:28:37.326Z">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-06-13T16:00:00.000Z">
+<meta property="article:modified_time" content="2020-06-14T14:28:37.326Z">
+<meta property="article:author" content="LinkinStar">
+<meta property="article:tag" content="内存">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="你的内存还好吗">
-<meta name="twitter:description" content="内存问题往往是线上环境最容易导致的问题，因为其实对于程序来说，内存总是不够用的。而大多数我们在线上遇到的问题总是一个叫 OOM 的，导致这个问题的原因也有很多，今天我们就来看看，如何在线上定位或者排查这样的问题。">
 
 
 
@@ -117,7 +117,7 @@
 
   
   
-  <link rel="canonical" href="https://linkinstar.gitee.io/2020/06/14/linux/memory/">
+  <link rel="canonical" href="https://linkinstar.gitee.io/2020/06/14/linux/memory/"/>
 
 
 
@@ -176,7 +176,7 @@
   </style>
 </noscript>
 
-</head>
+<meta name="generator" content="Hexo 5.4.0"></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
 
@@ -233,7 +233,7 @@
 
     
 
-    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>首页</a>
 
   </li>
         
@@ -250,7 +250,7 @@
 
     
 
-    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br>分类</a>
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br/>分类</a>
 
   </li>
         
@@ -267,7 +267,7 @@
 
     
 
-    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>标签</a>
 
   </li>
         
@@ -284,7 +284,7 @@
 
     
 
-    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br>归档</a>
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br/>归档</a>
 
   </li>
         
@@ -301,7 +301,7 @@
 
     
 
-    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>关于</a>
 
   </li>
 
@@ -312,7 +312,7 @@
             <a href="javascript:;" class="popup-trigger">
           
             
-              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br/>搜索</a>
         </li>
       
     </ul>
@@ -332,7 +332,9 @@
       <i class="fa fa-times-circle"></i>
     </span>
     <div class="local-search-input-wrapper">
-      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
     </div>
   </div>
   <div id="local-search-result"></div>
@@ -382,16 +384,16 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2020/06/14/linux/memory/">
+    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2020/06/14/linux/memory/"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="LinkinStar">
-      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!">
-      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg">
+      <meta itemprop="name" content="LinkinStar"/>
+      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!"/>
+      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg"/>
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="LinkinStar's Blog">
+      <meta itemprop="name" content="LinkinStar's Blog"/>
     </span>
 
     
@@ -461,7 +463,8 @@
 
           
             <span class="post-meta-divider">|</span>
-            <span class="post-meta-item-icon">
+            <span class="post-meta-item-icon"
+            >
             <i class="fa fa-eye"></i>
              阅读次数： 
             <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
@@ -486,7 +489,7 @@
 
       
         <p>内存问题往往是线上环境最容易导致的问题，因为其实对于程序来说，内存总是不够用的。而大多数我们在线上遇到的问题总是一个叫 OOM 的，导致这个问题的原因也有很多，今天我们就来看看，如何在线上定位或者排查这样的问题。</p>
-<a id="more"></a>
+<span id="more"></span>
 <h2 id="诊断指标"><a href="#诊断指标" class="headerlink" title="诊断指标"></a>诊断指标</h2><h3 id="free"><a href="#free" class="headerlink" title="free"></a>free</h3><h4 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h4><p><code>free -h</code></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@Linkin /]<span class="comment"># free -h</span></span><br><span class="line">total        used        free      shared  buff/cache   available</span><br><span class="line">Mem:           7.6G        326M        6.2G        480K        1.1G        7.0G</span><br><span class="line">Swap:            0B          0B          0B</span><br></pre></td></tr></table></figure>
 <h4 id="指标"><a href="#指标" class="headerlink" title="指标"></a>指标</h4><p>这个命令可以看到当前设备的内存总体使用情况，以及很清楚的看到交换区的内存使用情况</p>
@@ -588,7 +591,7 @@
         
       
       <div style="display: inline-block">
-        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付">
+        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付"/>
         <p>微信支付</p>
       </div>
     
@@ -597,7 +600,7 @@
         
       
       <div style="display: inline-block">
-        <img src="/images/alipay.png" alt="LinkinStar 支付宝">
+        <img src="/images/alipay.png" alt="LinkinStar 支付宝"/>
         <p>支付宝</p>
       </div>
     
@@ -615,11 +618,11 @@
        
         <ul class="post-copyright">
           <li class="post-copyright-author">
-              <strong>本文作者：</strong>LinkinStar
+              <strong>本文作者：</strong>
           </li>
           <li class="post-copyright-link">
             <strong>本文链接：</strong>
-            <a href="http://www.linkinstar.wiki//2020/06/14/linux/memory/" title="你的内存还好吗">http://www.linkinstar.wiki/2020/06/14/linux/memory/</a>
+            <a target="_blank" rel="noopener" href="http://www.linkinstar.wiki//2020/06/14/linux/memory/" title="你的内存还好吗">http://www.linkinstar.wiki/2020/06/14/linux/memory/</a>
           </li>
           <li class="post-copyright-license">
             <strong>版权声明： </strong>
@@ -632,7 +635,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/内存/" rel="tag"># 内存</a>
+            <a href="/tags/%E5%86%85%E5%AD%98/" rel="tag"># 内存</a>
           
         </div>
       
@@ -719,7 +722,9 @@
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
-              <img class="site-author-image" itemprop="image" src="http://blog.linkinstars.com/LLX.jpg" alt="LinkinStar">
+              <img class="site-author-image" itemprop="image"
+                src="http://blog.linkinstars.com/LLX.jpg"
+                alt="LinkinStar"/>
             
               <p class="site-author-name" itemprop="name">LinkinStar</p>
               <div class="site-description motion-element" itemprop="description">No one but myself can do it.<br> Don't worry. Be happy!</div>
@@ -730,9 +735,9 @@
               
                 <div class="site-state-item site-state-posts">
                 
-                  <a href="/archives/">
+                  <a href="/archives/%20%7C%7C%20folder-open-o">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">50</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -744,7 +749,7 @@
                 <div class="site-state-item site-state-categories">
                   
                     
-                      <a href="/categories/">
+                      <a href="/categories/%20%7C%7C%20cubes">
                     
                   
                     
@@ -777,7 +782,23 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -789,7 +810,7 @@
                 <div class="site-state-item site-state-tags">
                   
                     
-                      <a href="/tags/">
+                      <a href="/tags/%20%7C%7C%20tags">
                     
                   
                     
@@ -866,7 +887,23 @@
                     
                       
                     
-                    <span class="site-state-item-count">36</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">44</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -986,7 +1023,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#诊断指标"><span class="nav-number">1.</span> <span class="nav-text">诊断指标</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#free"><span class="nav-number">1.1.</span> <span class="nav-text">free</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#命令"><span class="nav-number">1.1.1.</span> <span class="nav-text">命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#指标"><span class="nav-number">1.1.2.</span> <span class="nav-text">指标</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#top"><span class="nav-number">1.2.</span> <span class="nav-text">top</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#命令-1"><span class="nav-number">1.2.1.</span> <span class="nav-text">命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#指标-1"><span class="nav-number">1.2.2.</span> <span class="nav-text">指标</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#vmstat"><span class="nav-number">1.3.</span> <span class="nav-text">vmstat</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#命令-2"><span class="nav-number">1.3.1.</span> <span class="nav-text">命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#指标-2"><span class="nav-number">1.3.2.</span> <span class="nav-text">指标</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#排查步骤"><span class="nav-number">2.</span> <span class="nav-text">排查步骤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#排查原因"><span class="nav-number">3.</span> <span class="nav-text">排查原因</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#突然过大"><span class="nav-number">3.1.</span> <span class="nav-text">突然过大</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#慢慢变大"><span class="nav-number">3.2.</span> <span class="nav-text">慢慢变大</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#内存缓存"><span class="nav-number">3.3.</span> <span class="nav-text">内存缓存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#定时任务"><span class="nav-number">3.4.</span> <span class="nav-text">定时任务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用-swap"><span class="nav-number">3.5.</span> <span class="nav-text">使用 swap</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#虚拟内存和缓存"><span class="nav-number">3.6.</span> <span class="nav-text">虚拟内存和缓存</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%8A%E6%96%AD%E6%8C%87%E6%A0%87"><span class="nav-number">1.</span> <span class="nav-text">诊断指标</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#free"><span class="nav-number">1.1.</span> <span class="nav-text">free</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4"><span class="nav-number">1.1.1.</span> <span class="nav-text">命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8C%87%E6%A0%87"><span class="nav-number">1.1.2.</span> <span class="nav-text">指标</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#top"><span class="nav-number">1.2.</span> <span class="nav-text">top</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4-1"><span class="nav-number">1.2.1.</span> <span class="nav-text">命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8C%87%E6%A0%87-1"><span class="nav-number">1.2.2.</span> <span class="nav-text">指标</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#vmstat"><span class="nav-number">1.3.</span> <span class="nav-text">vmstat</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4-2"><span class="nav-number">1.3.1.</span> <span class="nav-text">命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8C%87%E6%A0%87-2"><span class="nav-number">1.3.2.</span> <span class="nav-text">指标</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%92%E6%9F%A5%E6%AD%A5%E9%AA%A4"><span class="nav-number">2.</span> <span class="nav-text">排查步骤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%92%E6%9F%A5%E5%8E%9F%E5%9B%A0"><span class="nav-number">3.</span> <span class="nav-text">排查原因</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AA%81%E7%84%B6%E8%BF%87%E5%A4%A7"><span class="nav-number">3.1.</span> <span class="nav-text">突然过大</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%85%A2%E6%85%A2%E5%8F%98%E5%A4%A7"><span class="nav-number">3.2.</span> <span class="nav-text">慢慢变大</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E7%BC%93%E5%AD%98"><span class="nav-number">3.3.</span> <span class="nav-text">内存缓存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1"><span class="nav-number">3.4.</span> <span class="nav-text">定时任务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-swap"><span class="nav-number">3.5.</span> <span class="nav-text">使用 swap</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98%E5%92%8C%E7%BC%93%E5%AD%98"><span class="nav-number">3.6.</span> <span class="nav-text">虚拟内存和缓存</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
             
 
           </div>
@@ -1014,7 +1051,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>
@@ -1156,7 +1193,7 @@
 
 
 
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css"/>
 
 
 
@@ -1392,7 +1429,7 @@
 
                   // select top N slices in content
 
-                  var upperBound = parseInt('10');
+                  var upperBound = parseInt('5');
                   if (upperBound >= 0) {
                     slicesOfContent = slicesOfContent.slice(0, upperBound);
                   }
@@ -1534,5 +1571,5 @@
 
   
 
-<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"/live2dw/assets/shizuku.model.json"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"live2d-widget-model-shizuku"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
 </html>

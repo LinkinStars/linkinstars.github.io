@@ -15,11 +15,11 @@
 
 
 <html class="theme-next gemini use-motion" lang="zh-CN">
-<head><meta name="generator" content="Hexo 3.8.0">
-  <meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
 
 
 
@@ -46,9 +46,9 @@
 
   
 
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css"/>
 
-<link rel="stylesheet" href="/css/main.css?v=7.1.1">
+<link rel="stylesheet" href="/css/main.css?v=7.1.1"/>
 
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=7.1.1">
@@ -71,7 +71,7 @@
 <script id="hexo.configurations">
   var NexT = window.NexT || {};
   var CONFIG = {
-    root: '/',
+    root: '',
     scheme: 'Gemini',
     version: '7.1.1',
     sidebar: {"position":"left","display":"always","offset":12,"onmobile":false,"dimmer":false},
@@ -99,21 +99,21 @@
 
 
   <meta name="description" content="在写 go 的时候，你使用 Mutex 的时候使用的是指针还是说没有使用指针，还是随意来？ 前两天我收到了下面这样的一个 PR，我突然就想到了这个问题，于是就有了这篇博客。">
-<meta name="keywords" content="Mutex">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Golang Mutex 到底是否应该使用指针">
 <meta property="og:url" content="https://linkinstar.gitee.io/2020/07/18/golang/basic/mutex-use-point-or-not/index.html">
 <meta property="og:site_name" content="LinkinStar&#39;s Blog">
 <meta property="og:description" content="在写 go 的时候，你使用 Mutex 的时候使用的是指针还是说没有使用指针，还是随意来？ 前两天我收到了下面这样的一个 PR，我突然就想到了这个问题，于是就有了这篇博客。">
-<meta property="og:locale" content="zh-CN">
+<meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://blog.linkinstars.com//blog/image-20200719223432357.png">
 <meta property="og:image" content="http://blog.linkinstars.com//blog/image-20200719231757257.png">
 <meta property="og:image" content="http://blog.linkinstars.com//blog/image-20200719225413639.png">
 <meta property="og:image" content="http://blog.linkinstars.com//blog/image-20200719231322972.png">
-<meta property="og:updated_time" content="2020-07-19T15:26:39.760Z">
+<meta property="article:published_time" content="2020-07-17T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-05-10T14:36:07.083Z">
+<meta property="article:author" content="LinkinStar">
+<meta property="article:tag" content="Mutex">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Golang Mutex 到底是否应该使用指针">
-<meta name="twitter:description" content="在写 go 的时候，你使用 Mutex 的时候使用的是指针还是说没有使用指针，还是随意来？ 前两天我收到了下面这样的一个 PR，我突然就想到了这个问题，于是就有了这篇博客。">
 <meta name="twitter:image" content="http://blog.linkinstars.com//blog/image-20200719223432357.png">
 
 
@@ -122,7 +122,7 @@
 
   
   
-  <link rel="canonical" href="https://linkinstar.gitee.io/2020/07/18/golang/basic/mutex-use-point-or-not/">
+  <link rel="canonical" href="https://linkinstar.gitee.io/2020/07/18/golang/basic/mutex-use-point-or-not/"/>
 
 
 
@@ -181,7 +181,7 @@
   </style>
 </noscript>
 
-</head>
+<meta name="generator" content="Hexo 5.4.0"></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
 
@@ -238,7 +238,7 @@
 
     
 
-    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>首页</a>
 
   </li>
         
@@ -255,7 +255,7 @@
 
     
 
-    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br>分类</a>
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br/>分类</a>
 
   </li>
         
@@ -272,7 +272,7 @@
 
     
 
-    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>标签</a>
 
   </li>
         
@@ -289,7 +289,7 @@
 
     
 
-    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br>归档</a>
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br/>归档</a>
 
   </li>
         
@@ -306,7 +306,7 @@
 
     
 
-    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>关于</a>
 
   </li>
 
@@ -317,7 +317,7 @@
             <a href="javascript:;" class="popup-trigger">
           
             
-              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br/>搜索</a>
         </li>
       
     </ul>
@@ -337,7 +337,9 @@
       <i class="fa fa-times-circle"></i>
     </span>
     <div class="local-search-input-wrapper">
-      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
     </div>
   </div>
   <div id="local-search-result"></div>
@@ -387,16 +389,16 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2020/07/18/golang/basic/mutex-use-point-or-not/">
+    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2020/07/18/golang/basic/mutex-use-point-or-not/"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="LinkinStar">
-      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!">
-      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg">
+      <meta itemprop="name" content="LinkinStar"/>
+      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!"/>
+      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg"/>
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="LinkinStar's Blog">
+      <meta itemprop="name" content="LinkinStar's Blog"/>
     </span>
 
     
@@ -448,7 +450,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/golang基础/" itemprop="url" rel="index"><span itemprop="name">golang基础</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/golang%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">golang基础</span></a></span>
 
                 
                 
@@ -466,7 +468,8 @@
 
           
             <span class="post-meta-divider">|</span>
-            <span class="post-meta-item-icon">
+            <span class="post-meta-item-icon"
+            >
             <i class="fa fa-eye"></i>
              阅读次数： 
             <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
@@ -492,21 +495,21 @@
       
         <p>在写 go 的时候，你使用 Mutex 的时候使用的是指针还是说没有使用指针，还是随意来？</p>
 <p>前两天我收到了下面这样的一个 PR，我突然就想到了这个问题，于是就有了这篇博客。</p>
+<span id="more"></span>
 <p><img src="http://blog.linkinstars.com//blog/image-20200719223432357.png" alt></p>
 <p><img src="http://blog.linkinstars.com//blog/image-20200719231757257.png" alt></p>
-<a id="more"></a>
 <h2 id="我一开始的想法"><a href="#我一开始的想法" class="headerlink" title="我一开始的想法"></a>我一开始的想法</h2><p>其实我一开始的想法很简单，因为我一直<strong>没有使用指针</strong></p>
 <ol>
 <li>在我的某些印象中我曾经记得，使用锁不申明为指针是一个代码规范类似的东西</li>
 <li>大多数的（我看过的一些）源码中，没有见过将锁申明为指针的用法</li>
 <li>但是当时我没有办法回答这个 PR，你总不能说我是一厢情愿吧…需要一个更加合理的解释</li>
 </ol>
-<h2 id="仔细分析"><a href="#仔细分析" class="headerlink" title="仔细分析"></a>仔细分析</h2><h3 id="上网搜索一番"><a href="#上网搜索一番" class="headerlink" title="上网搜索一番"></a>上网搜索一番</h3><p><a href="https://www.reddit.com/r/golang/comments/6uyf16/confusion_about_mutex_and_reference/" target="_blank" rel="noopener">https://www.reddit.com/r/golang/comments/6uyf16/confusion_about_mutex_and_reference/</a></p>
+<h2 id="仔细分析"><a href="#仔细分析" class="headerlink" title="仔细分析"></a>仔细分析</h2><h3 id="上网搜索一番"><a href="#上网搜索一番" class="headerlink" title="上网搜索一番"></a>上网搜索一番</h3><p><a target="_blank" rel="noopener" href="https://www.reddit.com/r/golang/comments/6uyf16/confusion_about_mutex_and_reference/">https://www.reddit.com/r/golang/comments/6uyf16/confusion_about_mutex_and_reference/</a></p>
 <p>很多类似的问题都在问（你不用点开，只是举个例子）</p>
 <h3 id="问题关键"><a href="#问题关键" class="headerlink" title="问题关键"></a>问题关键</h3><p><code>sync.Mutex</code> 这个东西不能被 copy！（这个我之前也是知道的，毕竟都分析过源码了）</p>
 <h3 id="刨根问底"><a href="#刨根问底" class="headerlink" title="刨根问底"></a>刨根问底</h3><p><strong>虽然这个锁不能被拷贝，那么就应该被申明为指针防止拷贝出现问题吗？</strong></p>
 <p>别慌，先写个例子测测看</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"fmt"</span></span><br><span class="line">	<span class="string">"sync"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Config1 <span class="keyword">struct</span> &#123;</span><br><span class="line">	sync.Mutex</span><br><span class="line">	Name <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Config2 <span class="keyword">struct</span> &#123;</span><br><span class="line">	*sync.Mutex</span><br><span class="line">	Name <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	c1 := Config1&#123;Name: <span class="string">"1"</span>&#125;</span><br><span class="line">	cc1 := c1</span><br><span class="line">	fmt.Println(cc1.Name)</span><br><span class="line">	cc1.Lock()</span><br><span class="line">	cc1.Unlock()</span><br><span class="line"></span><br><span class="line">	c2 := Config2&#123;</span><br><span class="line">		Mutex: &amp;sync.Mutex&#123;&#125;,</span><br><span class="line">		Name:  <span class="string">"2"</span>,</span><br><span class="line">	&#125;</span><br><span class="line">	cc2 := c2</span><br><span class="line">	fmt.Println(cc2.Name)</span><br><span class="line">	cc2.Lock()</span><br><span class="line">	cc2.Unlock()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;sync&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Config1 <span class="keyword">struct</span> &#123;</span><br><span class="line">	sync.Mutex</span><br><span class="line">	Name <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Config2 <span class="keyword">struct</span> &#123;</span><br><span class="line">	*sync.Mutex</span><br><span class="line">	Name <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	c1 := Config1&#123;Name: <span class="string">&quot;1&quot;</span>&#125;</span><br><span class="line">	cc1 := c1</span><br><span class="line">	fmt.Println(cc1.Name)</span><br><span class="line">	cc1.Lock()</span><br><span class="line">	cc1.Unlock()</span><br><span class="line"></span><br><span class="line">	c2 := Config2&#123;</span><br><span class="line">		Mutex: &amp;sync.Mutex&#123;&#125;,</span><br><span class="line">		Name:  <span class="string">&quot;2&quot;</span>,</span><br><span class="line">	&#125;</span><br><span class="line">	cc2 := c2</span><br><span class="line">	fmt.Println(cc2.Name)</span><br><span class="line">	cc2.Lock()</span><br><span class="line">	cc2.Unlock()</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 <p>上面这个跑起来没问题，但是要注意的是，如果使用指针，你就必须对它初始化，否则会空指针。</p>
 <p>看起来好像 copy 没问题啊？难道？让我 vet 看看</p>
 <p><img src="http://blog.linkinstars.com//blog/image-20200719225413639.png" alt></p>
@@ -516,7 +519,7 @@
 <h3 id="原因-1"><a href="#原因-1" class="headerlink" title="原因 1"></a>原因 1</h3><p>假设你申明为了指针，go vet 就不会报错，那么其实你在使用的时候，在不知情的情况下你就会“复制”这个锁</p>
 <h3 id="原因-2"><a href="#原因-2" class="headerlink" title="原因 2"></a>原因 2</h3><p>在什么时候会使用锁呢？一般是不是有一个单例对象要控制，这个对象或者某个操作要控制并发的时候用对吧。</p>
 <p>那什么时候会复制对象呢？那么这个对象一定就不是个单例对不对？（注意这里是复制对象，而不是创建指针对象从而复制指针）</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">c2 := Config2&#123;</span><br><span class="line">   Mutex: &amp;sync.Mutex&#123;&#125;,</span><br><span class="line">   Name:  <span class="string">"2"</span>,</span><br><span class="line">&#125;</span><br><span class="line">cc2 := c2</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">c2 := Config2&#123;</span><br><span class="line">   Mutex: &amp;sync.Mutex&#123;&#125;,</span><br><span class="line">   Name:  <span class="string">&quot;2&quot;</span>,</span><br><span class="line">&#125;</span><br><span class="line">cc2 := c2</span><br></pre></td></tr></table></figure>
 <p>这个写法就已经很古怪了，你复制了这个对象，并且用了同一把锁，那么问题来了：</p>
 <ul>
 <li><p>你的想法究竟是 cc2 锁的时候 c2 也要被锁住？=&gt; 如果是这一种，那么就不应该将锁申明在对象内部。</p>
@@ -561,7 +564,7 @@
         
       
       <div style="display: inline-block">
-        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付">
+        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付"/>
         <p>微信支付</p>
       </div>
     
@@ -570,7 +573,7 @@
         
       
       <div style="display: inline-block">
-        <img src="/images/alipay.png" alt="LinkinStar 支付宝">
+        <img src="/images/alipay.png" alt="LinkinStar 支付宝"/>
         <p>支付宝</p>
       </div>
     
@@ -588,11 +591,11 @@
        
         <ul class="post-copyright">
           <li class="post-copyright-author">
-              <strong>本文作者：</strong>LinkinStar
+              <strong>本文作者：</strong>
           </li>
           <li class="post-copyright-link">
             <strong>本文链接：</strong>
-            <a href="http://www.linkinstar.wiki//2020/07/18/golang/basic/mutex-use-point-or-not/" title="Golang Mutex 到底是否应该使用指针">http://www.linkinstar.wiki/2020/07/18/golang/basic/mutex-use-point-or-not/</a>
+            <a target="_blank" rel="noopener" href="http://www.linkinstar.wiki//2020/07/18/golang/basic/mutex-use-point-or-not/" title="Golang Mutex 到底是否应该使用指针">http://www.linkinstar.wiki/2020/07/18/golang/basic/mutex-use-point-or-not/</a>
           </li>
           <li class="post-copyright-license">
             <strong>版权声明： </strong>
@@ -627,6 +630,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/10/19/golang/open-source-component/openfaas/" rel="prev" title="openfaas/faas 环境搭建和开发使用">
+                openfaas/faas 环境搭建和开发使用 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -688,7 +695,9 @@
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
-              <img class="site-author-image" itemprop="image" src="http://blog.linkinstars.com/LLX.jpg" alt="LinkinStar">
+              <img class="site-author-image" itemprop="image"
+                src="http://blog.linkinstars.com/LLX.jpg"
+                alt="LinkinStar"/>
             
               <p class="site-author-name" itemprop="name">LinkinStar</p>
               <div class="site-description motion-element" itemprop="description">No one but myself can do it.<br> Don't worry. Be happy!</div>
@@ -699,9 +708,9 @@
               
                 <div class="site-state-item site-state-posts">
                 
-                  <a href="/archives/">
+                  <a href="/archives/%20%7C%7C%20folder-open-o">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">50</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -713,7 +722,7 @@
                 <div class="site-state-item site-state-categories">
                   
                     
-                      <a href="/categories/">
+                      <a href="/categories/%20%7C%7C%20cubes">
                     
                   
                     
@@ -746,7 +755,23 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -758,7 +783,7 @@
                 <div class="site-state-item site-state-tags">
                   
                     
-                      <a href="/tags/">
+                      <a href="/tags/%20%7C%7C%20tags">
                     
                   
                     
@@ -835,7 +860,23 @@
                     
                       
                     
-                    <span class="site-state-item-count">36</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">44</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -955,7 +996,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#我一开始的想法"><span class="nav-number">1.</span> <span class="nav-text">我一开始的想法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#仔细分析"><span class="nav-number">2.</span> <span class="nav-text">仔细分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#上网搜索一番"><span class="nav-number">2.1.</span> <span class="nav-text">上网搜索一番</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题关键"><span class="nav-number">2.2.</span> <span class="nav-text">问题关键</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#刨根问底"><span class="nav-number">2.3.</span> <span class="nav-text">刨根问底</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#我的结论"><span class="nav-number">3.</span> <span class="nav-text">我的结论</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#原因-1"><span class="nav-number">3.1.</span> <span class="nav-text">原因 1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#原因-2"><span class="nav-number">3.2.</span> <span class="nav-text">原因 2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#结论"><span class="nav-number">3.3.</span> <span class="nav-text">结论</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#感谢"><span class="nav-number">4.</span> <span class="nav-text">感谢</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%88%91%E4%B8%80%E5%BC%80%E5%A7%8B%E7%9A%84%E6%83%B3%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">我一开始的想法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%94%E7%BB%86%E5%88%86%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">仔细分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8A%E7%BD%91%E6%90%9C%E7%B4%A2%E4%B8%80%E7%95%AA"><span class="nav-number">2.1.</span> <span class="nav-text">上网搜索一番</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E5%85%B3%E9%94%AE"><span class="nav-number">2.2.</span> <span class="nav-text">问题关键</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%A8%E6%A0%B9%E9%97%AE%E5%BA%95"><span class="nav-number">2.3.</span> <span class="nav-text">刨根问底</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%88%91%E7%9A%84%E7%BB%93%E8%AE%BA"><span class="nav-number">3.</span> <span class="nav-text">我的结论</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E5%9B%A0-1"><span class="nav-number">3.1.</span> <span class="nav-text">原因 1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E5%9B%A0-2"><span class="nav-number">3.2.</span> <span class="nav-text">原因 2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E8%AE%BA"><span class="nav-number">3.3.</span> <span class="nav-text">结论</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%84%9F%E8%B0%A2"><span class="nav-number">4.</span> <span class="nav-text">感谢</span></a></li></ol></div>
             
 
           </div>
@@ -983,7 +1024,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>
@@ -1125,7 +1166,7 @@
 
 
 
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css"/>
 
 
 
@@ -1361,7 +1402,7 @@
 
                   // select top N slices in content
 
-                  var upperBound = parseInt('10');
+                  var upperBound = parseInt('5');
                   if (upperBound >= 0) {
                     slicesOfContent = slicesOfContent.slice(0, upperBound);
                   }
@@ -1503,5 +1544,5 @@
 
   
 
-<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"/live2dw/assets/shizuku.model.json"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"live2d-widget-model-shizuku"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
 </html>

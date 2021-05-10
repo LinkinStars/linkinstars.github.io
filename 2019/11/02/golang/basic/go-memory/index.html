@@ -15,11 +15,11 @@
 
 
 <html class="theme-next gemini use-motion" lang="zh-CN">
-<head><meta name="generator" content="Hexo 3.8.0">
-  <meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
 
 
 
@@ -46,9 +46,9 @@
 
   
 
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css"/>
 
-<link rel="stylesheet" href="/css/main.css?v=7.1.1">
+<link rel="stylesheet" href="/css/main.css?v=7.1.1"/>
 
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=7.1.1">
@@ -71,7 +71,7 @@
 <script id="hexo.configurations">
   var NexT = window.NexT || {};
   var CONFIG = {
-    root: '/',
+    root: '',
     scheme: 'Gemini',
     version: '7.1.1',
     sidebar: {"position":"left","display":"always","offset":12,"onmobile":false,"dimmer":false},
@@ -99,20 +99,20 @@
 
 
   <meta name="description" content="我们知道所有程序运行都需要使用内存，而内存的管理和分配又是非常重要的，它决定了你的程序能不能在有限的资源内跑的更快。可以设想一下，如果你自己来设计的一个内存分配的规则，会遇到什么问题呢？如果你有了一大块内存你要怎么去合理的分配和使用呢？今天我们通过几张图来看看golang中的内存分配是怎样的。">
-<meta name="keywords" content="内存">
 <meta property="og:type" content="article">
 <meta property="og:title" content="图解golang内存分配">
 <meta property="og:url" content="https://linkinstar.gitee.io/2019/11/02/golang/basic/go-memory/index.html">
 <meta property="og:site_name" content="LinkinStar&#39;s Blog">
 <meta property="og:description" content="我们知道所有程序运行都需要使用内存，而内存的管理和分配又是非常重要的，它决定了你的程序能不能在有限的资源内跑的更快。可以设想一下，如果你自己来设计的一个内存分配的规则，会遇到什么问题呢？如果你有了一大块内存你要怎么去合理的分配和使用呢？今天我们通过几张图来看看golang中的内存分配是怎样的。">
-<meta property="og:locale" content="zh-CN">
+<meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://blog.linkinstars.com/mweb/15726689114124.jpg">
 <meta property="og:image" content="http://blog.linkinstars.com/mweb/15726829058612.jpg">
 <meta property="og:image" content="http://blog.linkinstars.com/mweb/15726846463324.jpg">
-<meta property="og:updated_time" content="2019-11-09T06:23:48.376Z">
+<meta property="article:published_time" content="2019-11-01T16:00:00.000Z">
+<meta property="article:modified_time" content="2019-11-09T06:23:48.376Z">
+<meta property="article:author" content="LinkinStar">
+<meta property="article:tag" content="内存">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="图解golang内存分配">
-<meta name="twitter:description" content="我们知道所有程序运行都需要使用内存，而内存的管理和分配又是非常重要的，它决定了你的程序能不能在有限的资源内跑的更快。可以设想一下，如果你自己来设计的一个内存分配的规则，会遇到什么问题呢？如果你有了一大块内存你要怎么去合理的分配和使用呢？今天我们通过几张图来看看golang中的内存分配是怎样的。">
 <meta name="twitter:image" content="http://blog.linkinstars.com/mweb/15726689114124.jpg">
 
 
@@ -121,7 +121,7 @@
 
   
   
-  <link rel="canonical" href="https://linkinstar.gitee.io/2019/11/02/golang/basic/go-memory/">
+  <link rel="canonical" href="https://linkinstar.gitee.io/2019/11/02/golang/basic/go-memory/"/>
 
 
 
@@ -180,7 +180,7 @@
   </style>
 </noscript>
 
-</head>
+<meta name="generator" content="Hexo 5.4.0"></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
 
@@ -237,7 +237,7 @@
 
     
 
-    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>首页</a>
 
   </li>
         
@@ -254,7 +254,7 @@
 
     
 
-    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br>分类</a>
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br/>分类</a>
 
   </li>
         
@@ -271,7 +271,7 @@
 
     
 
-    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>标签</a>
 
   </li>
         
@@ -288,7 +288,7 @@
 
     
 
-    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br>归档</a>
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br/>归档</a>
 
   </li>
         
@@ -305,7 +305,7 @@
 
     
 
-    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>关于</a>
 
   </li>
 
@@ -316,7 +316,7 @@
             <a href="javascript:;" class="popup-trigger">
           
             
-              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br/>搜索</a>
         </li>
       
     </ul>
@@ -336,7 +336,9 @@
       <i class="fa fa-times-circle"></i>
     </span>
     <div class="local-search-input-wrapper">
-      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
     </div>
   </div>
   <div id="local-search-result"></div>
@@ -386,16 +388,16 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2019/11/02/golang/basic/go-memory/">
+    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2019/11/02/golang/basic/go-memory/"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="LinkinStar">
-      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!">
-      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg">
+      <meta itemprop="name" content="LinkinStar"/>
+      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!"/>
+      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg"/>
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="LinkinStar's Blog">
+      <meta itemprop="name" content="LinkinStar's Blog"/>
     </span>
 
     
@@ -447,7 +449,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/golang基础/" itemprop="url" rel="index"><span itemprop="name">golang基础</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/golang%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">golang基础</span></a></span>
 
                 
                 
@@ -465,7 +467,8 @@
 
           
             <span class="post-meta-divider">|</span>
-            <span class="post-meta-item-icon">
+            <span class="post-meta-item-icon"
+            >
             <i class="fa fa-eye"></i>
              阅读次数： 
             <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
@@ -490,7 +493,7 @@
 
       
         <p>我们知道所有程序运行都需要使用内存，而内存的管理和分配又是非常重要的，它决定了你的程序能不能在有限的资源内跑的更快。可以设想一下，如果你自己来设计的一个内存分配的规则，会遇到什么问题呢？如果你有了一大块内存你要怎么去合理的分配和使用呢？今天我们通过几张图来看看golang中的内存分配是怎样的。</p>
-<a id="more"></a>
+<span id="more"></span>
 <p>前置知识：对golang的GPM模型有所了解，对GC有一定的了解，有助于你理解下面的内容。</p>
 <h2 id="想一想"><a href="#想一想" class="headerlink" title="想一想"></a>想一想</h2><p>我们首先来想一下，如果我们自己来分配内存的时候可能会遇到什么问题。</p>
 <h3 id="我想要512G，你能给吗？"><a href="#我想要512G，你能给吗？" class="headerlink" title="我想要512G，你能给吗？"></a>我想要512G，你能给吗？</h3><p>操作系统的内存不是你想要多少就给你多少的。比如我跟操作系统说我要512G内存，你赶紧给我，不给我我就掐死你，如果你是操作系统，是不是立马就想把我给结束了？</p>
@@ -554,7 +557,7 @@
         
       
       <div style="display: inline-block">
-        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付">
+        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付"/>
         <p>微信支付</p>
       </div>
     
@@ -563,7 +566,7 @@
         
       
       <div style="display: inline-block">
-        <img src="/images/alipay.png" alt="LinkinStar 支付宝">
+        <img src="/images/alipay.png" alt="LinkinStar 支付宝"/>
         <p>支付宝</p>
       </div>
     
@@ -581,11 +584,11 @@
        
         <ul class="post-copyright">
           <li class="post-copyright-author">
-              <strong>本文作者：</strong>LinkinStar
+              <strong>本文作者：</strong>
           </li>
           <li class="post-copyright-link">
             <strong>本文链接：</strong>
-            <a href="http://www.linkinstar.wiki//2019/11/02/golang/basic/go-memory/" title="图解golang内存分配">http://www.linkinstar.wiki/2019/11/02/golang/basic/go-memory/</a>
+            <a target="_blank" rel="noopener" href="http://www.linkinstar.wiki//2019/11/02/golang/basic/go-memory/" title="图解golang内存分配">http://www.linkinstar.wiki/2019/11/02/golang/basic/go-memory/</a>
           </li>
           <li class="post-copyright-license">
             <strong>版权声明： </strong>
@@ -598,7 +601,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/内存/" rel="tag"># 内存</a>
+            <a href="/tags/%E5%86%85%E5%AD%98/" rel="tag"># 内存</a>
           
         </div>
       
@@ -685,7 +688,9 @@
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
-              <img class="site-author-image" itemprop="image" src="http://blog.linkinstars.com/LLX.jpg" alt="LinkinStar">
+              <img class="site-author-image" itemprop="image"
+                src="http://blog.linkinstars.com/LLX.jpg"
+                alt="LinkinStar"/>
             
               <p class="site-author-name" itemprop="name">LinkinStar</p>
               <div class="site-description motion-element" itemprop="description">No one but myself can do it.<br> Don't worry. Be happy!</div>
@@ -696,9 +701,9 @@
               
                 <div class="site-state-item site-state-posts">
                 
-                  <a href="/archives/">
+                  <a href="/archives/%20%7C%7C%20folder-open-o">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">50</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -710,7 +715,7 @@
                 <div class="site-state-item site-state-categories">
                   
                     
-                      <a href="/categories/">
+                      <a href="/categories/%20%7C%7C%20cubes">
                     
                   
                     
@@ -743,7 +748,23 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -755,7 +776,7 @@
                 <div class="site-state-item site-state-tags">
                   
                     
-                      <a href="/tags/">
+                      <a href="/tags/%20%7C%7C%20tags">
                     
                   
                     
@@ -832,7 +853,23 @@
                     
                       
                     
-                    <span class="site-state-item-count">36</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">44</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -952,7 +989,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#想一想"><span class="nav-number">1.</span> <span class="nav-text">想一想</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#我想要512G，你能给吗？"><span class="nav-number">1.1.</span> <span class="nav-text">我想要512G，你能给吗？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#能随便分割吗？"><span class="nav-number">1.2.</span> <span class="nav-text">能随便分割吗？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#不用了我需要放回去吗？"><span class="nav-number">1.3.</span> <span class="nav-text">不用了我需要放回去吗？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内存的管理者"><span class="nav-number">2.</span> <span class="nav-text">内存的管理者</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#OS"><span class="nav-number">2.1.</span> <span class="nav-text">OS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#heap"><span class="nav-number">2.2.</span> <span class="nav-text">heap</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#central"><span class="nav-number">2.3.</span> <span class="nav-text">central</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cache"><span class="nav-number">2.4.</span> <span class="nav-text">cache</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">2.5.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内存的分配结构"><span class="nav-number">3.</span> <span class="nav-text">内存的分配结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#arena"><span class="nav-number">3.1.</span> <span class="nav-text">arena</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bitmap"><span class="nav-number">3.2.</span> <span class="nav-text">bitmap</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#spans"><span class="nav-number">3.3.</span> <span class="nav-text">spans</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内存分配"><span class="nav-number">4.</span> <span class="nav-text">内存分配</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#分配流程"><span class="nav-number">4.1.</span> <span class="nav-text">分配流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#扩容"><span class="nav-number">4.2.</span> <span class="nav-text">扩容</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#回收"><span class="nav-number">4.3.</span> <span class="nav-text">回收</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结-1"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%83%B3%E4%B8%80%E6%83%B3"><span class="nav-number">1.</span> <span class="nav-text">想一想</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%88%91%E6%83%B3%E8%A6%81512G%EF%BC%8C%E4%BD%A0%E8%83%BD%E7%BB%99%E5%90%97%EF%BC%9F"><span class="nav-number">1.1.</span> <span class="nav-text">我想要512G，你能给吗？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%83%BD%E9%9A%8F%E4%BE%BF%E5%88%86%E5%89%B2%E5%90%97%EF%BC%9F"><span class="nav-number">1.2.</span> <span class="nav-text">能随便分割吗？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8D%E7%94%A8%E4%BA%86%E6%88%91%E9%9C%80%E8%A6%81%E6%94%BE%E5%9B%9E%E5%8E%BB%E5%90%97%EF%BC%9F"><span class="nav-number">1.3.</span> <span class="nav-text">不用了我需要放回去吗？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E7%9A%84%E7%AE%A1%E7%90%86%E8%80%85"><span class="nav-number">2.</span> <span class="nav-text">内存的管理者</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#OS"><span class="nav-number">2.1.</span> <span class="nav-text">OS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#heap"><span class="nav-number">2.2.</span> <span class="nav-text">heap</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#central"><span class="nav-number">2.3.</span> <span class="nav-text">central</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cache"><span class="nav-number">2.4.</span> <span class="nav-text">cache</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">2.5.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E7%9A%84%E5%88%86%E9%85%8D%E7%BB%93%E6%9E%84"><span class="nav-number">3.</span> <span class="nav-text">内存的分配结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#arena"><span class="nav-number">3.1.</span> <span class="nav-text">arena</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bitmap"><span class="nav-number">3.2.</span> <span class="nav-text">bitmap</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#spans"><span class="nav-number">3.3.</span> <span class="nav-text">spans</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D"><span class="nav-number">4.</span> <span class="nav-text">内存分配</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E9%85%8D%E6%B5%81%E7%A8%8B"><span class="nav-number">4.1.</span> <span class="nav-text">分配流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%A9%E5%AE%B9"><span class="nav-number">4.2.</span> <span class="nav-text">扩容</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9E%E6%94%B6"><span class="nav-number">4.3.</span> <span class="nav-text">回收</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93-1"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
             
 
           </div>
@@ -980,7 +1017,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>
@@ -1122,7 +1159,7 @@
 
 
 
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css"/>
 
 
 
@@ -1358,7 +1395,7 @@
 
                   // select top N slices in content
 
-                  var upperBound = parseInt('10');
+                  var upperBound = parseInt('5');
                   if (upperBound >= 0) {
                     slicesOfContent = slicesOfContent.slice(0, upperBound);
                   }
@@ -1500,5 +1537,5 @@
 
   
 
-<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"/live2dw/assets/shizuku.model.json"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"live2d-widget-model-shizuku"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
 </html>

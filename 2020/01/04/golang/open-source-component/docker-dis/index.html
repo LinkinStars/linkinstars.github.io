@@ -15,11 +15,11 @@
 
 
 <html class="theme-next gemini use-motion" lang="zh-CN">
-<head><meta name="generator" content="Hexo 3.8.0">
-  <meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
 
 
 
@@ -46,9 +46,9 @@
 
   
 
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css"/>
 
-<link rel="stylesheet" href="/css/main.css?v=7.1.1">
+<link rel="stylesheet" href="/css/main.css?v=7.1.1"/>
 
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=7.1.1">
@@ -71,7 +71,7 @@
 <script id="hexo.configurations">
   var NexT = window.NexT || {};
   var CONFIG = {
-    root: '/',
+    root: '',
     scheme: 'Gemini',
     version: '7.1.1',
     sidebar: {"position":"left","display":"always","offset":12,"onmobile":false,"dimmer":false},
@@ -99,19 +99,19 @@
 
 
   <meta name="description" content="docker对于现在的我们来说，已经是一个非常熟悉的东西了，docker无论是在部署打包，自动化，等方方面面都起着重要的作用，但是你是否有疑问，docker究竟是如何帮我们创建一个个隔离的环境的呢？今天我们就来看看，仔细说说docker PS: 以下的讨论都限定在linux环境下，在windows和macos下容器技术实现不相同，不在讨论范围内。">
-<meta name="keywords" content="docker">
 <meta property="og:type" content="article">
 <meta property="og:title" content="细说docker - 容器技术">
 <meta property="og:url" content="https://linkinstar.gitee.io/2020/01/04/golang/open-source-component/docker-dis/index.html">
 <meta property="og:site_name" content="LinkinStar&#39;s Blog">
 <meta property="og:description" content="docker对于现在的我们来说，已经是一个非常熟悉的东西了，docker无论是在部署打包，自动化，等方方面面都起着重要的作用，但是你是否有疑问，docker究竟是如何帮我们创建一个个隔离的环境的呢？今天我们就来看看，仔细说说docker PS: 以下的讨论都限定在linux环境下，在windows和macos下容器技术实现不相同，不在讨论范围内。">
-<meta property="og:locale" content="zh-CN">
+<meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://blog.linkinstars.com/mweb/15781264508223.jpg">
 <meta property="og:image" content="http://blog.linkinstars.com/mweb/15781265788714.jpg">
-<meta property="og:updated_time" content="2020-01-04T08:47:35.114Z">
+<meta property="article:published_time" content="2020-01-03T16:00:00.000Z">
+<meta property="article:modified_time" content="2020-01-04T08:47:35.114Z">
+<meta property="article:author" content="LinkinStar">
+<meta property="article:tag" content="docker">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="细说docker - 容器技术">
-<meta name="twitter:description" content="docker对于现在的我们来说，已经是一个非常熟悉的东西了，docker无论是在部署打包，自动化，等方方面面都起着重要的作用，但是你是否有疑问，docker究竟是如何帮我们创建一个个隔离的环境的呢？今天我们就来看看，仔细说说docker PS: 以下的讨论都限定在linux环境下，在windows和macos下容器技术实现不相同，不在讨论范围内。">
 <meta name="twitter:image" content="http://blog.linkinstars.com/mweb/15781264508223.jpg">
 
 
@@ -120,7 +120,7 @@
 
   
   
-  <link rel="canonical" href="https://linkinstar.gitee.io/2020/01/04/golang/open-source-component/docker-dis/">
+  <link rel="canonical" href="https://linkinstar.gitee.io/2020/01/04/golang/open-source-component/docker-dis/"/>
 
 
 
@@ -179,7 +179,7 @@
   </style>
 </noscript>
 
-</head>
+<meta name="generator" content="Hexo 5.4.0"></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
 
@@ -236,7 +236,7 @@
 
     
 
-    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>首页</a>
 
   </li>
         
@@ -253,7 +253,7 @@
 
     
 
-    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br>分类</a>
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br/>分类</a>
 
   </li>
         
@@ -270,7 +270,7 @@
 
     
 
-    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>标签</a>
 
   </li>
         
@@ -287,7 +287,7 @@
 
     
 
-    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br>归档</a>
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br/>归档</a>
 
   </li>
         
@@ -304,7 +304,7 @@
 
     
 
-    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>关于</a>
 
   </li>
 
@@ -315,7 +315,7 @@
             <a href="javascript:;" class="popup-trigger">
           
             
-              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br/>搜索</a>
         </li>
       
     </ul>
@@ -335,7 +335,9 @@
       <i class="fa fa-times-circle"></i>
     </span>
     <div class="local-search-input-wrapper">
-      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
     </div>
   </div>
   <div id="local-search-result"></div>
@@ -385,16 +387,16 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2020/01/04/golang/open-source-component/docker-dis/">
+    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2020/01/04/golang/open-source-component/docker-dis/"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="LinkinStar">
-      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!">
-      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg">
+      <meta itemprop="name" content="LinkinStar"/>
+      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!"/>
+      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg"/>
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="LinkinStar's Blog">
+      <meta itemprop="name" content="LinkinStar's Blog"/>
     </span>
 
     
@@ -464,7 +466,8 @@
 
           
             <span class="post-meta-divider">|</span>
-            <span class="post-meta-item-icon">
+            <span class="post-meta-item-icon"
+            >
             <i class="fa fa-eye"></i>
              阅读次数： 
             <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
@@ -490,13 +493,13 @@
       
         <p>docker对于现在的我们来说，已经是一个非常熟悉的东西了，docker无论是在部署打包，自动化，等方方面面都起着重要的作用，但是你是否有疑问，docker究竟是如何帮我们创建一个个隔离的环境的呢？今天我们就来看看，仔细说说docker</p>
 <p>PS: 以下的讨论都限定在linux环境下，在windows和macos下容器技术实现不相同，不在讨论范围内。</p>
-<a id="more"></a>
+<span id="more"></span>
 <h2 id="大方向"><a href="#大方向" class="headerlink" title="大方向"></a>大方向</h2><p>为什么先要提到这个词呢？因为所有在操作系统上运行的程序都叫做进程。docker也不例外，从大的方向来讲，<strong>docker就是帮你创建了一个进程而已</strong>。而不一样的是，docker通过限制了各种环境，就像给这个进程画了一个圈，所以在这个进程本身看来，它自己好像被隔离了一般。</p>
 <ul>
 <li>docker容器技术的核心，就是通过约束和修改进程的动态表现，从而为其创造出一个“边界”</li>
 </ul>
 <h2 id="限制条件"><a href="#限制条件" class="headerlink" title="限制条件"></a>限制条件</h2><p>那么我们有了大方向，那么来细细看看，首先的第一个问题就来了，docker是通过什么方法对这个进程进行限制的呢？</p>
-<h3 id="Namespace"><a href="#Namespace" class="headerlink" title="Namespace"></a>Namespace</h3><p>命名空间，没错就是它，是它限制了docker容器的环境。其实这是linux的一个功能而已，只不过没人想到docker会那它来做这个事情。下面看个例子，一下是我在一个nginx容器中利用ps命令查看的进程样子<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/ # ps -ef</span><br><span class="line">PID   USER     COMMAND</span><br><span class="line">    1 root     sh /start.sh</span><br><span class="line">    8 root     nginx: master process /usr/sbin/nginx</span><br><span class="line">    9 nobody   nginx: worker process</span><br><span class="line">   18 root     /bin/sh</span><br><span class="line">   25 root     ps -ef</span><br></pre></td></tr></table></figure></p>
+<h3 id="Namespace"><a href="#Namespace" class="headerlink" title="Namespace"></a>Namespace</h3><p>命名空间，没错就是它，是它限制了docker容器的环境。其实这是linux的一个功能而已，只不过没人想到docker会那它来做这个事情。下面看个例子，一下是我在一个nginx容器中利用ps命令查看的进程样子<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/ # ps -ef</span><br><span class="line">PID   USER     COMMAND</span><br><span class="line">    1 root     sh /start.sh</span><br><span class="line">    8 root     nginx: master process /usr/sbin/nginx</span><br><span class="line">    9 nobody   nginx: worker process</span><br><span class="line">   18 root     /bin/sh</span><br><span class="line">   25 root     ps -ef</span><br></pre></td></tr></table></figure></p>
 <p>我们可以看到，PID是从1开始的，当前宿主机肯定也有PID为1的进程，这说明容器中所有的进程看起来好像和宿主机隔离了。其实这就是利用了 CLONE_NEWPID</p>
 <p>我们知道，在linux下可以利用<br><code>clone(main_function, stack_size, SIGCHLD, NULL);</code><br>方法创建进程，如果同时你再参数中设定参数CLONE_NEWPID<br><code>clone(main_function, stack_size, CLONE_NEWPID | SIGCHLD, NULL);</code> </p>
 <p>那么新创建的进程就会在一个新的空间下，在这个空间中它自己的pid就是1；而其实在主机本身看来这个进程的pid还是一个别的数字。<br>由于新的进程在它自己的空间中认为自己是1号进程，所以看起来好像就和主机本身进程隔离的一样， 而其实只是它看不到别人罢了。这就是Namespace的作用。</p>
@@ -512,7 +515,7 @@
 <p>因为即使开启了Mount Namespace 但是容器进程也能看到宿主机的文件系统，因为Mount Namespace修改的是容器进程对文件系统挂载点的认知，但是如果没有执行mount命令，那么当前还是使用的宿主机的文件系统，但这肯定不是我们想要的。</p>
 <p>而在linux下有一个命令很好的解决了这个问题，那就是chroot。这个命令是 change root directory 的缩写，意思就是切换当前系统的root目录。我们知道在linux系统中根路径就是“/”，使用这个命令就可以切换我们的根路径变成别的路径。</p>
 <p>docker就是使用chroot来实现说让docker容器所有在的目录的根目录进行修改，从而在容器角度看来是看不到宿主机的目录，因为它会认为自己这里就是根目录了。</p>
-<p>对于chroot详细的介绍这里就不展开了，感兴趣可以查看：<a href="https://www.ibm.com/developerworks/cn/linux/l-cn-chroot/index.html" target="_blank" rel="noopener">https://www.ibm.com/developerworks/cn/linux/l-cn-chroot/index.html</a></p>
+<p>对于chroot详细的介绍这里就不展开了，感兴趣可以查看：<a target="_blank" rel="noopener" href="https://www.ibm.com/developerworks/cn/linux/l-cn-chroot/index.html">https://www.ibm.com/developerworks/cn/linux/l-cn-chroot/index.html</a></p>
 <h2 id="镜像"><a href="#镜像" class="headerlink" title="镜像"></a>镜像</h2><p>从上面我们已经可以知道，docker通过 namespace、cgroup、chroot 技术帮我们创建了一个拥有限制条件和隔离环境的进程，从而实现了一个容器，但是还有一个重要的技术在docker中也是至关重要的，那就是镜像。<br>在使用docker的时候，最方便的莫过于你可以通过docker build命令进行镜像的制作，然后将镜像推送到远端的仓库中去，任何机器只需要连接仓库拉取镜像就可以构建出一模一样的容器，那么镜像里面究竟放了什么东西呢？</p>
 <h3 id="镜像的本质"><a href="#镜像的本质" class="headerlink" title="镜像的本质"></a>镜像的本质</h3><p>其实 docker 镜像本身就是一个压缩包，它将我们制作好的文件系统打包好了。<br>我们可以用 <code>docker export</code> 对镜像文件进行导出。我们会发现其实镜像中的目录结构和linux一样，其实就是一个文件系统。</p>
 <h3 id="镜像分层技术"><a href="#镜像分层技术" class="headerlink" title="镜像分层技术"></a>镜像分层技术</h3><p>但是如果仅仅是做一个简单的文件打包的工作，那么你就太小看docker镜像本身了。</p>
@@ -550,7 +553,7 @@
         
       
       <div style="display: inline-block">
-        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付">
+        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付"/>
         <p>微信支付</p>
       </div>
     
@@ -559,7 +562,7 @@
         
       
       <div style="display: inline-block">
-        <img src="/images/alipay.png" alt="LinkinStar 支付宝">
+        <img src="/images/alipay.png" alt="LinkinStar 支付宝"/>
         <p>支付宝</p>
       </div>
     
@@ -577,11 +580,11 @@
        
         <ul class="post-copyright">
           <li class="post-copyright-author">
-              <strong>本文作者：</strong>LinkinStar
+              <strong>本文作者：</strong>
           </li>
           <li class="post-copyright-link">
             <strong>本文链接：</strong>
-            <a href="http://www.linkinstar.wiki//2020/01/04/golang/open-source-component/docker-dis/" title="细说docker - 容器技术">http://www.linkinstar.wiki/2020/01/04/golang/open-source-component/docker-dis/</a>
+            <a target="_blank" rel="noopener" href="http://www.linkinstar.wiki//2020/01/04/golang/open-source-component/docker-dis/" title="细说docker - 容器技术">http://www.linkinstar.wiki/2020/01/04/golang/open-source-component/docker-dis/</a>
           </li>
           <li class="post-copyright-license">
             <strong>版权声明： </strong>
@@ -617,7 +620,7 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2020/01/11/golang/open-source-component/k8s-dis-pod/" rel="prev" title="细说kubernetes - 为什么是pod">
+              <a href="/2020/01/11/k8s/k8s-dis-pod/" rel="prev" title="细说kubernetes - 为什么是pod">
                 细说kubernetes - 为什么是pod <i class="fa fa-chevron-right"></i>
               </a>
             
@@ -681,7 +684,9 @@
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
-              <img class="site-author-image" itemprop="image" src="http://blog.linkinstars.com/LLX.jpg" alt="LinkinStar">
+              <img class="site-author-image" itemprop="image"
+                src="http://blog.linkinstars.com/LLX.jpg"
+                alt="LinkinStar"/>
             
               <p class="site-author-name" itemprop="name">LinkinStar</p>
               <div class="site-description motion-element" itemprop="description">No one but myself can do it.<br> Don't worry. Be happy!</div>
@@ -692,9 +697,9 @@
               
                 <div class="site-state-item site-state-posts">
                 
-                  <a href="/archives/">
+                  <a href="/archives/%20%7C%7C%20folder-open-o">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">50</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -706,7 +711,7 @@
                 <div class="site-state-item site-state-categories">
                   
                     
-                      <a href="/categories/">
+                      <a href="/categories/%20%7C%7C%20cubes">
                     
                   
                     
@@ -739,7 +744,23 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -751,7 +772,7 @@
                 <div class="site-state-item site-state-tags">
                   
                     
-                      <a href="/tags/">
+                      <a href="/tags/%20%7C%7C%20tags">
                     
                   
                     
@@ -828,7 +849,23 @@
                     
                       
                     
-                    <span class="site-state-item-count">36</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">44</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -948,7 +985,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#大方向"><span class="nav-number">1.</span> <span class="nav-text">大方向</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#限制条件"><span class="nav-number">2.</span> <span class="nav-text">限制条件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Namespace"><span class="nav-number">2.1.</span> <span class="nav-text">Namespace</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CGroups"><span class="nav-number">2.2.</span> <span class="nav-text">CGroups</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#chroot"><span class="nav-number">2.3.</span> <span class="nav-text">chroot</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#镜像"><span class="nav-number">3.</span> <span class="nav-text">镜像</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#镜像的本质"><span class="nav-number">3.1.</span> <span class="nav-text">镜像的本质</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#镜像分层技术"><span class="nav-number">3.2.</span> <span class="nav-text">镜像分层技术</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%A7%E6%96%B9%E5%90%91"><span class="nav-number">1.</span> <span class="nav-text">大方向</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%99%90%E5%88%B6%E6%9D%A1%E4%BB%B6"><span class="nav-number">2.</span> <span class="nav-text">限制条件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Namespace"><span class="nav-number">2.1.</span> <span class="nav-text">Namespace</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CGroups"><span class="nav-number">2.2.</span> <span class="nav-text">CGroups</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#chroot"><span class="nav-number">2.3.</span> <span class="nav-text">chroot</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%95%9C%E5%83%8F"><span class="nav-number">3.</span> <span class="nav-text">镜像</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%95%9C%E5%83%8F%E7%9A%84%E6%9C%AC%E8%B4%A8"><span class="nav-number">3.1.</span> <span class="nav-text">镜像的本质</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%95%9C%E5%83%8F%E5%88%86%E5%B1%82%E6%8A%80%E6%9C%AF"><span class="nav-number">3.2.</span> <span class="nav-text">镜像分层技术</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
             
 
           </div>
@@ -976,7 +1013,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>
@@ -1118,7 +1155,7 @@
 
 
 
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css"/>
 
 
 
@@ -1354,7 +1391,7 @@
 
                   // select top N slices in content
 
-                  var upperBound = parseInt('10');
+                  var upperBound = parseInt('5');
                   if (upperBound >= 0) {
                     slicesOfContent = slicesOfContent.slice(0, upperBound);
                   }
@@ -1496,5 +1533,5 @@
 
   
 
-<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"/live2dw/assets/shizuku.model.json"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"live2d-widget-model-shizuku"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
 </html>

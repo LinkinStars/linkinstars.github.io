@@ -15,11 +15,11 @@
 
 
 <html class="theme-next gemini use-motion" lang="zh-CN">
-<head><meta name="generator" content="Hexo 3.8.0">
-  <meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
 
 
 
@@ -46,9 +46,9 @@
 
   
 
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css"/>
 
-<link rel="stylesheet" href="/css/main.css?v=7.1.1">
+<link rel="stylesheet" href="/css/main.css?v=7.1.1"/>
 
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=7.1.1">
@@ -71,7 +71,7 @@
 <script id="hexo.configurations">
   var NexT = window.NexT || {};
   var CONFIG = {
-    root: '/',
+    root: '',
     scheme: 'Gemini',
     version: '7.1.1',
     sidebar: {"position":"left","display":"always","offset":12,"onmobile":false,"dimmer":false},
@@ -99,18 +99,18 @@
 
 
   <meta name="description" content="其实这个话题我早就想做了，奈何这个问题确实有点复杂，看了很多文章才有了一点点自己的理解。从golang一开始的使用我就已经开始好奇了，这个goroutine到底是怎么实现的呢？怎么就能搞出一个和线程类似，但是性能又那么好的东西的呢？">
-<meta name="keywords" content="goroutine">
 <meta property="og:type" content="article">
 <meta property="og:title" content="图解goroutine调度">
 <meta property="og:url" content="https://linkinstar.gitee.io/2019/08/15/golang/basic/goroutine-dis/index.html">
 <meta property="og:site_name" content="LinkinStar&#39;s Blog">
 <meta property="og:description" content="其实这个话题我早就想做了，奈何这个问题确实有点复杂，看了很多文章才有了一点点自己的理解。从golang一开始的使用我就已经开始好奇了，这个goroutine到底是怎么实现的呢？怎么就能搞出一个和线程类似，但是性能又那么好的东西的呢？">
-<meta property="og:locale" content="zh-CN">
+<meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://blog.linkinstars.com/mweb/15657513574146.jpg">
-<meta property="og:updated_time" content="2019-08-26T05:17:19.112Z">
+<meta property="article:published_time" content="2019-08-14T16:00:00.000Z">
+<meta property="article:modified_time" content="2019-08-26T05:17:19.112Z">
+<meta property="article:author" content="LinkinStar">
+<meta property="article:tag" content="goroutine">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="图解goroutine调度">
-<meta name="twitter:description" content="其实这个话题我早就想做了，奈何这个问题确实有点复杂，看了很多文章才有了一点点自己的理解。从golang一开始的使用我就已经开始好奇了，这个goroutine到底是怎么实现的呢？怎么就能搞出一个和线程类似，但是性能又那么好的东西的呢？">
 <meta name="twitter:image" content="http://blog.linkinstars.com/mweb/15657513574146.jpg">
 
 
@@ -119,7 +119,7 @@
 
   
   
-  <link rel="canonical" href="https://linkinstar.gitee.io/2019/08/15/golang/basic/goroutine-dis/">
+  <link rel="canonical" href="https://linkinstar.gitee.io/2019/08/15/golang/basic/goroutine-dis/"/>
 
 
 
@@ -178,7 +178,7 @@
   </style>
 </noscript>
 
-</head>
+<meta name="generator" content="Hexo 5.4.0"></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
 
@@ -235,7 +235,7 @@
 
     
 
-    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>首页</a>
 
   </li>
         
@@ -252,7 +252,7 @@
 
     
 
-    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br>分类</a>
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br/>分类</a>
 
   </li>
         
@@ -269,7 +269,7 @@
 
     
 
-    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>标签</a>
 
   </li>
         
@@ -286,7 +286,7 @@
 
     
 
-    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br>归档</a>
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br/>归档</a>
 
   </li>
         
@@ -303,7 +303,7 @@
 
     
 
-    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>关于</a>
 
   </li>
 
@@ -314,7 +314,7 @@
             <a href="javascript:;" class="popup-trigger">
           
             
-              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br/>搜索</a>
         </li>
       
     </ul>
@@ -334,7 +334,9 @@
       <i class="fa fa-times-circle"></i>
     </span>
     <div class="local-search-input-wrapper">
-      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
     </div>
   </div>
   <div id="local-search-result"></div>
@@ -384,16 +386,16 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2019/08/15/golang/basic/goroutine-dis/">
+    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2019/08/15/golang/basic/goroutine-dis/"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="LinkinStar">
-      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!">
-      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg">
+      <meta itemprop="name" content="LinkinStar"/>
+      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!"/>
+      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg"/>
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="LinkinStar's Blog">
+      <meta itemprop="name" content="LinkinStar's Blog"/>
     </span>
 
     
@@ -445,7 +447,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/golang基础/" itemprop="url" rel="index"><span itemprop="name">golang基础</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/golang%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">golang基础</span></a></span>
 
                 
                 
@@ -463,7 +465,8 @@
 
           
             <span class="post-meta-divider">|</span>
-            <span class="post-meta-item-icon">
+            <span class="post-meta-item-icon"
+            >
             <i class="fa fa-eye"></i>
              阅读次数： 
             <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
@@ -488,7 +491,7 @@
 
       
         <p>其实这个话题我早就想做了，奈何这个问题确实有点复杂，看了很多文章才有了一点点自己的理解。从golang一开始的使用我就已经开始好奇了，这个goroutine到底是怎么实现的呢？怎么就能搞出一个和线程类似，但是性能又那么好的东西的呢？</p>
-<a id="more"></a>
+<span id="more"></span>
 <h2 id="模型"><a href="#模型" class="headerlink" title="模型"></a>模型</h2><h3 id="三个小伙子"><a href="#三个小伙子" class="headerlink" title="三个小伙子"></a>三个小伙子</h3><p>在看整体结构之前，我先来介绍三个小伙子，golang为了实现goroutine，定义了这样三个小伙子，让他们帮忙去实现。</p>
 <h4 id="G"><a href="#G" class="headerlink" title="G"></a>G</h4><p>表示goroutine，存储了goroutine的执行stack信息、goroutine状态以及goroutine的任务函数等；另外G对象是可以重用的。</p>
 <h4 id="M"><a href="#M" class="headerlink" title="M"></a>M</h4><p>M代表着真正的执行计算资源。在绑定有效的P后，进入调度器循环；而调度器循环的机制大致是从各种队列、P的本地队列中获取G，切换到G的执行栈上并执行G的函数，调用goexit做清理工作并回到M，如此反复。<strong>M并不保留G状态，这是G可以跨M调度的基础。</strong></p>
@@ -500,9 +503,9 @@
 <h3 id="问题2-任务卡主了"><a href="#问题2-任务卡主了" class="headerlink" title="问题2 任务卡主了"></a>问题2 任务卡主了</h3><p>万一有个程序员启动一个goroutine去执行一个任务，然后这个任务一直睡觉（sleep）就是循环睡觉，那咋办嘛！你作为执行人，你总不能说，让它一直占用着一整个线程的资源，然后后面的goroutine都卡主了，那如果只有一个核心P，不就完蛋了？聪明的go才不会那么傻，它采用了抢占式调度来解决这个问题。只要你这个任务执行超过一定的时间（10ms），那么这个任务就会被标识为可抢占的，那么别的goroutine就可以抢先进来执行。只要下次这个goroutine进行函数调用，那么就会被强占，同时也会保护现场，然后重新放入P的本地队列里面等待下次执行。<br>谁来做的呢？<br>sysmon，就是这个背后默默付出的人，它是一个后台运行的监控线程，它来监控那些长时间运行的G任务然后设置可以强占的标识符。（同时顺便提一下，它还会做的一些事情，例如，释放闲置的span内存，2分钟的默认gc等）</p>
 <h3 id="问题3-阻塞可怎么办？"><a href="#问题3-阻塞可怎么办？" class="headerlink" title="问题3 阻塞可怎么办？"></a>问题3 阻塞可怎么办？</h3><p>我们经常使用goroutine还有一个场景就是网络请求和IO操作，这种阻塞的情况下，我们的G和M又会怎么做呢？<br>这个时候有个叫做netpoller的东西出现了，当每次有一个网络请求阻塞的时候，如果按照原来的方法这个时候这个请求会阻塞线程，而有了netpoller这个东西，可以将请求阻塞到goroutine。<br>意思是说，当阻塞出现的时候，当前goroutine会被阻塞，等待阻塞notify，而放出M去做别的g，而当阻塞恢复的时候，netpoller就会通知对应的m可以做原来的g了。<br>同时还要顺便提一句，当P发现没有任务的时候，除了会找本地和全局，也会去netpoll中找。</p>
 <h3 id="问题4-系统方法调用阻塞？"><a href="#问题4-系统方法调用阻塞？" class="headerlink" title="问题4 系统方法调用阻塞？"></a>问题4 系统方法调用阻塞？</h3><p>还有一个问题，我们自己想可能比较难想到，就是当调用一些系统方法的时候，如果系统方法调用的时候发生阻塞就比较麻烦了。下面引用一段话：<br>当G被阻塞在某个系统调用上时，此时G会阻塞在_Gsyscall状态，M也处于block on syscall状态，此时的M可被抢占调度：执行该G的M会与P解绑，而P则尝试与其它idle的M绑定，继续执行其它G。如果没有其它idle的M，但P的Local队列中仍然有G需要执行，则创建一个新的M；当系统调用完成后，G会重新尝试获取一个idle的P进入它的Local队列恢复执行，如果没有idle的P，G会被标记为runnable加入到Global队列。</p>
-<h2 id="源码一瞥"><a href="#源码一瞥" class="headerlink" title="源码一瞥"></a>源码一瞥</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> G</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">uintptr</span>    stackguard;    <span class="comment">// 分段栈的可用空间下界</span></span><br><span class="line">    <span class="keyword">uintptr</span>    stackbase;    <span class="comment">// 分段栈的栈基址</span></span><br><span class="line">    Gobuf    sched;        <span class="comment">//进程切换时，利用sched域来保存上下文</span></span><br><span class="line">    <span class="keyword">uintptr</span>    stack0;</span><br><span class="line">    FuncVal*    fnstart;        <span class="comment">// goroutine运行的函数</span></span><br><span class="line">    void*    param;        <span class="comment">// 用于传递参数，睡眠时其它goroutine设置param，唤醒时此goroutine可以获取</span></span><br><span class="line">    <span class="keyword">int16</span>    status;        <span class="comment">// 状态Gidle,Grunnable,Grunning,Gsyscall,Gwaiting,Gdead</span></span><br><span class="line">    <span class="keyword">int64</span>    goid;        <span class="comment">// goroutine的id号</span></span><br><span class="line">    G*    schedlink;</span><br><span class="line">    M*    m;        <span class="comment">// for debuggers, but offset not hard-coded</span></span><br><span class="line">    M*    lockedm;    <span class="comment">// G被锁定只能在这个m上运行</span></span><br><span class="line">    <span class="keyword">uintptr</span>    gopc;    <span class="comment">// 创建这个goroutine的go表达式的pc</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> M</span><br><span class="line">&#123;</span><br><span class="line">    G*    g0;        <span class="comment">// 带有调度栈的goroutine</span></span><br><span class="line">    G*    gsignal;    <span class="comment">// signal-handling G 处理信号的goroutine</span></span><br><span class="line">    void    (*mstartfn)(void);</span><br><span class="line">    G*    curg;        <span class="comment">// M中当前运行的goroutine</span></span><br><span class="line">    P*    p;        <span class="comment">// 关联P以执行Go代码 (如果没有执行Go代码则P为nil)</span></span><br><span class="line">    P*    nextp;</span><br><span class="line">    <span class="keyword">int32</span>    id;</span><br><span class="line">    <span class="keyword">int32</span>    mallocing; <span class="comment">//状态</span></span><br><span class="line">    <span class="keyword">int32</span>    throwing;</span><br><span class="line">    <span class="keyword">int32</span>    gcing;</span><br><span class="line">    <span class="keyword">int32</span>    locks;</span><br><span class="line">    <span class="keyword">int32</span>    helpgc;        <span class="comment">//不为0表示此m在做帮忙gc。helpgc等于n只是一个编号</span></span><br><span class="line">    <span class="keyword">bool</span>    blockingsyscall;</span><br><span class="line">    <span class="keyword">bool</span>    spinning;</span><br><span class="line">    Note    park;</span><br><span class="line">    M*    alllink;    <span class="comment">// 这个域用于链接allm</span></span><br><span class="line">    M*    schedlink;</span><br><span class="line">    MCache    *mcache;</span><br><span class="line">    G*    lockedg;</span><br><span class="line">    M*    nextwaitm;    <span class="comment">// next M waiting for lock</span></span><br><span class="line">    GCStats    gcstats;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> P</span><br><span class="line">&#123;</span><br><span class="line">    Lock;</span><br><span class="line">    <span class="keyword">uint32</span>    status;  <span class="comment">// Pidle或Prunning等</span></span><br><span class="line">    P*    link;</span><br><span class="line">    <span class="keyword">uint32</span>    schedtick;   <span class="comment">// 每次调度时将它加一</span></span><br><span class="line">    M*    m;    <span class="comment">// 链接到它关联的M (nil if idle)</span></span><br><span class="line">    MCache*    mcache;</span><br><span class="line"></span><br><span class="line">    G*    runq[<span class="number">256</span>];</span><br><span class="line">    <span class="keyword">int32</span>    runqhead;</span><br><span class="line">    <span class="keyword">int32</span>    runqtail;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Available G's (status == Gdead)</span></span><br><span class="line">    G*    gfree;</span><br><span class="line">    <span class="keyword">int32</span>    gfreecnt;</span><br><span class="line">    <span class="keyword">byte</span>    pad[<span class="number">64</span>];</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> Sched &#123;</span><br><span class="line">    Lock;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">uint64</span>    goidgen;</span><br><span class="line"></span><br><span class="line">    M*    midle;     <span class="comment">// idle m's waiting for work</span></span><br><span class="line">    <span class="keyword">int32</span>    nmidle;     <span class="comment">// number of idle m's waiting for work</span></span><br><span class="line">    <span class="keyword">int32</span>    nmidlelocked; <span class="comment">// number of locked m's waiting for work</span></span><br><span class="line">    int3    mcount;     <span class="comment">// number of m's that have been created</span></span><br><span class="line">    <span class="keyword">int32</span>    maxmcount;    <span class="comment">// maximum number of m's allowed (or die)</span></span><br><span class="line"></span><br><span class="line">    P*    pidle;  <span class="comment">// idle P's</span></span><br><span class="line">    <span class="keyword">uint32</span>    npidle;  <span class="comment">//idle P的数量</span></span><br><span class="line">    <span class="keyword">uint32</span>    nmspinning;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Global runnable queue.</span></span><br><span class="line">    G*    runqhead;</span><br><span class="line">    G*    runqtail;</span><br><span class="line">    <span class="keyword">int32</span>    runqsize;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Global cache of dead G's.</span></span><br><span class="line">    Lock    gflock;</span><br><span class="line">    G*    gfree;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int32</span>    stopwait;</span><br><span class="line">    Note    stopnote;</span><br><span class="line">    <span class="keyword">uint32</span>    sysmonwait;</span><br><span class="line">    Note    sysmonnote;</span><br><span class="line">    <span class="keyword">uint64</span>    lastpoll;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int32</span>    profilehz;    <span class="comment">// cpu profiling rate</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="源码一瞥"><a href="#源码一瞥" class="headerlink" title="源码一瞥"></a>源码一瞥</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> G</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">uintptr</span>    stackguard;    <span class="comment">// 分段栈的可用空间下界</span></span><br><span class="line">    <span class="keyword">uintptr</span>    stackbase;    <span class="comment">// 分段栈的栈基址</span></span><br><span class="line">    Gobuf    sched;        <span class="comment">//进程切换时，利用sched域来保存上下文</span></span><br><span class="line">    <span class="keyword">uintptr</span>    stack0;</span><br><span class="line">    FuncVal*    fnstart;        <span class="comment">// goroutine运行的函数</span></span><br><span class="line">    void*    param;        <span class="comment">// 用于传递参数，睡眠时其它goroutine设置param，唤醒时此goroutine可以获取</span></span><br><span class="line">    <span class="keyword">int16</span>    status;        <span class="comment">// 状态Gidle,Grunnable,Grunning,Gsyscall,Gwaiting,Gdead</span></span><br><span class="line">    <span class="keyword">int64</span>    goid;        <span class="comment">// goroutine的id号</span></span><br><span class="line">    G*    schedlink;</span><br><span class="line">    M*    m;        <span class="comment">// for debuggers, but offset not hard-coded</span></span><br><span class="line">    M*    lockedm;    <span class="comment">// G被锁定只能在这个m上运行</span></span><br><span class="line">    <span class="keyword">uintptr</span>    gopc;    <span class="comment">// 创建这个goroutine的go表达式的pc</span></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> M</span><br><span class="line">&#123;</span><br><span class="line">    G*    g0;        <span class="comment">// 带有调度栈的goroutine</span></span><br><span class="line">    G*    gsignal;    <span class="comment">// signal-handling G 处理信号的goroutine</span></span><br><span class="line">    void    (*mstartfn)(void);</span><br><span class="line">    G*    curg;        <span class="comment">// M中当前运行的goroutine</span></span><br><span class="line">    P*    p;        <span class="comment">// 关联P以执行Go代码 (如果没有执行Go代码则P为nil)</span></span><br><span class="line">    P*    nextp;</span><br><span class="line">    <span class="keyword">int32</span>    id;</span><br><span class="line">    <span class="keyword">int32</span>    mallocing; <span class="comment">//状态</span></span><br><span class="line">    <span class="keyword">int32</span>    throwing;</span><br><span class="line">    <span class="keyword">int32</span>    gcing;</span><br><span class="line">    <span class="keyword">int32</span>    locks;</span><br><span class="line">    <span class="keyword">int32</span>    helpgc;        <span class="comment">//不为0表示此m在做帮忙gc。helpgc等于n只是一个编号</span></span><br><span class="line">    <span class="keyword">bool</span>    blockingsyscall;</span><br><span class="line">    <span class="keyword">bool</span>    spinning;</span><br><span class="line">    Note    park;</span><br><span class="line">    M*    alllink;    <span class="comment">// 这个域用于链接allm</span></span><br><span class="line">    M*    schedlink;</span><br><span class="line">    MCache    *mcache;</span><br><span class="line">    G*    lockedg;</span><br><span class="line">    M*    nextwaitm;    <span class="comment">// next M waiting for lock</span></span><br><span class="line">    GCStats    gcstats;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> P</span><br><span class="line">&#123;</span><br><span class="line">    Lock;</span><br><span class="line">    <span class="keyword">uint32</span>    status;  <span class="comment">// Pidle或Prunning等</span></span><br><span class="line">    P*    link;</span><br><span class="line">    <span class="keyword">uint32</span>    schedtick;   <span class="comment">// 每次调度时将它加一</span></span><br><span class="line">    M*    m;    <span class="comment">// 链接到它关联的M (nil if idle)</span></span><br><span class="line">    MCache*    mcache;</span><br><span class="line"></span><br><span class="line">    G*    runq[<span class="number">256</span>];</span><br><span class="line">    <span class="keyword">int32</span>    runqhead;</span><br><span class="line">    <span class="keyword">int32</span>    runqtail;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Available G&#x27;s (status == Gdead)</span></span><br><span class="line">    G*    gfree;</span><br><span class="line">    <span class="keyword">int32</span>    gfreecnt;</span><br><span class="line">    <span class="keyword">byte</span>    pad[<span class="number">64</span>];</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> Sched &#123;</span><br><span class="line">    Lock;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">uint64</span>    goidgen;</span><br><span class="line"></span><br><span class="line">    M*    midle;     <span class="comment">// idle m&#x27;s waiting for work</span></span><br><span class="line">    <span class="keyword">int32</span>    nmidle;     <span class="comment">// number of idle m&#x27;s waiting for work</span></span><br><span class="line">    <span class="keyword">int32</span>    nmidlelocked; <span class="comment">// number of locked m&#x27;s waiting for work</span></span><br><span class="line">    int3    mcount;     <span class="comment">// number of m&#x27;s that have been created</span></span><br><span class="line">    <span class="keyword">int32</span>    maxmcount;    <span class="comment">// maximum number of m&#x27;s allowed (or die)</span></span><br><span class="line"></span><br><span class="line">    P*    pidle;  <span class="comment">// idle P&#x27;s</span></span><br><span class="line">    <span class="keyword">uint32</span>    npidle;  <span class="comment">//idle P的数量</span></span><br><span class="line">    <span class="keyword">uint32</span>    nmspinning;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Global runnable queue.</span></span><br><span class="line">    G*    runqhead;</span><br><span class="line">    G*    runqtail;</span><br><span class="line">    <span class="keyword">int32</span>    runqsize;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Global cache of dead G&#x27;s.</span></span><br><span class="line">    Lock    gflock;</span><br><span class="line">    G*    gfree;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int32</span>    stopwait;</span><br><span class="line">    Note    stopnote;</span><br><span class="line">    <span class="keyword">uint32</span>    sysmonwait;</span><br><span class="line">    Note    sysmonnote;</span><br><span class="line">    <span class="keyword">uint64</span>    lastpoll;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int32</span>    profilehz;    <span class="comment">// cpu profiling rate</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>goroutine的设计总的来说就是参考操作系统的设计，所有的目的很明确就是为了在整个运行过程中能充分利用已有的资源，尽可能在有限的资源里面多做事情，利用gpm的模型以及一些netpoller、sysmon等帮助在阻塞的时候也能合理利用资源，从而达到我们现在高效的goroutine</p>
-<p>参考资料：<br><a href="https://tiancaiamao.gitbooks.io/go-internals/content/zh/05.1.html" target="_blank" rel="noopener">https://tiancaiamao.gitbooks.io/go-internals/content/zh/05.1.html</a><br><a href="http://morsmachine.dk/go-scheduler" target="_blank" rel="noopener">http://morsmachine.dk/go-scheduler</a><br><a href="http://morsmachine.dk/netpoller" target="_blank" rel="noopener">http://morsmachine.dk/netpoller</a><br><a href="https://studygolang.com/articles/10116" target="_blank" rel="noopener">https://studygolang.com/articles/10116</a></p>
+<p>参考资料：<br><a target="_blank" rel="noopener" href="https://tiancaiamao.gitbooks.io/go-internals/content/zh/05.1.html">https://tiancaiamao.gitbooks.io/go-internals/content/zh/05.1.html</a><br><a target="_blank" rel="noopener" href="http://morsmachine.dk/go-scheduler">http://morsmachine.dk/go-scheduler</a><br><a target="_blank" rel="noopener" href="http://morsmachine.dk/netpoller">http://morsmachine.dk/netpoller</a><br><a target="_blank" rel="noopener" href="https://studygolang.com/articles/10116">https://studygolang.com/articles/10116</a></p>
 
       
     </div>
@@ -533,7 +536,7 @@
         
       
       <div style="display: inline-block">
-        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付">
+        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付"/>
         <p>微信支付</p>
       </div>
     
@@ -542,7 +545,7 @@
         
       
       <div style="display: inline-block">
-        <img src="/images/alipay.png" alt="LinkinStar 支付宝">
+        <img src="/images/alipay.png" alt="LinkinStar 支付宝"/>
         <p>支付宝</p>
       </div>
     
@@ -560,11 +563,11 @@
        
         <ul class="post-copyright">
           <li class="post-copyright-author">
-              <strong>本文作者：</strong>LinkinStar
+              <strong>本文作者：</strong>
           </li>
           <li class="post-copyright-link">
             <strong>本文链接：</strong>
-            <a href="http://www.linkinstar.wiki//2019/08/15/golang/basic/goroutine-dis/" title="图解goroutine调度">http://www.linkinstar.wiki/2019/08/15/golang/basic/goroutine-dis/</a>
+            <a target="_blank" rel="noopener" href="http://www.linkinstar.wiki//2019/08/15/golang/basic/goroutine-dis/" title="图解goroutine调度">http://www.linkinstar.wiki/2019/08/15/golang/basic/goroutine-dis/</a>
           </li>
           <li class="post-copyright-license">
             <strong>版权声明： </strong>
@@ -664,7 +667,9 @@
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
-              <img class="site-author-image" itemprop="image" src="http://blog.linkinstars.com/LLX.jpg" alt="LinkinStar">
+              <img class="site-author-image" itemprop="image"
+                src="http://blog.linkinstars.com/LLX.jpg"
+                alt="LinkinStar"/>
             
               <p class="site-author-name" itemprop="name">LinkinStar</p>
               <div class="site-description motion-element" itemprop="description">No one but myself can do it.<br> Don't worry. Be happy!</div>
@@ -675,9 +680,9 @@
               
                 <div class="site-state-item site-state-posts">
                 
-                  <a href="/archives/">
+                  <a href="/archives/%20%7C%7C%20folder-open-o">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">50</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -689,7 +694,7 @@
                 <div class="site-state-item site-state-categories">
                   
                     
-                      <a href="/categories/">
+                      <a href="/categories/%20%7C%7C%20cubes">
                     
                   
                     
@@ -722,7 +727,23 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -734,7 +755,7 @@
                 <div class="site-state-item site-state-tags">
                   
                     
-                      <a href="/tags/">
+                      <a href="/tags/%20%7C%7C%20tags">
                     
                   
                     
@@ -811,7 +832,23 @@
                     
                       
                     
-                    <span class="site-state-item-count">36</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">44</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -931,7 +968,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#模型"><span class="nav-number">1.</span> <span class="nav-text">模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#三个小伙子"><span class="nav-number">1.1.</span> <span class="nav-text">三个小伙子</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#G"><span class="nav-number">1.1.1.</span> <span class="nav-text">G</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#M"><span class="nav-number">1.1.2.</span> <span class="nav-text">M</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#P"><span class="nav-number">1.1.3.</span> <span class="nav-text">P</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#整体结构模型"><span class="nav-number">1.2.</span> <span class="nav-text">整体结构模型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#调度中的问题"><span class="nav-number">2.</span> <span class="nav-text">调度中的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#问题1-G不均"><span class="nav-number">2.1.</span> <span class="nav-text">问题1 G不均</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题2-任务卡主了"><span class="nav-number">2.2.</span> <span class="nav-text">问题2 任务卡主了</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题3-阻塞可怎么办？"><span class="nav-number">2.3.</span> <span class="nav-text">问题3 阻塞可怎么办？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题4-系统方法调用阻塞？"><span class="nav-number">2.4.</span> <span class="nav-text">问题4 系统方法调用阻塞？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源码一瞥"><span class="nav-number">3.</span> <span class="nav-text">源码一瞥</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.</span> <span class="nav-text">模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E4%B8%AA%E5%B0%8F%E4%BC%99%E5%AD%90"><span class="nav-number">1.1.</span> <span class="nav-text">三个小伙子</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#G"><span class="nav-number">1.1.1.</span> <span class="nav-text">G</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#M"><span class="nav-number">1.1.2.</span> <span class="nav-text">M</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#P"><span class="nav-number">1.1.3.</span> <span class="nav-text">P</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B4%E4%BD%93%E7%BB%93%E6%9E%84%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.2.</span> <span class="nav-text">整体结构模型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B0%83%E5%BA%A6%E4%B8%AD%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">2.</span> <span class="nav-text">调度中的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%981-G%E4%B8%8D%E5%9D%87"><span class="nav-number">2.1.</span> <span class="nav-text">问题1 G不均</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%982-%E4%BB%BB%E5%8A%A1%E5%8D%A1%E4%B8%BB%E4%BA%86"><span class="nav-number">2.2.</span> <span class="nav-text">问题2 任务卡主了</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%983-%E9%98%BB%E5%A1%9E%E5%8F%AF%E6%80%8E%E4%B9%88%E5%8A%9E%EF%BC%9F"><span class="nav-number">2.3.</span> <span class="nav-text">问题3 阻塞可怎么办？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%984-%E7%B3%BB%E7%BB%9F%E6%96%B9%E6%B3%95%E8%B0%83%E7%94%A8%E9%98%BB%E5%A1%9E%EF%BC%9F"><span class="nav-number">2.4.</span> <span class="nav-text">问题4 系统方法调用阻塞？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BA%90%E7%A0%81%E4%B8%80%E7%9E%A5"><span class="nav-number">3.</span> <span class="nav-text">源码一瞥</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
             
 
           </div>
@@ -959,7 +996,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>
@@ -1101,7 +1138,7 @@
 
 
 
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css"/>
 
 
 
@@ -1337,7 +1374,7 @@
 
                   // select top N slices in content
 
-                  var upperBound = parseInt('10');
+                  var upperBound = parseInt('5');
                   if (upperBound >= 0) {
                     slicesOfContent = slicesOfContent.slice(0, upperBound);
                   }
@@ -1479,5 +1516,5 @@
 
   
 
-<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"/live2dw/assets/shizuku.model.json"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"live2d-widget-model-shizuku"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
 </html>

@@ -15,11 +15,11 @@
 
 
 <html class="theme-next gemini use-motion" lang="zh-CN">
-<head><meta name="generator" content="Hexo 3.8.0">
-  <meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
 
 
 
@@ -46,9 +46,9 @@
 
   
 
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css"/>
 
-<link rel="stylesheet" href="/css/main.css?v=7.1.1">
+<link rel="stylesheet" href="/css/main.css?v=7.1.1"/>
 
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=7.1.1">
@@ -71,7 +71,7 @@
 <script id="hexo.configurations">
   var NexT = window.NexT || {};
   var CONFIG = {
-    root: '/',
+    root: '',
     scheme: 'Gemini',
     version: '7.1.1',
     sidebar: {"position":"left","display":"always","offset":12,"onmobile":false,"dimmer":false},
@@ -99,17 +99,17 @@
 
 
   <meta name="description" content="如果我们有一个大的任务要做，我们会尝试将这个任务分解，分解完成之后并发交由 goroutine 去做，并且我需要当全部的任务完成之后再进行下面的步骤，在 sync 包下，就有这样一个东西适合上述情况，WaitGroup，今天我们来看看具体它是怎么实现的。">
-<meta name="keywords" content="sync.WaitGroup">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Golang 之 WaitGroup 源码解析">
 <meta property="og:url" content="https://linkinstar.gitee.io/2020/03/15/golang/source-code/sync-waitgroup-source-code/index.html">
 <meta property="og:site_name" content="LinkinStar&#39;s Blog">
 <meta property="og:description" content="如果我们有一个大的任务要做，我们会尝试将这个任务分解，分解完成之后并发交由 goroutine 去做，并且我需要当全部的任务完成之后再进行下面的步骤，在 sync 包下，就有这样一个东西适合上述情况，WaitGroup，今天我们来看看具体它是怎么实现的。">
-<meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-03-15T14:31:33.391Z">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-03-14T16:00:00.000Z">
+<meta property="article:modified_time" content="2020-03-15T14:31:33.391Z">
+<meta property="article:author" content="LinkinStar">
+<meta property="article:tag" content="sync.WaitGroup">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Golang 之 WaitGroup 源码解析">
-<meta name="twitter:description" content="如果我们有一个大的任务要做，我们会尝试将这个任务分解，分解完成之后并发交由 goroutine 去做，并且我需要当全部的任务完成之后再进行下面的步骤，在 sync 包下，就有这样一个东西适合上述情况，WaitGroup，今天我们来看看具体它是怎么实现的。">
 
 
 
@@ -117,7 +117,7 @@
 
   
   
-  <link rel="canonical" href="https://linkinstar.gitee.io/2020/03/15/golang/source-code/sync-waitgroup-source-code/">
+  <link rel="canonical" href="https://linkinstar.gitee.io/2020/03/15/golang/source-code/sync-waitgroup-source-code/"/>
 
 
 
@@ -176,7 +176,7 @@
   </style>
 </noscript>
 
-</head>
+<meta name="generator" content="Hexo 5.4.0"></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
 
@@ -233,7 +233,7 @@
 
     
 
-    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>首页</a>
 
   </li>
         
@@ -250,7 +250,7 @@
 
     
 
-    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br>分类</a>
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br/>分类</a>
 
   </li>
         
@@ -267,7 +267,7 @@
 
     
 
-    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>标签</a>
 
   </li>
         
@@ -284,7 +284,7 @@
 
     
 
-    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br>归档</a>
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br/>归档</a>
 
   </li>
         
@@ -301,7 +301,7 @@
 
     
 
-    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>关于</a>
 
   </li>
 
@@ -312,7 +312,7 @@
             <a href="javascript:;" class="popup-trigger">
           
             
-              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br/>搜索</a>
         </li>
       
     </ul>
@@ -332,7 +332,9 @@
       <i class="fa fa-times-circle"></i>
     </span>
     <div class="local-search-input-wrapper">
-      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
     </div>
   </div>
   <div id="local-search-result"></div>
@@ -382,16 +384,16 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2020/03/15/golang/source-code/sync-waitgroup-source-code/">
+    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2020/03/15/golang/source-code/sync-waitgroup-source-code/"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="LinkinStar">
-      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!">
-      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg">
+      <meta itemprop="name" content="LinkinStar"/>
+      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!"/>
+      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg"/>
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="LinkinStar's Blog">
+      <meta itemprop="name" content="LinkinStar's Blog"/>
     </span>
 
     
@@ -443,7 +445,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/golang源码解析/" itemprop="url" rel="index"><span itemprop="name">golang源码解析</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/golang%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">golang源码解析</span></a></span>
 
                 
                 
@@ -461,7 +463,8 @@
 
           
             <span class="post-meta-divider">|</span>
-            <span class="post-meta-item-icon">
+            <span class="post-meta-item-icon"
+            >
             <i class="fa fa-eye"></i>
              阅读次数： 
             <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
@@ -486,10 +489,10 @@
 
       
         <p>如果我们有一个大的任务要做，我们会尝试将这个任务分解，分解完成之后并发交由 goroutine 去做，并且我需要当全部的任务完成之后再进行下面的步骤，在 sync 包下，就有这样一个东西适合上述情况，WaitGroup，今天我们来看看具体它是怎么实现的。</p>
-<a id="more"></a>
+<span id="more"></span>
 <p>PS：在下面我统一用 wg 来简称 WaitGroup</p>
 <h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>它的使用非常简单，如下:</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span> <span class="params">()</span></span> &#123;</span><br><span class="line">    wg := sync.WaitGroup &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line">        wg.Add (<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">go</span> <span class="function"><span class="keyword">func</span> <span class="params">(job <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">            <span class="keyword">defer</span> wg.Done ()</span><br><span class="line">            <span class="comment">//do something</span></span><br><span class="line">            fmt.Printf (<span class="string">"job % d done\n"</span>, job)</span><br><span class="line">        &#125;(i)</span><br><span class="line">    &#125;</span><br><span class="line">    wg.Wait ()</span><br><span class="line">    fmt.Println (<span class="string">"all done"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span> <span class="params">()</span></span> &#123;</span><br><span class="line">    wg := sync.WaitGroup &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line">        wg.Add (<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">go</span> <span class="function"><span class="keyword">func</span> <span class="params">(job <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">            <span class="keyword">defer</span> wg.Done ()</span><br><span class="line">            <span class="comment">//do something</span></span><br><span class="line">            fmt.Printf (<span class="string">&quot;job % d done\n&quot;</span>, job)</span><br><span class="line">        &#125;(i)</span><br><span class="line">    &#125;</span><br><span class="line">    wg.Wait ()</span><br><span class="line">    fmt.Println (<span class="string">&quot;all done&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>输出：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">job <span class="number">9</span> done</span><br><span class="line">job <span class="number">1</span> done</span><br><span class="line">job <span class="number">0</span> done</span><br><span class="line">job <span class="number">8</span> done</span><br><span class="line">job <span class="number">7</span> done</span><br><span class="line">job <span class="number">3</span> done</span><br><span class="line">job <span class="number">6</span> done</span><br><span class="line">job <span class="number">2</span> done</span><br><span class="line">job <span class="number">4</span> done</span><br><span class="line">job <span class="number">5</span> done</span><br><span class="line">all done</span><br></pre></td></tr></table></figure>
 <p>我们可以看到，使用非常简单，每次有一个任务就使用 Add 方法加一个，每次做完任务就使用 Done 方法告诉它已经完成了，而 Wait 就是等着所有的任务完成。</p>
@@ -514,7 +517,7 @@
 <p>noCopy： sync 包下的一个特殊标记吧，vet 检查，如果有拷贝的变量则会报错</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span> <span class="params">()</span></span> &#123;</span><br><span class="line">    wg := sync.WaitGroup &#123;&#125;</span><br><span class="line">    w := wg</span><br><span class="line">    fmt.Println (w, wg)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>你 run 肯定没问题的，但是如果你使用 go vet 做个检查就有警告了</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">➜  <span class="keyword">go</span> vet main.<span class="keyword">go</span></span><br><span class="line"># command-line-arguments</span><br><span class="line">./main.<span class="keyword">go</span>:<span class="number">10</span>:<span class="number">10</span>: assignment copies lock value to w: sync.WaitGroup contains sync.noCopy</span><br><span class="line">./main.<span class="keyword">go</span>:<span class="number">11</span>:<span class="number">17</span>: call of fmt.Println copies lock value: sync.WaitGroup contains sync.noCopy</span><br><span class="line">./main.<span class="keyword">go</span>:<span class="number">11</span>:<span class="number">20</span>: call of fmt.Println copies lock value: sync.WaitGroup contains sync.noCopy</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">➜  <span class="keyword">go</span> vet main.<span class="keyword">go</span></span><br><span class="line"># command-line-arguments</span><br><span class="line">./main.<span class="keyword">go</span>:<span class="number">10</span>:<span class="number">10</span>: assignment copies lock value to w: sync.WaitGroup contains sync.noCopy</span><br><span class="line">./main.<span class="keyword">go</span>:<span class="number">11</span>:<span class="number">17</span>: call of fmt.Println copies lock value: sync.WaitGroup contains sync.noCopy</span><br><span class="line">./main.<span class="keyword">go</span>:<span class="number">11</span>:<span class="number">20</span>: call of fmt.Println copies lock value: sync.WaitGroup contains sync.noCopy</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 <p>state1：是用来存放任务计数器和等待者计数器的（我一看到这个结构就明白肯定后面又是位操作这样的高端操作了）</p>
 <table>
 <thead>
@@ -547,23 +550,23 @@
 <h3 id="Done"><a href="#Done" class="headerlink" title="Done"></a>Done</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(wg *WaitGroup)</span> <span class="title">Done</span> <span class="params">()</span></span> &#123;</span><br><span class="line">	wg.Add (<span class="number">-1</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>没想到吧～居然 Done 就是调用 Add 并传递一个 - 1</p>
 <p>所以其实我们完全可以再外部调用 Add 传递一个 - 3 一次性结束 3 个任务</p>
-<h3 id="Add"><a href="#Add" class="headerlink" title="Add"></a>Add</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(wg *WaitGroup)</span> <span class="title">Add</span> <span class="params">(delta <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	<span class="comment">// 首先获取状态值</span></span><br><span class="line">	statep, semap := wg.state ()</span><br><span class="line">	<span class="comment">// 对于 statep 中 counter + delta</span></span><br><span class="line">	state := atomic.AddUint64 (statep, <span class="keyword">uint64</span> (delta)&lt;&lt;<span class="number">32</span>)</span><br><span class="line">	<span class="comment">// 获取任务计数器的值</span></span><br><span class="line">	v := <span class="keyword">int32</span> (state &gt;&gt; <span class="number">32</span>)</span><br><span class="line">	<span class="comment">// 获取等待者计数器的值</span></span><br><span class="line">	w := <span class="keyword">uint32</span> (state)</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 任务计数器不能为负数</span></span><br><span class="line">	<span class="keyword">if</span> v &lt; <span class="number">0</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span> (<span class="string">"sync: negative WaitGroup counter"</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 已经有人在等待，但是还在添加任务</span></span><br><span class="line">	<span class="keyword">if</span> w != <span class="number">0</span> &amp;&amp; delta &gt; <span class="number">0</span> &amp;&amp; v == <span class="keyword">int32</span> (delta) &#123;</span><br><span class="line">		<span class="built_in">panic</span> (<span class="string">"sync: WaitGroup misuse: Add called concurrently with Wait"</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 没有等待者或者任务还有没做完的</span></span><br><span class="line">	<span class="keyword">if</span> v &gt; <span class="number">0</span> || w == <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 有等待者，但是在这个过程中数据还在变动</span></span><br><span class="line">	<span class="keyword">if</span> *statep != state &#123;</span><br><span class="line">		<span class="built_in">panic</span> (<span class="string">"sync: WaitGroup misuse: Add called concurrently with Wait"</span>)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Reset waiters count to 0.</span></span><br><span class="line">	<span class="comment">// 重置状态，并用发出等同于等待者数量的信号量，告诉所有等待者任务已经完成</span></span><br><span class="line">	*statep = <span class="number">0</span></span><br><span class="line">	<span class="keyword">for</span> ; w != <span class="number">0</span>; w-- &#123;</span><br><span class="line">		runtime_Semrelease (semap, <span class="literal">false</span>, <span class="number">0</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Add"><a href="#Add" class="headerlink" title="Add"></a>Add</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(wg *WaitGroup)</span> <span class="title">Add</span> <span class="params">(delta <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	<span class="comment">// 首先获取状态值</span></span><br><span class="line">	statep, semap := wg.state ()</span><br><span class="line">	<span class="comment">// 对于 statep 中 counter + delta</span></span><br><span class="line">	state := atomic.AddUint64 (statep, <span class="keyword">uint64</span> (delta)&lt;&lt;<span class="number">32</span>)</span><br><span class="line">	<span class="comment">// 获取任务计数器的值</span></span><br><span class="line">	v := <span class="keyword">int32</span> (state &gt;&gt; <span class="number">32</span>)</span><br><span class="line">	<span class="comment">// 获取等待者计数器的值</span></span><br><span class="line">	w := <span class="keyword">uint32</span> (state)</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 任务计数器不能为负数</span></span><br><span class="line">	<span class="keyword">if</span> v &lt; <span class="number">0</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span> (<span class="string">&quot;sync: negative WaitGroup counter&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 已经有人在等待，但是还在添加任务</span></span><br><span class="line">	<span class="keyword">if</span> w != <span class="number">0</span> &amp;&amp; delta &gt; <span class="number">0</span> &amp;&amp; v == <span class="keyword">int32</span> (delta) &#123;</span><br><span class="line">		<span class="built_in">panic</span> (<span class="string">&quot;sync: WaitGroup misuse: Add called concurrently with Wait&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 没有等待者或者任务还有没做完的</span></span><br><span class="line">	<span class="keyword">if</span> v &gt; <span class="number">0</span> || w == <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 有等待者，但是在这个过程中数据还在变动</span></span><br><span class="line">	<span class="keyword">if</span> *statep != state &#123;</span><br><span class="line">		<span class="built_in">panic</span> (<span class="string">&quot;sync: WaitGroup misuse: Add called concurrently with Wait&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Reset waiters count to 0.</span></span><br><span class="line">	<span class="comment">// 重置状态，并用发出等同于等待者数量的信号量，告诉所有等待者任务已经完成</span></span><br><span class="line">	*statep = <span class="number">0</span></span><br><span class="line">	<span class="keyword">for</span> ; w != <span class="number">0</span>; w-- &#123;</span><br><span class="line">		runtime_Semrelease (semap, <span class="literal">false</span>, <span class="number">0</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>这里有几个要点我们其实已经看到了：</p>
 <ul>
 <li>Wait 的 <strong> 过程中 </strong> 是不能 Add 的，不然就会 panic，要注意</li>
 <li>虽然我们可以借助 Add 一个负数来一次性结束多个任务，但是如果任务数量控制的不好，变成负数也会 panic，Done 次数多了也一样</li>
 <li>wg 是通过信号量来通知的，当然可以有很多人在等，wg 它都会一一通知到位的</li>
 </ul>
-<h3 id="Wait"><a href="#Wait" class="headerlink" title="Wait"></a>Wait</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(wg *WaitGroup)</span> <span class="title">Wait</span> <span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 先获取状态</span></span><br><span class="line">	statep, semap := wg.state ()</span><br><span class="line">  </span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		<span class="comment">// 这里注意要用 atomic 的 Load 来保证一下写操作已经完成</span></span><br><span class="line">		state := atomic.LoadUint64 (statep)</span><br><span class="line">		<span class="comment">// 同样的，这里是任务计数</span></span><br><span class="line">		v := <span class="keyword">int32</span> (state &gt;&gt; <span class="number">32</span>)</span><br><span class="line">		<span class="comment">// 这里是等待者计数</span></span><br><span class="line">		w := <span class="keyword">uint32</span> (state)</span><br><span class="line">		<span class="comment">// 如果没有任务，那么直接结束，不用等待了</span></span><br><span class="line">		<span class="keyword">if</span> v == <span class="number">0</span> &#123;</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// 使用 cas 操作，如果不相等，证明中间已经被其他人修改了状态，重新走 for 循环</span></span><br><span class="line">		<span class="comment">// 注意这里 if 进去之后等待者的数量就 +1 了</span></span><br><span class="line">		<span class="keyword">if</span> atomic.CompareAndSwapUint64 (statep, state, state+<span class="number">1</span>) &#123;</span><br><span class="line">			<span class="comment">// 等待信号量</span></span><br><span class="line">			runtime_Semacquire (semap)</span><br><span class="line">			<span class="comment">// 如果信号量来了，但是状态还不是 0，则证明 wait 之后还是在人在 add，证明有人想充分利用 wg 但是时机不对</span></span><br><span class="line">			<span class="keyword">if</span> *statep != <span class="number">0</span> &#123;</span><br><span class="line">				<span class="built_in">panic</span> (<span class="string">"sync: WaitGroup is reused before previous Wait has returned"</span>)</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Wait"><a href="#Wait" class="headerlink" title="Wait"></a>Wait</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(wg *WaitGroup)</span> <span class="title">Wait</span> <span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 先获取状态</span></span><br><span class="line">	statep, semap := wg.state ()</span><br><span class="line">  </span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		<span class="comment">// 这里注意要用 atomic 的 Load 来保证一下写操作已经完成</span></span><br><span class="line">		state := atomic.LoadUint64 (statep)</span><br><span class="line">		<span class="comment">// 同样的，这里是任务计数</span></span><br><span class="line">		v := <span class="keyword">int32</span> (state &gt;&gt; <span class="number">32</span>)</span><br><span class="line">		<span class="comment">// 这里是等待者计数</span></span><br><span class="line">		w := <span class="keyword">uint32</span> (state)</span><br><span class="line">		<span class="comment">// 如果没有任务，那么直接结束，不用等待了</span></span><br><span class="line">		<span class="keyword">if</span> v == <span class="number">0</span> &#123;</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// 使用 cas 操作，如果不相等，证明中间已经被其他人修改了状态，重新走 for 循环</span></span><br><span class="line">		<span class="comment">// 注意这里 if 进去之后等待者的数量就 +1 了</span></span><br><span class="line">		<span class="keyword">if</span> atomic.CompareAndSwapUint64 (statep, state, state+<span class="number">1</span>) &#123;</span><br><span class="line">			<span class="comment">// 等待信号量</span></span><br><span class="line">			runtime_Semacquire (semap)</span><br><span class="line">			<span class="comment">// 如果信号量来了，但是状态还不是 0，则证明 wait 之后还是在人在 add，证明有人想充分利用 wg 但是时机不对</span></span><br><span class="line">			<span class="keyword">if</span> *statep != <span class="number">0</span> &#123;</span><br><span class="line">				<span class="built_in">panic</span> (<span class="string">&quot;sync: WaitGroup is reused before previous Wait has returned&quot;</span>)</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>其实 wait 虽然简单，也有要点</p>
 <ul>
 <li>通过 load 和 cas 操作 + 循环来避免了锁，其实这个操作可以学一下</li>
 <li>其实这里也说明明白了，wg 可以重用，但是你必须等到 wait 全部完成之后再说</li>
 </ul>
-<h2 id="其他注意点"><a href="#其他注意点" class="headerlink" title="其他注意点"></a>其他注意点</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span> <span class="params">()</span></span> &#123;</span><br><span class="line">    wg := sync.WaitGroup &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line">        wg.Add (<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">go</span> <span class="function"><span class="keyword">func</span> <span class="params">(job <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">            doJob (job, wg)</span><br><span class="line">        &#125;(i)</span><br><span class="line">    &#125;</span><br><span class="line">    wg.Wait ()</span><br><span class="line">    fmt.Println (<span class="string">"all done"</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">doJob</span> <span class="params">(job <span class="keyword">int</span>, wg sync.WaitGroup)</span></span> &#123;</span><br><span class="line">    fmt.Printf (<span class="string">"job % d done\n"</span>, job)</span><br><span class="line">    wg.Done ()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="其他注意点"><a href="#其他注意点" class="headerlink" title="其他注意点"></a>其他注意点</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span> <span class="params">()</span></span> &#123;</span><br><span class="line">    wg := sync.WaitGroup &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line">        wg.Add (<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">go</span> <span class="function"><span class="keyword">func</span> <span class="params">(job <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">            doJob (job, wg)</span><br><span class="line">        &#125;(i)</span><br><span class="line">    &#125;</span><br><span class="line">    wg.Wait ()</span><br><span class="line">    fmt.Println (<span class="string">&quot;all done&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">doJob</span> <span class="params">(job <span class="keyword">int</span>, wg sync.WaitGroup)</span></span> &#123;</span><br><span class="line">    fmt.Printf (<span class="string">&quot;job % d done\n&quot;</span>, job)</span><br><span class="line">    wg.Done ()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>上面的代码有问题吗？问题在哪呢？</p>
 <p>其实很简单，wg 作为一个参数传递的时候，wg 还是一个普通的结构体，我们在函数中操作的时候还是操作的一个拷贝的变量而已，对于原来的 wg 是不会改变的，所以这里需要传递指针才是正确的</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span> <span class="params">()</span></span> &#123;</span><br><span class="line">    wg := &amp;sync.WaitGroup &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line">            wg.Add (<span class="number">1</span>)</span><br><span class="line">            <span class="keyword">go</span> <span class="function"><span class="keyword">func</span> <span class="params">(job <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">                doJob (job, wg)</span><br><span class="line">            &#125;(i)</span><br><span class="line">    &#125;</span><br><span class="line">    wg.Wait ()</span><br><span class="line">    fmt.Println (<span class="string">"all done"</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">doJob</span> <span class="params">(job <span class="keyword">int</span>, wg *sync.WaitGroup)</span></span> &#123;</span><br><span class="line">    fmt.Printf (<span class="string">"job % d done\n"</span>, job)</span><br><span class="line">    wg.Done ()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span> <span class="params">()</span></span> &#123;</span><br><span class="line">    wg := &amp;sync.WaitGroup &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line">            wg.Add (<span class="number">1</span>)</span><br><span class="line">            <span class="keyword">go</span> <span class="function"><span class="keyword">func</span> <span class="params">(job <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">                doJob (job, wg)</span><br><span class="line">            &#125;(i)</span><br><span class="line">    &#125;</span><br><span class="line">    wg.Wait ()</span><br><span class="line">    fmt.Println (<span class="string">&quot;all done&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">doJob</span> <span class="params">(job <span class="keyword">int</span>, wg *sync.WaitGroup)</span></span> &#123;</span><br><span class="line">    fmt.Printf (<span class="string">&quot;job % d done\n&quot;</span>, job)</span><br><span class="line">    wg.Done ()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>但是其实并不推荐这样去传递 wg，因为这样很容易出现问题，一个不好就出问题了，个人还是建议直接在使用 goroutine 之后马上接一个 defer wg.Done () 来的更加靠谱一些</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>回过头来看看，之前的问题也都有了答案：</p>
 <ol>
@@ -604,7 +607,7 @@
         
       
       <div style="display: inline-block">
-        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付">
+        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付"/>
         <p>微信支付</p>
       </div>
     
@@ -613,7 +616,7 @@
         
       
       <div style="display: inline-block">
-        <img src="/images/alipay.png" alt="LinkinStar 支付宝">
+        <img src="/images/alipay.png" alt="LinkinStar 支付宝"/>
         <p>支付宝</p>
       </div>
     
@@ -631,11 +634,11 @@
        
         <ul class="post-copyright">
           <li class="post-copyright-author">
-              <strong>本文作者：</strong>LinkinStar
+              <strong>本文作者：</strong>
           </li>
           <li class="post-copyright-link">
             <strong>本文链接：</strong>
-            <a href="http://www.linkinstar.wiki//2020/03/15/golang/source-code/sync-waitgroup-source-code/" title="Golang 之 WaitGroup 源码解析">http://www.linkinstar.wiki/2020/03/15/golang/source-code/sync-waitgroup-source-code/</a>
+            <a target="_blank" rel="noopener" href="http://www.linkinstar.wiki//2020/03/15/golang/source-code/sync-waitgroup-source-code/" title="Golang 之 WaitGroup 源码解析">http://www.linkinstar.wiki/2020/03/15/golang/source-code/sync-waitgroup-source-code/</a>
           </li>
           <li class="post-copyright-license">
             <strong>版权声明： </strong>
@@ -735,7 +738,9 @@
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
-              <img class="site-author-image" itemprop="image" src="http://blog.linkinstars.com/LLX.jpg" alt="LinkinStar">
+              <img class="site-author-image" itemprop="image"
+                src="http://blog.linkinstars.com/LLX.jpg"
+                alt="LinkinStar"/>
             
               <p class="site-author-name" itemprop="name">LinkinStar</p>
               <div class="site-description motion-element" itemprop="description">No one but myself can do it.<br> Don't worry. Be happy!</div>
@@ -746,9 +751,9 @@
               
                 <div class="site-state-item site-state-posts">
                 
-                  <a href="/archives/">
+                  <a href="/archives/%20%7C%7C%20folder-open-o">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">50</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -760,7 +765,7 @@
                 <div class="site-state-item site-state-categories">
                   
                     
-                      <a href="/categories/">
+                      <a href="/categories/%20%7C%7C%20cubes">
                     
                   
                     
@@ -793,7 +798,23 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -805,7 +826,7 @@
                 <div class="site-state-item site-state-tags">
                   
                     
-                      <a href="/tags/">
+                      <a href="/tags/%20%7C%7C%20tags">
                     
                   
                     
@@ -882,7 +903,23 @@
                     
                       
                     
-                    <span class="site-state-item-count">36</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">44</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -1002,7 +1039,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#使用"><span class="nav-number">1.</span> <span class="nav-text">使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#思考问题"><span class="nav-number">2.</span> <span class="nav-text">思考问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源码分析"><span class="nav-number">3.</span> <span class="nav-text">源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#结构"><span class="nav-number">3.1.</span> <span class="nav-text">结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#state"><span class="nav-number">3.2.</span> <span class="nav-text">state</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Done"><span class="nav-number">3.3.</span> <span class="nav-text">Done</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Add"><span class="nav-number">3.4.</span> <span class="nav-text">Add</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Wait"><span class="nav-number">3.5.</span> <span class="nav-text">Wait</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他注意点"><span class="nav-number">4.</span> <span class="nav-text">其他注意点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8"><span class="nav-number">1.</span> <span class="nav-text">使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%80%83%E9%97%AE%E9%A2%98"><span class="nav-number">2.</span> <span class="nav-text">思考问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9E%84"><span class="nav-number">3.1.</span> <span class="nav-text">结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#state"><span class="nav-number">3.2.</span> <span class="nav-text">state</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Done"><span class="nav-number">3.3.</span> <span class="nav-text">Done</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Add"><span class="nav-number">3.4.</span> <span class="nav-text">Add</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Wait"><span class="nav-number">3.5.</span> <span class="nav-text">Wait</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="nav-number">4.</span> <span class="nav-text">其他注意点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
             
 
           </div>
@@ -1030,7 +1067,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>
@@ -1172,7 +1209,7 @@
 
 
 
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css"/>
 
 
 
@@ -1408,7 +1445,7 @@
 
                   // select top N slices in content
 
-                  var upperBound = parseInt('10');
+                  var upperBound = parseInt('5');
                   if (upperBound >= 0) {
                     slicesOfContent = slicesOfContent.slice(0, upperBound);
                   }
@@ -1550,5 +1587,5 @@
 
   
 
-<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"/live2dw/assets/shizuku.model.json"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"live2d-widget-model-shizuku"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
 </html>

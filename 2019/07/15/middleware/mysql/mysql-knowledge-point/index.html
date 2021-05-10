@@ -15,11 +15,11 @@
 
 
 <html class="theme-next gemini use-motion" lang="zh-CN">
-<head><meta name="generator" content="Hexo 3.8.0">
-  <meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
 
 
 
@@ -46,9 +46,9 @@
 
   
 
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css"/>
 
-<link rel="stylesheet" href="/css/main.css?v=7.1.1">
+<link rel="stylesheet" href="/css/main.css?v=7.1.1"/>
 
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=7.1.1">
@@ -71,7 +71,7 @@
 <script id="hexo.configurations">
   var NexT = window.NexT || {};
   var CONFIG = {
-    root: '/',
+    root: '',
     scheme: 'Gemini',
     version: '7.1.1',
     sidebar: {"position":"left","display":"always","offset":12,"onmobile":false,"dimmer":false},
@@ -99,17 +99,17 @@
 
 
   <meta name="description" content="以下是针对mysql的知识点整理，用于复习，主要以罗列为主，详细具体讲解可以参考书《高性能mysql》，你可以过一遍看看有无知识点遗漏。">
-<meta name="keywords" content="mysql">
 <meta property="og:type" content="article">
 <meta property="og:title" content="你可能不知道的mysql">
 <meta property="og:url" content="https://linkinstar.gitee.io/2019/07/15/middleware/mysql/mysql-knowledge-point/index.html">
 <meta property="og:site_name" content="LinkinStar&#39;s Blog">
 <meta property="og:description" content="以下是针对mysql的知识点整理，用于复习，主要以罗列为主，详细具体讲解可以参考书《高性能mysql》，你可以过一遍看看有无知识点遗漏。">
-<meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-08-26T05:20:06.724Z">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-07-14T16:00:00.000Z">
+<meta property="article:modified_time" content="2019-08-26T05:20:06.724Z">
+<meta property="article:author" content="LinkinStar">
+<meta property="article:tag" content="mysql">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="你可能不知道的mysql">
-<meta name="twitter:description" content="以下是针对mysql的知识点整理，用于复习，主要以罗列为主，详细具体讲解可以参考书《高性能mysql》，你可以过一遍看看有无知识点遗漏。">
 
 
 
@@ -117,7 +117,7 @@
 
   
   
-  <link rel="canonical" href="https://linkinstar.gitee.io/2019/07/15/middleware/mysql/mysql-knowledge-point/">
+  <link rel="canonical" href="https://linkinstar.gitee.io/2019/07/15/middleware/mysql/mysql-knowledge-point/"/>
 
 
 
@@ -176,7 +176,7 @@
   </style>
 </noscript>
 
-</head>
+<meta name="generator" content="Hexo 5.4.0"></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
 
@@ -233,7 +233,7 @@
 
     
 
-    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>首页</a>
 
   </li>
         
@@ -250,7 +250,7 @@
 
     
 
-    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br>分类</a>
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br/>分类</a>
 
   </li>
         
@@ -267,7 +267,7 @@
 
     
 
-    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>标签</a>
 
   </li>
         
@@ -284,7 +284,7 @@
 
     
 
-    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br>归档</a>
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br/>归档</a>
 
   </li>
         
@@ -301,7 +301,7 @@
 
     
 
-    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>关于</a>
 
   </li>
 
@@ -312,7 +312,7 @@
             <a href="javascript:;" class="popup-trigger">
           
             
-              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br/>搜索</a>
         </li>
       
     </ul>
@@ -332,7 +332,9 @@
       <i class="fa fa-times-circle"></i>
     </span>
     <div class="local-search-input-wrapper">
-      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
     </div>
   </div>
   <div id="local-search-result"></div>
@@ -382,16 +384,16 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2019/07/15/middleware/mysql/mysql-knowledge-point/">
+    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2019/07/15/middleware/mysql/mysql-knowledge-point/"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="LinkinStar">
-      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!">
-      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg">
+      <meta itemprop="name" content="LinkinStar"/>
+      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!"/>
+      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg"/>
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="LinkinStar's Blog">
+      <meta itemprop="name" content="LinkinStar's Blog"/>
     </span>
 
     
@@ -461,7 +463,8 @@
 
           
             <span class="post-meta-divider">|</span>
-            <span class="post-meta-item-icon">
+            <span class="post-meta-item-icon"
+            >
             <i class="fa fa-eye"></i>
              阅读次数： 
             <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
@@ -485,7 +488,7 @@
       
 
       
-        <p>以下是针对mysql的知识点整理，用于复习，主要以罗列为主，详细具体讲解可以参考书《高性能mysql》，你可以过一遍看看有无知识点遗漏。<br><a id="more"></a></p>
+        <p>以下是针对mysql的知识点整理，用于复习，主要以罗列为主，详细具体讲解可以参考书《高性能mysql》，你可以过一遍看看有无知识点遗漏。<br><span id="more"></span></p>
 <h2 id="执行sql过程"><a href="#执行sql过程" class="headerlink" title="执行sql过程"></a>执行sql过程</h2><p>客户端 -&gt; 连接器 -&gt; 分析器 -&gt; 优化器 -&gt; 执行器 -&gt; 存储引擎<br>连接器：连接上数据库，长连接<br>分析器：分析语法（包含解析器和预处理器，解析器生成解析树，预处理器判断字段存在歧义）<br>优化器：选择正确的索引进行优化执行<br>执行器：执行具体sql返回结果</p>
 <h2 id="mysql的两个重要日志"><a href="#mysql的两个重要日志" class="headerlink" title="mysql的两个重要日志"></a>mysql的两个重要日志</h2><p>redo-log（重做日志）：固定大小的循环缓存，InnoDB使用，即使重启，只要记录到了redo-log就不会丢失。防止mysql意外。<br>bin-log：归档日志，所有sql都会记录，并且采用追加，满了之后新开，有两种方式，一种是记录sql语句（statement），一种是row，记录出现的事件。<br>如果只记录sql语句会导致主从同步上面存在问题，从库执行相同的sql得到效果不同，所以还有一种混合的方式，mysql会自动判断当前语句是否会造成主从不同步的情况，如果会，那么就使用row记录如果不会就是用sql记录，因为row记录会增加存储空间。</p>
 <p>undo-log（回滚日志）：记录修改的状态和回滚信息，利用这个实现mvcc（多版本并发控制），系统会自动判断回滚日志什么时候会被删除。用于回滚操作。</p>
@@ -579,7 +582,7 @@
         
       
       <div style="display: inline-block">
-        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付">
+        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付"/>
         <p>微信支付</p>
       </div>
     
@@ -588,7 +591,7 @@
         
       
       <div style="display: inline-block">
-        <img src="/images/alipay.png" alt="LinkinStar 支付宝">
+        <img src="/images/alipay.png" alt="LinkinStar 支付宝"/>
         <p>支付宝</p>
       </div>
     
@@ -606,11 +609,11 @@
        
         <ul class="post-copyright">
           <li class="post-copyright-author">
-              <strong>本文作者：</strong>LinkinStar
+              <strong>本文作者：</strong>
           </li>
           <li class="post-copyright-link">
             <strong>本文链接：</strong>
-            <a href="http://www.linkinstar.wiki//2019/07/15/middleware/mysql/mysql-knowledge-point/" title="你可能不知道的mysql">http://www.linkinstar.wiki/2019/07/15/middleware/mysql/mysql-knowledge-point/</a>
+            <a target="_blank" rel="noopener" href="http://www.linkinstar.wiki//2019/07/15/middleware/mysql/mysql-knowledge-point/" title="你可能不知道的mysql">http://www.linkinstar.wiki/2019/07/15/middleware/mysql/mysql-knowledge-point/</a>
           </li>
           <li class="post-copyright-license">
             <strong>版权声明： </strong>
@@ -710,7 +713,9 @@
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
-              <img class="site-author-image" itemprop="image" src="http://blog.linkinstars.com/LLX.jpg" alt="LinkinStar">
+              <img class="site-author-image" itemprop="image"
+                src="http://blog.linkinstars.com/LLX.jpg"
+                alt="LinkinStar"/>
             
               <p class="site-author-name" itemprop="name">LinkinStar</p>
               <div class="site-description motion-element" itemprop="description">No one but myself can do it.<br> Don't worry. Be happy!</div>
@@ -721,9 +726,9 @@
               
                 <div class="site-state-item site-state-posts">
                 
-                  <a href="/archives/">
+                  <a href="/archives/%20%7C%7C%20folder-open-o">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">50</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -735,7 +740,7 @@
                 <div class="site-state-item site-state-categories">
                   
                     
-                      <a href="/categories/">
+                      <a href="/categories/%20%7C%7C%20cubes">
                     
                   
                     
@@ -768,7 +773,23 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -780,7 +801,7 @@
                 <div class="site-state-item site-state-tags">
                   
                     
-                      <a href="/tags/">
+                      <a href="/tags/%20%7C%7C%20tags">
                     
                   
                     
@@ -857,7 +878,23 @@
                     
                       
                     
-                    <span class="site-state-item-count">36</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">44</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -977,7 +1014,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#执行sql过程"><span class="nav-number">1.</span> <span class="nav-text">执行sql过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mysql的两个重要日志"><span class="nav-number">2.</span> <span class="nav-text">mysql的两个重要日志</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据库的隔离级别"><span class="nav-number">3.</span> <span class="nav-text">数据库的隔离级别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#索引基础"><span class="nav-number">4.</span> <span class="nav-text">索引基础</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#锁相关"><span class="nav-number">5.</span> <span class="nav-text">锁相关</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#无法使用索引的情况"><span class="nav-number">6.</span> <span class="nav-text">无法使用索引的情况</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#查看相关命令"><span class="nav-number">7.</span> <span class="nav-text">查看相关命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一些小的"><span class="nav-number">8.</span> <span class="nav-text">一些小的</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sql慢的原因"><span class="nav-number">9.</span> <span class="nav-text">sql慢的原因</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#运维上的一些"><span class="nav-number">10.</span> <span class="nav-text">运维上的一些</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mysql面试问题"><span class="nav-number">11.</span> <span class="nav-text">mysql面试问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#主从复制的原理与流程？"><span class="nav-number">11.0.1.</span> <span class="nav-text">主从复制的原理与流程？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#innodb和myisam与区别"><span class="nav-number">11.0.2.</span> <span class="nav-text">innodb和myisam与区别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#innodb引擎的4大特性"><span class="nav-number">11.0.3.</span> <span class="nav-text">innodb引擎的4大特性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#mysql索引方法有哪些"><span class="nav-number">11.0.4.</span> <span class="nav-text">mysql索引方法有哪些</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#mysql索引类型有哪些"><span class="nav-number">11.0.5.</span> <span class="nav-text">mysql索引类型有哪些</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%A7%E8%A1%8Csql%E8%BF%87%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">执行sql过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mysql%E7%9A%84%E4%B8%A4%E4%B8%AA%E9%87%8D%E8%A6%81%E6%97%A5%E5%BF%97"><span class="nav-number">2.</span> <span class="nav-text">mysql的两个重要日志</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB"><span class="nav-number">3.</span> <span class="nav-text">数据库的隔离级别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E5%9F%BA%E7%A1%80"><span class="nav-number">4.</span> <span class="nav-text">索引基础</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%94%81%E7%9B%B8%E5%85%B3"><span class="nav-number">5.</span> <span class="nav-text">锁相关</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%A0%E6%B3%95%E4%BD%BF%E7%94%A8%E7%B4%A2%E5%BC%95%E7%9A%84%E6%83%85%E5%86%B5"><span class="nav-number">6.</span> <span class="nav-text">无法使用索引的情况</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E7%9B%B8%E5%85%B3%E5%91%BD%E4%BB%A4"><span class="nav-number">7.</span> <span class="nav-text">查看相关命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E4%BA%9B%E5%B0%8F%E7%9A%84"><span class="nav-number">8.</span> <span class="nav-text">一些小的</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sql%E6%85%A2%E7%9A%84%E5%8E%9F%E5%9B%A0"><span class="nav-number">9.</span> <span class="nav-text">sql慢的原因</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%90%E7%BB%B4%E4%B8%8A%E7%9A%84%E4%B8%80%E4%BA%9B"><span class="nav-number">10.</span> <span class="nav-text">运维上的一些</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mysql%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98"><span class="nav-number">11.</span> <span class="nav-text">mysql面试问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E6%B5%81%E7%A8%8B%EF%BC%9F"><span class="nav-number">11.0.1.</span> <span class="nav-text">主从复制的原理与流程？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#innodb%E5%92%8Cmyisam%E4%B8%8E%E5%8C%BA%E5%88%AB"><span class="nav-number">11.0.2.</span> <span class="nav-text">innodb和myisam与区别</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#innodb%E5%BC%95%E6%93%8E%E7%9A%844%E5%A4%A7%E7%89%B9%E6%80%A7"><span class="nav-number">11.0.3.</span> <span class="nav-text">innodb引擎的4大特性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#mysql%E7%B4%A2%E5%BC%95%E6%96%B9%E6%B3%95%E6%9C%89%E5%93%AA%E4%BA%9B"><span class="nav-number">11.0.4.</span> <span class="nav-text">mysql索引方法有哪些</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#mysql%E7%B4%A2%E5%BC%95%E7%B1%BB%E5%9E%8B%E6%9C%89%E5%93%AA%E4%BA%9B"><span class="nav-number">11.0.5.</span> <span class="nav-text">mysql索引类型有哪些</span></a></li></ol></li></ol></li></ol></div>
             
 
           </div>
@@ -1005,7 +1042,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>
@@ -1147,7 +1184,7 @@
 
 
 
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css"/>
 
 
 
@@ -1383,7 +1420,7 @@
 
                   // select top N slices in content
 
-                  var upperBound = parseInt('10');
+                  var upperBound = parseInt('5');
                   if (upperBound >= 0) {
                     slicesOfContent = slicesOfContent.slice(0, upperBound);
                   }
@@ -1525,5 +1562,5 @@
 
   
 
-<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"/live2dw/assets/shizuku.model.json"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"live2d-widget-model-shizuku"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
 </html>

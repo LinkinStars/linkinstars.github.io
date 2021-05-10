@@ -15,11 +15,11 @@
 
 
 <html class="theme-next gemini use-motion" lang="zh-CN">
-<head><meta name="generator" content="Hexo 3.8.0">
-  <meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
 
 
 
@@ -46,9 +46,9 @@
 
   
 
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css"/>
 
-<link rel="stylesheet" href="/css/main.css?v=7.1.1">
+<link rel="stylesheet" href="/css/main.css?v=7.1.1"/>
 
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=7.1.1">
@@ -71,7 +71,7 @@
 <script id="hexo.configurations">
   var NexT = window.NexT || {};
   var CONFIG = {
-    root: '/',
+    root: '',
     scheme: 'Gemini',
     version: '7.1.1',
     sidebar: {"position":"left","display":"always","offset":12,"onmobile":false,"dimmer":false},
@@ -99,17 +99,17 @@
 
 
   <meta name="description" content="今天来说个简单的，也不简单的东西，那就是切片。slice对于golang来说那真的是一个非常常用的东西了，很多地方都会用到它，今天就来说说，slice底层是如何实现的，又有哪些坑是需要提前注意的。">
-<meta name="keywords" content="slice">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Golang的slice">
 <meta property="og:url" content="https://linkinstar.gitee.io/2019/06/18/golang/source-code/slice-source-code-review/index.html">
 <meta property="og:site_name" content="LinkinStar&#39;s Blog">
 <meta property="og:description" content="今天来说个简单的，也不简单的东西，那就是切片。slice对于golang来说那真的是一个非常常用的东西了，很多地方都会用到它，今天就来说说，slice底层是如何实现的，又有哪些坑是需要提前注意的。">
-<meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-08-15T09:22:24.673Z">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-06-17T16:00:00.000Z">
+<meta property="article:modified_time" content="2019-08-15T09:22:24.673Z">
+<meta property="article:author" content="LinkinStar">
+<meta property="article:tag" content="slice">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Golang的slice">
-<meta name="twitter:description" content="今天来说个简单的，也不简单的东西，那就是切片。slice对于golang来说那真的是一个非常常用的东西了，很多地方都会用到它，今天就来说说，slice底层是如何实现的，又有哪些坑是需要提前注意的。">
 
 
 
@@ -117,7 +117,7 @@
 
   
   
-  <link rel="canonical" href="https://linkinstar.gitee.io/2019/06/18/golang/source-code/slice-source-code-review/">
+  <link rel="canonical" href="https://linkinstar.gitee.io/2019/06/18/golang/source-code/slice-source-code-review/"/>
 
 
 
@@ -176,7 +176,7 @@
   </style>
 </noscript>
 
-</head>
+<meta name="generator" content="Hexo 5.4.0"></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
 
@@ -233,7 +233,7 @@
 
     
 
-    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>首页</a>
 
   </li>
         
@@ -250,7 +250,7 @@
 
     
 
-    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br>分类</a>
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br/>分类</a>
 
   </li>
         
@@ -267,7 +267,7 @@
 
     
 
-    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>标签</a>
 
   </li>
         
@@ -284,7 +284,7 @@
 
     
 
-    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br>归档</a>
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br/>归档</a>
 
   </li>
         
@@ -301,7 +301,7 @@
 
     
 
-    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>关于</a>
 
   </li>
 
@@ -312,7 +312,7 @@
             <a href="javascript:;" class="popup-trigger">
           
             
-              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br/>搜索</a>
         </li>
       
     </ul>
@@ -332,7 +332,9 @@
       <i class="fa fa-times-circle"></i>
     </span>
     <div class="local-search-input-wrapper">
-      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
     </div>
   </div>
   <div id="local-search-result"></div>
@@ -382,16 +384,16 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2019/06/18/golang/source-code/slice-source-code-review/">
+    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2019/06/18/golang/source-code/slice-source-code-review/"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="LinkinStar">
-      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!">
-      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg">
+      <meta itemprop="name" content="LinkinStar"/>
+      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!"/>
+      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg"/>
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="LinkinStar's Blog">
+      <meta itemprop="name" content="LinkinStar's Blog"/>
     </span>
 
     
@@ -443,7 +445,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/golang源码解析/" itemprop="url" rel="index"><span itemprop="name">golang源码解析</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/golang%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">golang源码解析</span></a></span>
 
                 
                 
@@ -461,7 +463,8 @@
 
           
             <span class="post-meta-divider">|</span>
-            <span class="post-meta-item-icon">
+            <span class="post-meta-item-icon"
+            >
             <i class="fa fa-eye"></i>
              阅读次数： 
             <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
@@ -486,17 +489,15 @@
 
       
         <p>今天来说个简单的，也不简单的东西，那就是切片。slice对于golang来说那真的是一个非常常用的东西了，很多地方都会用到它，今天就来说说，slice底层是如何实现的，又有哪些坑是需要提前注意的。</p>
-<a id="more"></a>
-<h2 id="slice结构"><a href="#slice结构" class="headerlink" title="slice结构"></a>slice结构</h2><p>很多第一次接触golang的同学都会认为，数组和切片是差不多的东西，其实不是的，切片是数组的封装。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> slice <span class="keyword">struct</span> &#123;</span><br><span class="line">	array unsafe.Pointer</span><br><span class="line">	<span class="built_in">len</span>   <span class="keyword">int</span></span><br><span class="line">	<span class="built_in">cap</span>   <span class="keyword">int</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>上面这个就是slice的结构，顺便说一下：slice的源码位置是：<br>go/src/runtime/slice.go</p>
+<span id="more"></span>
+<h2 id="slice结构"><a href="#slice结构" class="headerlink" title="slice结构"></a>slice结构</h2><p>很多第一次接触golang的同学都会认为，数组和切片是差不多的东西，其实不是的，切片是数组的封装。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> slice <span class="keyword">struct</span> &#123;</span><br><span class="line">	array unsafe.Pointer</span><br><span class="line">	<span class="built_in">len</span>   <span class="keyword">int</span></span><br><span class="line">	<span class="built_in">cap</span>   <span class="keyword">int</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>上面这个就是slice的结构，顺便说一下：slice的源码位置是：<br>go/src/runtime/slice.go</p>
 <ul>
 <li>其中array是一个指针，指向底层的数组</li>
 <li>len代表slice的长度</li>
 <li>cap代表slice的容量</li>
 </ul>
 <p>为什么会有长度和容量这个区分呢，这两个东西是用来干什么的呢？我们往下看。</p>
-<h2 id="slice的长度和容量"><a href="#slice的长度和容量" class="headerlink" title="slice的长度和容量"></a>slice的长度和容量</h2><p>我们先来看一个最简单的案例<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sli := <span class="built_in">make</span>([]<span class="keyword">int</span>, <span class="number">2</span>)</span><br><span class="line">fmt.Printf(<span class="string">"len=%d  cap=%d\n"</span>, <span class="built_in">len</span>(sli), <span class="built_in">cap</span>(sli))</span><br><span class="line">sli = <span class="built_in">append</span>(sli, <span class="number">1</span>)</span><br><span class="line">fmt.Printf(<span class="string">"len=%d  cap=%d\n"</span>, <span class="built_in">len</span>(sli), <span class="built_in">cap</span>(sli))</span><br></pre></td></tr></table></figure></p>
-<p>我们创建一个长度为2的slice然后打印一下它的len和cap。<br>然后添加一个元素，再次打印最后结果为：<br>len=2  cap=2<br>len=3  cap=4</p>
+<h2 id="slice的长度和容量"><a href="#slice的长度和容量" class="headerlink" title="slice的长度和容量"></a>slice的长度和容量</h2><p>我们先来看一个最简单的案例<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sli := <span class="built_in">make</span>([]<span class="keyword">int</span>, <span class="number">2</span>)</span><br><span class="line">fmt.Printf(<span class="string">&quot;len=%d  cap=%d\n&quot;</span>, <span class="built_in">len</span>(sli), <span class="built_in">cap</span>(sli))</span><br><span class="line">sli = <span class="built_in">append</span>(sli, <span class="number">1</span>)</span><br><span class="line">fmt.Printf(<span class="string">&quot;len=%d  cap=%d\n&quot;</span>, <span class="built_in">len</span>(sli), <span class="built_in">cap</span>(sli))</span><br></pre></td></tr></table></figure><br>我们创建一个长度为2的slice然后打印一下它的len和cap。<br>然后添加一个元素，再次打印最后结果为：<br>len=2  cap=2<br>len=3  cap=4</p>
 <p>从中我们可以知道len和cap是不同的东西，明显嘛。但是为什么呢？</p>
 <p>其实原因很简单，因为数组在创建的时候只能创建固定大小的数组，而当slice在不断往其中添加元素的时候，势必会遇到大小不够的情况，如果每次添加都不够，那么每次都要创建新的数组，那会相当浪费时间和资源，所以当不够的时候索性一次就创建大一些，所以cap其实就代表了整体的一个容量，而len代表当前用到了第几个。</p>
 <h2 id="slice的扩容"><a href="#slice的扩容" class="headerlink" title="slice的扩容"></a>slice的扩容</h2><p>刚才提到的整个过程就是扩容的原因，那么slice究竟是如何进行扩容的呢？<br>网上我看见过两个说法：</p>
@@ -504,18 +505,15 @@
 <li>每次2倍</li>
 <li>当len&lt;1024的时候每次2倍，当len&gt;1024的时候每次1.25倍</li>
 </ol>
-<p>我最后得到的结论是其实两个都不完全正确。正确的应该看看源码中是怎么说的。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">growslice</span><span class="params">(et *_type, old slice, <span class="built_in">cap</span> <span class="keyword">int</span>)</span> <span class="title">slice</span></span> &#123;</span><br><span class="line">	.....</span><br><span class="line">	</span><br><span class="line">	newcap := old.<span class="built_in">cap</span></span><br><span class="line">	doublecap := newcap + newcap</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">cap</span> &gt; doublecap &#123;</span><br><span class="line">		newcap = <span class="built_in">cap</span></span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> old.<span class="built_in">len</span> &lt; <span class="number">1024</span> &#123;</span><br><span class="line">			newcap = doublecap</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			<span class="comment">// Check 0 &lt; newcap to detect overflow</span></span><br><span class="line">			<span class="comment">// and prevent an infinite loop.</span></span><br><span class="line">			<span class="keyword">for</span> <span class="number">0</span> &lt; newcap &amp;&amp; newcap &lt; <span class="built_in">cap</span> &#123;</span><br><span class="line">				newcap += newcap / <span class="number">4</span></span><br><span class="line">			&#125;</span><br><span class="line">			<span class="comment">// Set newcap to the requested cap when</span></span><br><span class="line">			<span class="comment">// the newcap calculation overflowed.</span></span><br><span class="line">			<span class="keyword">if</span> newcap &lt;= <span class="number">0</span> &#123;</span><br><span class="line">				newcap = <span class="built_in">cap</span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">var</span> overflow <span class="keyword">bool</span></span><br><span class="line">	<span class="keyword">var</span> lenmem, newlenmem, capmem <span class="keyword">uintptr</span></span><br><span class="line">	<span class="keyword">const</span> ptrSize = unsafe.Sizeof((*<span class="keyword">byte</span>)(<span class="literal">nil</span>))</span><br><span class="line">	<span class="keyword">switch</span> et.size &#123;</span><br><span class="line">	<span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">		lenmem = <span class="keyword">uintptr</span>(old.<span class="built_in">len</span>)</span><br><span class="line">		newlenmem = <span class="keyword">uintptr</span>(<span class="built_in">cap</span>)</span><br><span class="line">		capmem = roundupsize(<span class="keyword">uintptr</span>(newcap))</span><br><span class="line">		overflow = <span class="keyword">uintptr</span>(newcap) &gt; _MaxMem</span><br><span class="line">		newcap = <span class="keyword">int</span>(capmem)</span><br><span class="line">	<span class="keyword">case</span> ptrSize:</span><br><span class="line">		lenmem = <span class="keyword">uintptr</span>(old.<span class="built_in">len</span>) * ptrSize</span><br><span class="line">		newlenmem = <span class="keyword">uintptr</span>(<span class="built_in">cap</span>) * ptrSize</span><br><span class="line">		capmem = roundupsize(<span class="keyword">uintptr</span>(newcap) * ptrSize)</span><br><span class="line">		overflow = <span class="keyword">uintptr</span>(newcap) &gt; _MaxMem/ptrSize</span><br><span class="line">		newcap = <span class="keyword">int</span>(capmem / ptrSize)</span><br><span class="line">	<span class="keyword">default</span>:</span><br><span class="line">		lenmem = <span class="keyword">uintptr</span>(old.<span class="built_in">len</span>) * et.size</span><br><span class="line">		newlenmem = <span class="keyword">uintptr</span>(<span class="built_in">cap</span>) * et.size</span><br><span class="line">		capmem = roundupsize(<span class="keyword">uintptr</span>(newcap) * et.size)</span><br><span class="line">		overflow = <span class="keyword">uintptr</span>(newcap) &gt; maxSliceCap(et.size)</span><br><span class="line">		newcap = <span class="keyword">int</span>(capmem / et.size)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	......</span><br><span class="line">	<span class="keyword">return</span> slice&#123;p, old.<span class="built_in">len</span>, newcap&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>我们省略其中部分代码看关键部分，首先说明一下growslice这个方法是扩容的方法，其中的入参<br><code>et *_type, old slice, cap int</code><br>分别是元素的类型，老的slice，<strong>新slice要求的最小容量</strong><br>针对最后这个参数举个简单的例子，当前如果是len=2，cap=2的一个slice添加一个元素，那么这个参数传入的就是3，因为最小需要容量为3。</p>
+<p>我最后得到的结论是其实两个都不完全正确。正确的应该看看源码中是怎么说的。<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">growslice</span><span class="params">(et *_type, old slice, <span class="built_in">cap</span> <span class="keyword">int</span>)</span> <span class="title">slice</span></span> &#123;</span><br><span class="line">	.....</span><br><span class="line">	</span><br><span class="line">	newcap := old.<span class="built_in">cap</span></span><br><span class="line">	doublecap := newcap + newcap</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">cap</span> &gt; doublecap &#123;</span><br><span class="line">		newcap = <span class="built_in">cap</span></span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> old.<span class="built_in">len</span> &lt; <span class="number">1024</span> &#123;</span><br><span class="line">			newcap = doublecap</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			<span class="comment">// Check 0 &lt; newcap to detect overflow</span></span><br><span class="line">			<span class="comment">// and prevent an infinite loop.</span></span><br><span class="line">			<span class="keyword">for</span> <span class="number">0</span> &lt; newcap &amp;&amp; newcap &lt; <span class="built_in">cap</span> &#123;</span><br><span class="line">				newcap += newcap / <span class="number">4</span></span><br><span class="line">			&#125;</span><br><span class="line">			<span class="comment">// Set newcap to the requested cap when</span></span><br><span class="line">			<span class="comment">// the newcap calculation overflowed.</span></span><br><span class="line">			<span class="keyword">if</span> newcap &lt;= <span class="number">0</span> &#123;</span><br><span class="line">				newcap = <span class="built_in">cap</span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">var</span> overflow <span class="keyword">bool</span></span><br><span class="line">	<span class="keyword">var</span> lenmem, newlenmem, capmem <span class="keyword">uintptr</span></span><br><span class="line">	<span class="keyword">const</span> ptrSize = unsafe.Sizeof((*<span class="keyword">byte</span>)(<span class="literal">nil</span>))</span><br><span class="line">	<span class="keyword">switch</span> et.size &#123;</span><br><span class="line">	<span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">		lenmem = <span class="keyword">uintptr</span>(old.<span class="built_in">len</span>)</span><br><span class="line">		newlenmem = <span class="keyword">uintptr</span>(<span class="built_in">cap</span>)</span><br><span class="line">		capmem = roundupsize(<span class="keyword">uintptr</span>(newcap))</span><br><span class="line">		overflow = <span class="keyword">uintptr</span>(newcap) &gt; _MaxMem</span><br><span class="line">		newcap = <span class="keyword">int</span>(capmem)</span><br><span class="line">	<span class="keyword">case</span> ptrSize:</span><br><span class="line">		lenmem = <span class="keyword">uintptr</span>(old.<span class="built_in">len</span>) * ptrSize</span><br><span class="line">		newlenmem = <span class="keyword">uintptr</span>(<span class="built_in">cap</span>) * ptrSize</span><br><span class="line">		capmem = roundupsize(<span class="keyword">uintptr</span>(newcap) * ptrSize)</span><br><span class="line">		overflow = <span class="keyword">uintptr</span>(newcap) &gt; _MaxMem/ptrSize</span><br><span class="line">		newcap = <span class="keyword">int</span>(capmem / ptrSize)</span><br><span class="line">	<span class="keyword">default</span>:</span><br><span class="line">		lenmem = <span class="keyword">uintptr</span>(old.<span class="built_in">len</span>) * et.size</span><br><span class="line">		newlenmem = <span class="keyword">uintptr</span>(<span class="built_in">cap</span>) * et.size</span><br><span class="line">		capmem = roundupsize(<span class="keyword">uintptr</span>(newcap) * et.size)</span><br><span class="line">		overflow = <span class="keyword">uintptr</span>(newcap) &gt; maxSliceCap(et.size)</span><br><span class="line">		newcap = <span class="keyword">int</span>(capmem / et.size)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	......</span><br><span class="line">	<span class="keyword">return</span> slice&#123;p, old.<span class="built_in">len</span>, newcap&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>我们省略其中部分代码看关键部分，首先说明一下growslice这个方法是扩容的方法，其中的入参<br><code>et *_type, old slice, cap int</code><br>分别是元素的类型，老的slice，<strong>新slice要求的最小容量</strong><br>针对最后这个参数举个简单的例子，当前如果是len=2，cap=2的一个slice添加一个元素，那么这个参数传入的就是3，因为最小需要容量为3。</p>
 <p>其实从前半部分来看，第二种说法是正确的，当len&lt;1024确实就是两倍，而当len&gt;1024的时候，每次以原来的25%增加直到满足要求。</p>
-<p>但是其实你看后面部分，有一个roundupsize的方法，并且又对newcap进行赋值，所以肯定修改了cap的值，所以其实扩容并没有描述的那么简单，实际中会进行<code>内存对齐</code>，具体什么事内存对齐呢？简单的描述是，内存中肯定不是你想怎么放就怎么放的肯定要满足一个规则，有的地方虽然你只要这么点地方，但是由于美观的要求，会多给你一点，凑个整，保持统一整齐，这就是内存对齐。（是不是花里胡哨的，我尽可能已经白话了，具体还是要看）<br><a href="https://blog.csdn.net/u011957758/article/details/85059117" target="_blank" rel="noopener">https://blog.csdn.net/u011957758/article/details/85059117</a><br>总之，我们知道，slice的扩容并不是那么简单的。最后附上一个例子作为验证：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    sli := <span class="built_in">make</span>([]<span class="keyword">int</span>, <span class="number">2</span>)</span><br><span class="line">    </span><br><span class="line">    preCap := <span class="built_in">cap</span>(sli)</span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">0</span>; i &lt;= <span class="number">2048</span>; i++ &#123;</span><br><span class="line">        sli = <span class="built_in">append</span>(sli, i)</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">cap</span>(sli) != preCap &#123;</span><br><span class="line">            fmt.Printf(<span class="string">"len=%4d \t cap=%d\n"</span>, <span class="built_in">len</span>(sli)<span class="number">-1</span>, <span class="built_in">cap</span>(sli))</span><br><span class="line">            preCap = <span class="built_in">cap</span>(sli)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>输出<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">len=   2 	 cap=4</span><br><span class="line">len=   4 	 cap=8</span><br><span class="line">len=   8 	 cap=16</span><br><span class="line">len=  16 	 cap=32</span><br><span class="line">len=  32 	 cap=64</span><br><span class="line">len=  64 	 cap=128</span><br><span class="line">len= 128 	 cap=256</span><br><span class="line">len= 256 	 cap=512</span><br><span class="line">len= 512 	 cap=1024</span><br><span class="line">len=1024 	 cap=1280</span><br><span class="line">len=1280 	 cap=1696</span><br><span class="line">len=1696 	 cap=2304</span><br></pre></td></tr></table></figure></p>
-<p>1280 = 1024 <em> 1.25<br>1696 = 1280 </em> 1.325</p>
+<p>但是其实你看后面部分，有一个roundupsize的方法，并且又对newcap进行赋值，所以肯定修改了cap的值，所以其实扩容并没有描述的那么简单，实际中会进行<code>内存对齐</code>，具体什么事内存对齐呢？简单的描述是，内存中肯定不是你想怎么放就怎么放的肯定要满足一个规则，有的地方虽然你只要这么点地方，但是由于美观的要求，会多给你一点，凑个整，保持统一整齐，这就是内存对齐。（是不是花里胡哨的，我尽可能已经白话了，具体还是要看）<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/u011957758/article/details/85059117">https://blog.csdn.net/u011957758/article/details/85059117</a><br>总之，我们知道，slice的扩容并不是那么简单的。最后附上一个例子作为验证：<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    sli := <span class="built_in">make</span>([]<span class="keyword">int</span>, <span class="number">2</span>)</span><br><span class="line">    </span><br><span class="line">    preCap := <span class="built_in">cap</span>(sli)</span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">0</span>; i &lt;= <span class="number">2048</span>; i++ &#123;</span><br><span class="line">        sli = <span class="built_in">append</span>(sli, i)</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">cap</span>(sli) != preCap &#123;</span><br><span class="line">            fmt.Printf(<span class="string">&quot;len=%4d \t cap=%d\n&quot;</span>, <span class="built_in">len</span>(sli)<span class="number">-1</span>, <span class="built_in">cap</span>(sli))</span><br><span class="line">            preCap = <span class="built_in">cap</span>(sli)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>输出<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">len=   2 	 cap=4</span><br><span class="line">len=   4 	 cap=8</span><br><span class="line">len=   8 	 cap=16</span><br><span class="line">len=  16 	 cap=32</span><br><span class="line">len=  32 	 cap=64</span><br><span class="line">len=  64 	 cap=128</span><br><span class="line">len= 128 	 cap=256</span><br><span class="line">len= 256 	 cap=512</span><br><span class="line">len= 512 	 cap=1024</span><br><span class="line">len=1024 	 cap=1280</span><br><span class="line">len=1280 	 cap=1696</span><br><span class="line">len=1696 	 cap=2304</span><br></pre></td></tr></table></figure><br>1280 = 1024 <em> 1.25<br>1696 = 1280 </em> 1.325</p>
 <h2 id="slice的操作"><a href="#slice的操作" class="headerlink" title="slice的操作"></a>slice的操作</h2><p>普通的创建添加元素我就不多说了，你肯定知道，你要是不知道就不会来看我的博客了。说一些看起来高端的微操。</p>
 <h3 id="创建slice"><a href="#创建slice" class="headerlink" title="创建slice"></a>创建slice</h3><p>make([]int, 10, 32)<br>make的时候可以指定第三个参数也就是初始的cap</p>
 <h3 id="slice删除一个元素"><a href="#slice删除一个元素" class="headerlink" title="slice删除一个元素"></a>slice删除一个元素</h3><p>sli = append(sli[:3], sli[4:]…)<br>因为底层是数组，所以删除一个元素看起来会比较麻烦</p>
 <h3 id="reslice"><a href="#reslice" class="headerlink" title="reslice"></a>reslice</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    sli := <span class="built_in">make</span>([]<span class="keyword">int</span>, <span class="number">0</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">1</span>; i &lt;= <span class="number">10</span>; i++ &#123;</span><br><span class="line">        sli = <span class="built_in">append</span>(sli, i)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    fmt.Println(sli)</span><br><span class="line">    sli = sli[<span class="number">1</span>:<span class="number">3</span>:<span class="number">5</span>]</span><br><span class="line">    fmt.Println(sli)</span><br><span class="line">    fmt.Println(<span class="built_in">len</span>(sli), <span class="built_in">cap</span>(sli))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>sli = sli[1:3:5]<br>reslice的时候也可以指定cap，但是注意的是，这个时候并不是指定的整体容量为5，而是容量为原来slice下标为5的地方。<br>如果原来是[1 2 3 4 5 6 7 8 9 10]<br>按照上面的操作，按照我自己的平常说的就是切两刀，第一刀是切到3，第二刀是切到5<br>slice是[2,3]，但是实际底层还有[4,5] cap应该是4，所以输出应该是：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[1 2 3 4 5 6 7 8 9 10]</span><br><span class="line">[2 3]</span><br><span class="line">2 4</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[1 2 3 4 5 6 7 8 9 10]</span><br><span class="line">[2 3]</span><br><span class="line">2 4</span><br></pre></td></tr></table></figure>
 <h2 id="slice的坑点"><a href="#slice的坑点" class="headerlink" title="slice的坑点"></a>slice的坑点</h2><p>slice的坑其实主要在于使用者需要清楚值传递引用传递的关系。<br><strong>首先在golang中只有值传递，没有引用传递。</strong></p>
 <ul>
 <li>reslice的时候要注意，如果只是reslice那么后续操作是会对原来的slice造成影响的。</li>
@@ -523,7 +521,7 @@
 <li>如果作为函数的参数传递的是数组，因为是值传递，所以函数内部的修改不会对外部的变量产生影响，但是如果是slice传递，那么因为传递的是指针，所以会修改外部的变量。</li>
 <li>同时因为是值传递，形参的重新赋值是不会对外部的变量造成影响的。</li>
 </ul>
-<p>下面的代码说明了以上可能出现的坑点<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    a := [<span class="number">3</span>]<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>&#125;</span><br><span class="line">    s := []<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>&#125;</span><br><span class="line">    </span><br><span class="line">    modifyArray(a)</span><br><span class="line">    fmt.Println(a)</span><br><span class="line">    </span><br><span class="line">    modifySlice(s)</span><br><span class="line">    fmt.Println(s)</span><br><span class="line">    </span><br><span class="line">    reslice(s)</span><br><span class="line">    fmt.Println(s)</span><br><span class="line">    </span><br><span class="line">    s1 := <span class="built_in">make</span>([]<span class="keyword">int</span>, <span class="number">2</span>, <span class="number">3</span>)</span><br><span class="line">    s2 := <span class="built_in">append</span>(s1, <span class="number">1</span>)</span><br><span class="line">    s2[<span class="number">0</span>] = <span class="number">3</span></span><br><span class="line">    fmt.Println(s1)</span><br><span class="line"></span><br><span class="line">    s3 := <span class="built_in">append</span>(s1, <span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line">    s3[<span class="number">0</span>] = <span class="number">4</span></span><br><span class="line">    fmt.Println(s1)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">modifyArray</span><span class="params">(a [3]<span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    a[<span class="number">0</span>] = <span class="number">2</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">modifySlice</span><span class="params">(s []<span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    s[<span class="number">0</span>] = <span class="number">2</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">reslice</span><span class="params">(s []<span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    s = s[:<span class="number">2</span>]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>下面的代码说明了以上可能出现的坑点<br><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    a := [<span class="number">3</span>]<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>&#125;</span><br><span class="line">    s := []<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>&#125;</span><br><span class="line">    </span><br><span class="line">    modifyArray(a)</span><br><span class="line">    fmt.Println(a)</span><br><span class="line">    </span><br><span class="line">    modifySlice(s)</span><br><span class="line">    fmt.Println(s)</span><br><span class="line">    </span><br><span class="line">    reslice(s)</span><br><span class="line">    fmt.Println(s)</span><br><span class="line">    </span><br><span class="line">    s1 := <span class="built_in">make</span>([]<span class="keyword">int</span>, <span class="number">2</span>, <span class="number">3</span>)</span><br><span class="line">    s2 := <span class="built_in">append</span>(s1, <span class="number">1</span>)</span><br><span class="line">    s2[<span class="number">0</span>] = <span class="number">3</span></span><br><span class="line">    fmt.Println(s1)</span><br><span class="line"></span><br><span class="line">    s3 := <span class="built_in">append</span>(s1, <span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line">    s3[<span class="number">0</span>] = <span class="number">4</span></span><br><span class="line">    fmt.Println(s1)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">modifyArray</span><span class="params">(a [3]<span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    a[<span class="number">0</span>] = <span class="number">2</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">modifySlice</span><span class="params">(s []<span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    s[<span class="number">0</span>] = <span class="number">2</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">reslice</span><span class="params">(s []<span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    s = s[:<span class="number">2</span>]</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>总结一下，创建slice的时候如果可以的话尽可能初始化好要用容量，以免经常扩容。slice作为参数进行传递的时候，还有slice进行append的时候注意一下，别的应该没有问题。总的来说slice的实现还是比较简单的。</p>
 
       
@@ -555,7 +553,7 @@
         
       
       <div style="display: inline-block">
-        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付">
+        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付"/>
         <p>微信支付</p>
       </div>
     
@@ -564,7 +562,7 @@
         
       
       <div style="display: inline-block">
-        <img src="/images/alipay.png" alt="LinkinStar 支付宝">
+        <img src="/images/alipay.png" alt="LinkinStar 支付宝"/>
         <p>支付宝</p>
       </div>
     
@@ -582,11 +580,11 @@
        
         <ul class="post-copyright">
           <li class="post-copyright-author">
-              <strong>本文作者：</strong>LinkinStar
+              <strong>本文作者：</strong>
           </li>
           <li class="post-copyright-link">
             <strong>本文链接：</strong>
-            <a href="http://www.linkinstar.wiki//2019/06/18/golang/source-code/slice-source-code-review/" title="Golang的slice">http://www.linkinstar.wiki/2019/06/18/golang/source-code/slice-source-code-review/</a>
+            <a target="_blank" rel="noopener" href="http://www.linkinstar.wiki//2019/06/18/golang/source-code/slice-source-code-review/" title="Golang的slice">http://www.linkinstar.wiki/2019/06/18/golang/source-code/slice-source-code-review/</a>
           </li>
           <li class="post-copyright-license">
             <strong>版权声明： </strong>
@@ -686,7 +684,9 @@
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
-              <img class="site-author-image" itemprop="image" src="http://blog.linkinstars.com/LLX.jpg" alt="LinkinStar">
+              <img class="site-author-image" itemprop="image"
+                src="http://blog.linkinstars.com/LLX.jpg"
+                alt="LinkinStar"/>
             
               <p class="site-author-name" itemprop="name">LinkinStar</p>
               <div class="site-description motion-element" itemprop="description">No one but myself can do it.<br> Don't worry. Be happy!</div>
@@ -697,9 +697,9 @@
               
                 <div class="site-state-item site-state-posts">
                 
-                  <a href="/archives/">
+                  <a href="/archives/%20%7C%7C%20folder-open-o">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">50</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -711,7 +711,7 @@
                 <div class="site-state-item site-state-categories">
                   
                     
-                      <a href="/categories/">
+                      <a href="/categories/%20%7C%7C%20cubes">
                     
                   
                     
@@ -744,7 +744,23 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -756,7 +772,7 @@
                 <div class="site-state-item site-state-tags">
                   
                     
-                      <a href="/tags/">
+                      <a href="/tags/%20%7C%7C%20tags">
                     
                   
                     
@@ -833,7 +849,23 @@
                     
                       
                     
-                    <span class="site-state-item-count">36</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">44</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -953,7 +985,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#slice结构"><span class="nav-number">1.</span> <span class="nav-text">slice结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#slice的长度和容量"><span class="nav-number">2.</span> <span class="nav-text">slice的长度和容量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#slice的扩容"><span class="nav-number">3.</span> <span class="nav-text">slice的扩容</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#slice的操作"><span class="nav-number">4.</span> <span class="nav-text">slice的操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建slice"><span class="nav-number">4.1.</span> <span class="nav-text">创建slice</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#slice删除一个元素"><span class="nav-number">4.2.</span> <span class="nav-text">slice删除一个元素</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#reslice"><span class="nav-number">4.3.</span> <span class="nav-text">reslice</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#slice的坑点"><span class="nav-number">5.</span> <span class="nav-text">slice的坑点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#slice%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">slice结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#slice%E7%9A%84%E9%95%BF%E5%BA%A6%E5%92%8C%E5%AE%B9%E9%87%8F"><span class="nav-number">2.</span> <span class="nav-text">slice的长度和容量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#slice%E7%9A%84%E6%89%A9%E5%AE%B9"><span class="nav-number">3.</span> <span class="nav-text">slice的扩容</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#slice%E7%9A%84%E6%93%8D%E4%BD%9C"><span class="nav-number">4.</span> <span class="nav-text">slice的操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BAslice"><span class="nav-number">4.1.</span> <span class="nav-text">创建slice</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#slice%E5%88%A0%E9%99%A4%E4%B8%80%E4%B8%AA%E5%85%83%E7%B4%A0"><span class="nav-number">4.2.</span> <span class="nav-text">slice删除一个元素</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#reslice"><span class="nav-number">4.3.</span> <span class="nav-text">reslice</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#slice%E7%9A%84%E5%9D%91%E7%82%B9"><span class="nav-number">5.</span> <span class="nav-text">slice的坑点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
             
 
           </div>
@@ -981,7 +1013,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>
@@ -1123,7 +1155,7 @@
 
 
 
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css"/>
 
 
 
@@ -1359,7 +1391,7 @@
 
                   // select top N slices in content
 
-                  var upperBound = parseInt('10');
+                  var upperBound = parseInt('5');
                   if (upperBound >= 0) {
                     slicesOfContent = slicesOfContent.slice(0, upperBound);
                   }
@@ -1501,5 +1533,5 @@
 
   
 
-<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"/live2dw/assets/shizuku.model.json"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"live2d-widget-model-shizuku"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
 </html>

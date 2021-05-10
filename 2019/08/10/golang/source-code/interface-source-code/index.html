@@ -15,11 +15,11 @@
 
 
 <html class="theme-next gemini use-motion" lang="zh-CN">
-<head><meta name="generator" content="Hexo 3.8.0">
-  <meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
 
 
 
@@ -46,9 +46,9 @@
 
   
 
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css"/>
 
-<link rel="stylesheet" href="/css/main.css?v=7.1.1">
+<link rel="stylesheet" href="/css/main.css?v=7.1.1"/>
 
 
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=7.1.1">
@@ -71,7 +71,7 @@
 <script id="hexo.configurations">
   var NexT = window.NexT || {};
   var CONFIG = {
-    root: '/',
+    root: '',
     scheme: 'Gemini',
     version: '7.1.1',
     sidebar: {"position":"left","display":"always","offset":12,"onmobile":false,"dimmer":false},
@@ -99,17 +99,17 @@
 
 
   <meta name="description" content="由于golang中说interface的文章太多了，很多都已经说的很细节了，所以我再说感觉也有点难。于是总结出几个关键问题，供你参考，如果能做到准确无误有理有据的回答，那么interface应该是没有问题了。">
-<meta name="keywords" content="interface">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Golang的interface">
 <meta property="og:url" content="https://linkinstar.gitee.io/2019/08/10/golang/source-code/interface-source-code/index.html">
 <meta property="og:site_name" content="LinkinStar&#39;s Blog">
 <meta property="og:description" content="由于golang中说interface的文章太多了，很多都已经说的很细节了，所以我再说感觉也有点难。于是总结出几个关键问题，供你参考，如果能做到准确无误有理有据的回答，那么interface应该是没有问题了。">
-<meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-08-26T05:18:29.529Z">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-08-09T16:00:00.000Z">
+<meta property="article:modified_time" content="2019-08-26T05:18:29.529Z">
+<meta property="article:author" content="LinkinStar">
+<meta property="article:tag" content="interface">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Golang的interface">
-<meta name="twitter:description" content="由于golang中说interface的文章太多了，很多都已经说的很细节了，所以我再说感觉也有点难。于是总结出几个关键问题，供你参考，如果能做到准确无误有理有据的回答，那么interface应该是没有问题了。">
 
 
 
@@ -117,7 +117,7 @@
 
   
   
-  <link rel="canonical" href="https://linkinstar.gitee.io/2019/08/10/golang/source-code/interface-source-code/">
+  <link rel="canonical" href="https://linkinstar.gitee.io/2019/08/10/golang/source-code/interface-source-code/"/>
 
 
 
@@ -176,7 +176,7 @@
   </style>
 </noscript>
 
-</head>
+<meta name="generator" content="Hexo 5.4.0"></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
 
@@ -233,7 +233,7 @@
 
     
 
-    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>首页</a>
 
   </li>
         
@@ -250,7 +250,7 @@
 
     
 
-    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br>分类</a>
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-cubes"></i> <br/>分类</a>
 
   </li>
         
@@ -267,7 +267,7 @@
 
     
 
-    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br/>标签</a>
 
   </li>
         
@@ -284,7 +284,7 @@
 
     
 
-    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br>归档</a>
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-folder-open-o"></i> <br/>归档</a>
 
   </li>
         
@@ -301,7 +301,7 @@
 
     
 
-    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br/>关于</a>
 
   </li>
 
@@ -312,7 +312,7 @@
             <a href="javascript:;" class="popup-trigger">
           
             
-              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br/>搜索</a>
         </li>
       
     </ul>
@@ -332,7 +332,9 @@
       <i class="fa fa-times-circle"></i>
     </span>
     <div class="local-search-input-wrapper">
-      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
     </div>
   </div>
   <div id="local-search-result"></div>
@@ -382,16 +384,16 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2019/08/10/golang/source-code/interface-source-code/">
+    <link itemprop="mainEntityOfPage" href="https://linkinstar.gitee.io/2019/08/10/golang/source-code/interface-source-code/"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="LinkinStar">
-      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!">
-      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg">
+      <meta itemprop="name" content="LinkinStar"/>
+      <meta itemprop="description" content="No one but myself can do it.<br> Don't worry. Be happy!"/>
+      <meta itemprop="image" content="http://blog.linkinstars.com/LLX.jpg"/>
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="LinkinStar's Blog">
+      <meta itemprop="name" content="LinkinStar's Blog"/>
     </span>
 
     
@@ -443,7 +445,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/golang源码解析/" itemprop="url" rel="index"><span itemprop="name">golang源码解析</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/golang%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">golang源码解析</span></a></span>
 
                 
                 
@@ -461,7 +463,8 @@
 
           
             <span class="post-meta-divider">|</span>
-            <span class="post-meta-item-icon">
+            <span class="post-meta-item-icon"
+            >
             <i class="fa fa-eye"></i>
              阅读次数： 
             <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
@@ -486,7 +489,7 @@
 
       
         <p>由于golang中说interface的文章太多了，很多都已经说的很细节了，所以我再说感觉也有点难。于是总结出几个关键问题，供你参考，如果能做到准确无误有理有据的回答，那么interface应该是没有问题了。</p>
-<a id="more"></a>
+<span id="more"></span>
 <h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><ol>
 <li>interface底层结构有哪两种，分别是什么样子的，里面保存了哪些信息？</li>
 <li>其中tab是什么时候生成的？</li>
@@ -495,13 +498,13 @@
 <li>golang底层是如何判断一个类型是否实现了一个interface？</li>
 </ol>
 <h2 id="1、底层结构"><a href="#1、底层结构" class="headerlink" title="1、底层结构"></a>1、底层结构</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> eface <span class="keyword">struct</span> &#123; <span class="comment">// 16 bytes on a 64bit arch</span></span><br><span class="line">    _type *_type</span><br><span class="line">    data  unsafe.Pointer</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">type</span> iface <span class="keyword">struct</span> &#123; <span class="comment">// 16 bytes on a 64bit arch</span></span><br><span class="line">    tab  *itab</span><br><span class="line">    data unsafe.Pointer</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">type</span> itab <span class="keyword">struct</span> &#123; <span class="comment">// 40 bytes on a 64bit arch</span></span><br><span class="line">    inter *interfacetype</span><br><span class="line">    _type *_type</span><br><span class="line">    hash  <span class="keyword">uint32</span> <span class="comment">// copy of _type.hash. Used for type switches.</span></span><br><span class="line">    _     [<span class="number">4</span>]<span class="keyword">byte</span></span><br><span class="line">    fun   [<span class="number">1</span>]<span class="keyword">uintptr</span> <span class="comment">// variable sized. fun[0]==0 means _type does not implement inter.</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">type</span> _type <span class="keyword">struct</span> &#123; <span class="comment">// 48 bytes on a 64bit arch</span></span><br><span class="line">    size       <span class="keyword">uintptr</span></span><br><span class="line">    ptrdata    <span class="keyword">uintptr</span> <span class="comment">// size of memory prefix holding all pointers</span></span><br><span class="line">    hash       <span class="keyword">uint32</span></span><br><span class="line">    tflag      tflag</span><br><span class="line">    align      <span class="keyword">uint8</span></span><br><span class="line">    fieldalign <span class="keyword">uint8</span></span><br><span class="line">    kind       <span class="keyword">uint8</span></span><br><span class="line">    alg        *typeAlg</span><br><span class="line">    <span class="comment">// gcdata stores the GC type data for the garbage collector.</span></span><br><span class="line">    <span class="comment">// If the KindGCProg bit is set in kind, gcdata is a GC program.</span></span><br><span class="line">    <span class="comment">// Otherwise it is a ptrmask bitmap. See mbitmap.go for details.</span></span><br><span class="line">    gcdata    *<span class="keyword">byte</span></span><br><span class="line">    str       nameOff</span><br><span class="line">    ptrToThis typeOff</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><a href="https://draveness.me/golang/basic/golang-interface.html" target="_blank" rel="noopener">https://draveness.me/golang/basic/golang-interface.html</a></p>
-<h2 id="2、tab"><a href="#2、tab" class="headerlink" title="2、tab"></a>2、tab</h2><p>tab结构是itab，里面包含了interfacetype，_type，fun，编译期生成。<br><a href="https://github.com/teh-cmc/go-internals/blob/master/chapter2_interfaces/README.md" target="_blank" rel="noopener">https://github.com/teh-cmc/go-internals/blob/master/chapter2_interfaces/README.md</a></p>
+<p><a target="_blank" rel="noopener" href="https://draveness.me/golang/basic/golang-interface.html">https://draveness.me/golang/basic/golang-interface.html</a></p>
+<h2 id="2、tab"><a href="#2、tab" class="headerlink" title="2、tab"></a>2、tab</h2><p>tab结构是itab，里面包含了interfacetype，_type，fun，编译期生成。<br><a target="_blank" rel="noopener" href="https://github.com/teh-cmc/go-internals/blob/master/chapter2_interfaces/README.md">https://github.com/teh-cmc/go-internals/blob/master/chapter2_interfaces/README.md</a></p>
 <h2 id="3、类型转换"><a href="#3、类型转换" class="headerlink" title="3、类型转换"></a>3、类型转换</h2><h3 id="由其他类型转换成interface"><a href="#由其他类型转换成interface" class="headerlink" title="由其他类型转换成interface"></a>由其他类型转换成interface</h3><h4 id="转eface"><a href="#转eface" class="headerlink" title="转eface"></a>转eface</h4><p>转空接口，很简单，将Eface中的data指针指向原型数据，type指针会指向数据的Type结构体。</p>
 <h4 id="转iface"><a href="#转iface" class="headerlink" title="转iface"></a>转iface</h4><p>与eface相同，但是需要赋值到itab，并且需要做检测，只有实现接口所有方法才可以进行转换。</p>
 <h3 id="interface转其他类型"><a href="#interface转其他类型" class="headerlink" title="interface转其他类型"></a>interface转其他类型</h3><p>那没话说，直接反射走起<br>有这样的语法解决v, ok := i.(T)<br>转换的时候也需要比较能否进行转换</p>
-<h2 id="4、类型比较"><a href="#4、类型比较" class="headerlink" title="4、类型比较"></a>4、类型比较</h2><p>两个interface是可以比较的，<br><a href="http://docs.studygolang.com/ref/spec#Comparison_operators" target="_blank" rel="noopener">http://docs.studygolang.com/ref/spec#Comparison_operators</a><br>其中说到<br>Interface values are comparable. Two interface values are equal if they have identical dynamic types and equal dynamic values or if both have value nil.<br>只要两个interface的动态类型相同和值相同就可以。</p>
-<h2 id="5、判断实现"><a href="#5、判断实现" class="headerlink" title="5、判断实现"></a>5、判断实现</h2><p>这个判断其实在检测的时候都需要用到。<br>检测就是看Type中的方法表是否包含了InterfaceType的方法表中的所有方法，并把Type方法表中的实现部分拷到Itab的func那张表中。其中表中的数据都是排序过的，所以对比起来快。<br><a href="https://tiancaiamao.gitbooks.io/go-internals/content/zh/07.2.html" target="_blank" rel="noopener">https://tiancaiamao.gitbooks.io/go-internals/content/zh/07.2.html</a></p>
+<h2 id="4、类型比较"><a href="#4、类型比较" class="headerlink" title="4、类型比较"></a>4、类型比较</h2><p>两个interface是可以比较的，<br><a target="_blank" rel="noopener" href="http://docs.studygolang.com/ref/spec#Comparison_operators">http://docs.studygolang.com/ref/spec#Comparison_operators</a><br>其中说到<br>Interface values are comparable. Two interface values are equal if they have identical dynamic types and equal dynamic values or if both have value nil.<br>只要两个interface的动态类型相同和值相同就可以。</p>
+<h2 id="5、判断实现"><a href="#5、判断实现" class="headerlink" title="5、判断实现"></a>5、判断实现</h2><p>这个判断其实在检测的时候都需要用到。<br>检测就是看Type中的方法表是否包含了InterfaceType的方法表中的所有方法，并把Type方法表中的实现部分拷到Itab的func那张表中。其中表中的数据都是排序过的，所以对比起来快。<br><a target="_blank" rel="noopener" href="https://tiancaiamao.gitbooks.io/go-internals/content/zh/07.2.html">https://tiancaiamao.gitbooks.io/go-internals/content/zh/07.2.html</a></p>
 
       
     </div>
@@ -532,7 +535,7 @@
         
       
       <div style="display: inline-block">
-        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付">
+        <img src="/images/wechatpay.png" alt="LinkinStar 微信支付"/>
         <p>微信支付</p>
       </div>
     
@@ -541,7 +544,7 @@
         
       
       <div style="display: inline-block">
-        <img src="/images/alipay.png" alt="LinkinStar 支付宝">
+        <img src="/images/alipay.png" alt="LinkinStar 支付宝"/>
         <p>支付宝</p>
       </div>
     
@@ -559,11 +562,11 @@
        
         <ul class="post-copyright">
           <li class="post-copyright-author">
-              <strong>本文作者：</strong>LinkinStar
+              <strong>本文作者：</strong>
           </li>
           <li class="post-copyright-link">
             <strong>本文链接：</strong>
-            <a href="http://www.linkinstar.wiki//2019/08/10/golang/source-code/interface-source-code/" title="Golang的interface">http://www.linkinstar.wiki/2019/08/10/golang/source-code/interface-source-code/</a>
+            <a target="_blank" rel="noopener" href="http://www.linkinstar.wiki//2019/08/10/golang/source-code/interface-source-code/" title="Golang的interface">http://www.linkinstar.wiki/2019/08/10/golang/source-code/interface-source-code/</a>
           </li>
           <li class="post-copyright-license">
             <strong>版权声明： </strong>
@@ -663,7 +666,9 @@
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
-              <img class="site-author-image" itemprop="image" src="http://blog.linkinstars.com/LLX.jpg" alt="LinkinStar">
+              <img class="site-author-image" itemprop="image"
+                src="http://blog.linkinstars.com/LLX.jpg"
+                alt="LinkinStar"/>
             
               <p class="site-author-name" itemprop="name">LinkinStar</p>
               <div class="site-description motion-element" itemprop="description">No one but myself can do it.<br> Don't worry. Be happy!</div>
@@ -674,9 +679,9 @@
               
                 <div class="site-state-item site-state-posts">
                 
-                  <a href="/archives/">
+                  <a href="/archives/%20%7C%7C%20folder-open-o">
                 
-                    <span class="site-state-item-count">41</span>
+                    <span class="site-state-item-count">50</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -688,7 +693,7 @@
                 <div class="site-state-item site-state-categories">
                   
                     
-                      <a href="/categories/">
+                      <a href="/categories/%20%7C%7C%20cubes">
                     
                   
                     
@@ -721,7 +726,23 @@
                     
                       
                     
-                    <span class="site-state-item-count">14</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">22</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -733,7 +754,7 @@
                 <div class="site-state-item site-state-tags">
                   
                     
-                      <a href="/tags/">
+                      <a href="/tags/%20%7C%7C%20tags">
                     
                   
                     
@@ -810,7 +831,23 @@
                     
                       
                     
-                    <span class="site-state-item-count">36</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">44</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -930,7 +967,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题"><span class="nav-number">1.</span> <span class="nav-text">问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1、底层结构"><span class="nav-number">2.</span> <span class="nav-text">1、底层结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2、tab"><span class="nav-number">3.</span> <span class="nav-text">2、tab</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3、类型转换"><span class="nav-number">4.</span> <span class="nav-text">3、类型转换</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#由其他类型转换成interface"><span class="nav-number">4.1.</span> <span class="nav-text">由其他类型转换成interface</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#转eface"><span class="nav-number">4.1.1.</span> <span class="nav-text">转eface</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#转iface"><span class="nav-number">4.1.2.</span> <span class="nav-text">转iface</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#interface转其他类型"><span class="nav-number">4.2.</span> <span class="nav-text">interface转其他类型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4、类型比较"><span class="nav-number">5.</span> <span class="nav-text">4、类型比较</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5、判断实现"><span class="nav-number">6.</span> <span class="nav-text">5、判断实现</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98"><span class="nav-number">1.</span> <span class="nav-text">问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1%E3%80%81%E5%BA%95%E5%B1%82%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">1、底层结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2%E3%80%81tab"><span class="nav-number">3.</span> <span class="nav-text">2、tab</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3%E3%80%81%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2"><span class="nav-number">4.</span> <span class="nav-text">3、类型转换</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%B1%E5%85%B6%E4%BB%96%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%E6%88%90interface"><span class="nav-number">4.1.</span> <span class="nav-text">由其他类型转换成interface</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BD%ACeface"><span class="nav-number">4.1.1.</span> <span class="nav-text">转eface</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BD%ACiface"><span class="nav-number">4.1.2.</span> <span class="nav-text">转iface</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#interface%E8%BD%AC%E5%85%B6%E4%BB%96%E7%B1%BB%E5%9E%8B"><span class="nav-number">4.2.</span> <span class="nav-text">interface转其他类型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4%E3%80%81%E7%B1%BB%E5%9E%8B%E6%AF%94%E8%BE%83"><span class="nav-number">5.</span> <span class="nav-text">4、类型比较</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5%E3%80%81%E5%88%A4%E6%96%AD%E5%AE%9E%E7%8E%B0"><span class="nav-number">6.</span> <span class="nav-text">5、判断实现</span></a></li></ol></div>
             
 
           </div>
@@ -958,7 +995,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>
@@ -1100,7 +1137,7 @@
 
 
 
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css"/>
 
 
 
@@ -1336,7 +1373,7 @@
 
                   // select top N slices in content
 
-                  var upperBound = parseInt('10');
+                  var upperBound = parseInt('5');
                   if (upperBound >= 0) {
                     slicesOfContent = slicesOfContent.slice(0, upperBound);
                   }
@@ -1478,5 +1515,5 @@
 
   
 
-<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"/live2dw/assets/shizuku.model.json"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"position":"left","width":150,"height":300,"jsonPath":"live2d-widget-model-shizuku"},"mobile":{"show":false},"react":{"opacity":0.7}});</script></body>
 </html>
