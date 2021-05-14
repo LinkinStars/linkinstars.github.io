@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>LinkinStar&#39;s Blog</title>
+  
+  
+  <link href="https://linkinstar.gitee.io/atom.xml" rel="self"/>
+  
+  <link href="https://linkinstar.gitee.io/"/>
+  <updated>2021-05-14T15:23:38.140Z</updated>
+  <id>https://linkinstar.gitee.io/</id>
+  
+  <author>
+    <name>LinkinStar</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>轻量级 k8s 应用日志收集方案 loki</title>
+    <link href="https://linkinstar.gitee.io/2021/04/20/open-source-component/loki/"/>
+    <id>https://linkinstar.gitee.io/2021/04/20/open-source-component/loki/</id>
+    <published>2021-04-19T16:00:00.000Z</published>
+    <updated>2021-05-14T15:23:38.140Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;微服务早已是一个过时的热词，同时，容器 和 k8s 的出现让它更一步成为了一种时尚。同样会带来很多附赠的问题，&lt;strong&gt;日志收集&lt;/strong&gt;就是其中一个比较重要的问题。当应用容器化之后，需要查看日志，如果还需要登录服务器，找到对应目录，然后 tail 查看，成本太高了，极大的影响效率。当前其实日志收集方案很多，在实践了多个方案之后，我终于能在今天写出我个人认为我最喜欢的一个方案了 &lt;strong&gt;loki&lt;/strong&gt;&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="loki" scheme="https://linkinstar.gitee.io/categories/loki/"/>
+    
+    
+    <category term="loki" scheme="https://linkinstar.gitee.io/tags/loki/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>monitoror/monitoror 最轻量的监控大屏</title>
+    <link href="https://linkinstar.gitee.io/2021/04/12/open-source-component/monitoror/"/>
+    <id>https://linkinstar.gitee.io/2021/04/12/open-source-component/monitoror/</id>
+    <published>2021-04-11T16:00:00.000Z</published>
+    <updated>2021-05-10T15:23:48.848Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;一提到监控大屏，那第一想法就是 grafana 对吧，各种样式图形都非常好看，而且支持各种数据源。而今天要分享的是一个更加轻量的监控大屏 monitoror/monitoror&lt;/p&gt;
+&lt;p&gt;有了它能帮你快读构建一个的对于网站或者应用的监控页面，特别是在小应用数量多的时候非常简单易用，作为一个大屏展示时它我觉得它足够简洁&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="monitoror" scheme="https://linkinstar.gitee.io/categories/monitoror/"/>
+    
+    
+    <category term="monitoror" scheme="https://linkinstar.gitee.io/tags/monitoror/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>k8s 意外集锦 - oom 的连锁反应</title>
+    <link href="https://linkinstar.gitee.io/2021/03/12/k8s/k8s-oom-evicted/"/>
+    <id>https://linkinstar.gitee.io/2021/03/12/k8s/k8s-oom-evicted/</id>
+    <published>2021-03-11T16:00:00.000Z</published>
+    <updated>2021-05-10T15:38:07.979Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;一开始觉得 oom 是一个常见问题，应该没有什么大问题，反正 k8s 集群会调度的，但其实它造成的连锁反应很恐怖。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="accident" scheme="https://linkinstar.gitee.io/categories/accident/"/>
+    
+    
+    <category term="k8s-accident" scheme="https://linkinstar.gitee.io/tags/k8s-accident/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>k8s 意外集锦 - configmap 挂载 目录 只读</title>
+    <link href="https://linkinstar.gitee.io/2021/02/02/k8s/k8s-configmap-etc-dir-accident/"/>
+    <id>https://linkinstar.gitee.io/2021/02/02/k8s/k8s-configmap-etc-dir-accident/</id>
+    <published>2021-02-01T16:00:00.000Z</published>
+    <updated>2021-05-10T15:37:51.844Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt; OCI runtime create failed:&lt;/p&gt;
+&lt;p&gt; /var/lib/docker/overlay2/6573e40fef5bc51b4e565ad9554f225806f05a9f9089cc9e210c0e35a80e6e1f/merged/etc/resolv.conf: read-only&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="accident" scheme="https://linkinstar.gitee.io/categories/accident/"/>
+    
+    
+    <category term="k8s-accident" scheme="https://linkinstar.gitee.io/tags/k8s-accident/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>k8s 小技巧</title>
+    <link href="https://linkinstar.gitee.io/2021/01/23/k8s/k8s-tips/"/>
+    <id>https://linkinstar.gitee.io/2021/01/23/k8s/k8s-tips/</id>
+    <published>2021-01-22T16:00:00.000Z</published>
+    <updated>2021-05-10T15:37:33.849Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;本博客持续更新…用于记录 k8s 使用过程中的很多的小技巧，也希望你能提供更多的小技巧来~&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="tips" scheme="https://linkinstar.gitee.io/categories/tips/"/>
+    
+    
+    <category term="k8s-tips" scheme="https://linkinstar.gitee.io/tags/k8s-tips/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Weave Scope 监控 k8s 集群</title>
+    <link href="https://linkinstar.gitee.io/2021/01/12/open-source-component/weave-scope/"/>
+    <id>https://linkinstar.gitee.io/2021/01/12/open-source-component/weave-scope/</id>
+    <published>2021-01-11T16:00:00.000Z</published>
+    <updated>2021-05-10T15:23:12.807Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;之前一直在寻找一个 k8s 监控的工具，因为一直使用的是本地的 lens 的客户端，虽然使用上已经非常方便了，但是其实对于资源消耗的监控少了一点，有些资源消耗并不是能容易看到，并且服务间依赖是没有办法表现出来的，后来发现了 Weave Scope 满足了我的需求。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="Weave-Scope" scheme="https://linkinstar.gitee.io/categories/Weave-Scope/"/>
+    
+    
+    <category term="Weave-Scope" scheme="https://linkinstar.gitee.io/tags/Weave-Scope/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>GopherChina2020 个人总结</title>
+    <link href="https://linkinstar.gitee.io/2020/11/23/other/gopher-china2020/"/>
+    <id>https://linkinstar.gitee.io/2020/11/23/other/gopher-china2020/</id>
+    <published>2020-11-22T16:00:00.000Z</published>
+    <updated>2021-05-10T15:35:47.887Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;之前去过几次相关 go 的线下 meetup，这次相对来说比较大型一些，两天的听下来还是比较烧脑的，光是记录的笔记都有近千行了，整体来说收获很大。&lt;/p&gt;
+&lt;p&gt;有的人问，值票价吗？我回答：对喜欢的投资没有不值得的。对我来说值了~&lt;/p&gt;
+&lt;p&gt;有的人问，值得去吗？我回答：不一定，因为可能在很多大佬看来能听到的点不多（采访了几位现场的大厂观众，普遍表示只有其中 1 到 2 场满足他们的要求）但是如果你的小白或者一年到两年左右，还是能见识很多东西的。可能是我听多了，和之前自己学到的有点重复…&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="GopherChina" scheme="https://linkinstar.gitee.io/categories/GopherChina/"/>
+    
+    
+    <category term="GopherChina" scheme="https://linkinstar.gitee.io/tags/GopherChina/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>下一个 nginx？caddy 自动 https 真香</title>
+    <link href="https://linkinstar.gitee.io/2020/11/14/open-source-component/caddy/"/>
+    <id>https://linkinstar.gitee.io/2020/11/14/open-source-component/caddy/</id>
+    <published>2020-11-13T16:00:00.000Z</published>
+    <updated>2021-05-10T15:33:12.427Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;我们通常在部署 web 服务的时候往往会选择 nginx 作为最前面的一个狠角色，它的性能和能力大家也是有目共睹的，反向代理负载均衡等等。而作为后起之秀 caddy 却不被人所熟知，不过渐渐的也开始展露头角。&lt;br&gt;今天我就来介绍这个 caddy ，为什么我会称它有可能成为下一个 nginx。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="caddy" scheme="https://linkinstar.gitee.io/categories/caddy/"/>
+    
+    
+    <category term="caddy" scheme="https://linkinstar.gitee.io/tags/caddy/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>openfaas/faas 环境搭建和开发使用</title>
+    <link href="https://linkinstar.gitee.io/2020/10/19/open-source-component/openfaas/"/>
+    <id>https://linkinstar.gitee.io/2020/10/19/open-source-component/openfaas/</id>
+    <published>2020-10-18T16:00:00.000Z</published>
+    <updated>2021-05-10T15:04:00.003Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;serverless 大环境下出现了 faas，即 function as  a service，函数即服务；其意思也非常好理解，就是能将一个函数作为一个服务进行使用，用户只需要编写一个函数功能即可，不需要额外去关心别的东西。&lt;a href=&quot;https://github.com/openfaas/faas&quot;&gt;https://github.com/openfaas/faas&lt;/a&gt; 是其中的一种实现方式。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="云原生" scheme="https://linkinstar.gitee.io/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/"/>
+    
+    
+    <category term="faas" scheme="https://linkinstar.gitee.io/tags/faas/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Golang Mutex 到底是否应该使用指针</title>
+    <link href="https://linkinstar.gitee.io/2020/07/18/golang/basic/mutex-use-point-or-not/"/>
+    <id>https://linkinstar.gitee.io/2020/07/18/golang/basic/mutex-use-point-or-not/</id>
+    <published>2020-07-17T16:00:00.000Z</published>
+    <updated>2021-05-10T14:36:07.083Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;在写 go 的时候，你使用 Mutex 的时候使用的是指针还是说没有使用指针，还是随意来？&lt;/p&gt;
+&lt;p&gt;前两天我收到了下面这样的一个 PR，我突然就想到了这个问题，于是就有了这篇博客。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="golang基础" scheme="https://linkinstar.gitee.io/categories/golang%E5%9F%BA%E7%A1%80/"/>
+    
+    
+    <category term="Mutex" scheme="https://linkinstar.gitee.io/tags/Mutex/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Linux 图形化监控工具</title>
+    <link href="https://linkinstar.gitee.io/2020/07/11/linux/linux-monitor/"/>
+    <id>https://linkinstar.gitee.io/2020/07/11/linux/linux-monitor/</id>
+    <published>2020-07-10T16:00:00.000Z</published>
+    <updated>2020-07-19T14:17:38.781Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;最近在分析线上问题，需要监控 Linux 相关指标，如果只是用命令，总是只能知道当前的值，无法记录过程。而设备不是云厂商的设备，所以没有相关监控，zabbix 有，但是没有相关权限可以看到。所以找到一些好用的监控小方案。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="linux" scheme="https://linkinstar.gitee.io/categories/linux/"/>
+    
+    
+    <category term="monitor" scheme="https://linkinstar.gitee.io/tags/monitor/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>你的网络还好吗</title>
+    <link href="https://linkinstar.gitee.io/2020/07/04/linux/network/"/>
+    <id>https://linkinstar.gitee.io/2020/07/04/linux/network/</id>
+    <published>2020-07-03T16:00:00.000Z</published>
+    <updated>2020-07-19T14:17:57.904Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;之前说了 CPU、内存 、IO 在排查过程中可能出现的问题以及出现问题会影响的指标，这次就来看看在 linux 中网络的问题。&lt;/p&gt;
+&lt;p&gt;在实际中我们遇到的最多的网络问题就是：不通！！！无论是 ping 不通，物理链路不通，还是 dns 解析有问题导致的不通，还是容器间网络访问网络隔离造成的不通，等等，这个问题总是由于部署上的环境导致的。还有一类比较烦的问题就是网络带宽本来就不高的情况下，大量的请求导致网络的拥塞，最明显的感受就是接口请求超时，各种超时，nginx 超时，请求本身超时等等。对于这些问题如何进行排查呢？&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="linux" scheme="https://linkinstar.gitee.io/categories/linux/"/>
+    
+    
+    <category term="network" scheme="https://linkinstar.gitee.io/tags/network/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>你的 IO 还好吗</title>
+    <link href="https://linkinstar.gitee.io/2020/06/27/linux/io/"/>
+    <id>https://linkinstar.gitee.io/2020/06/27/linux/io/</id>
+    <published>2020-06-26T16:00:00.000Z</published>
+    <updated>2020-07-19T14:13:10.206Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;在 CPU 看来内存好慢啊，看我跑的多快；在内存看来磁盘你好慢啊，看我比你还快点；磁盘…&lt;/p&gt;
+&lt;p&gt;IO 问题并非特别常见，但是因为最终要落到磁盘上，当它成为瓶颈时，往往会拖慢你的脚本，今天我们来分析下在 linux 中的 IO 问题&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="linux" scheme="https://linkinstar.gitee.io/categories/linux/"/>
+    
+    
+    <category term="io" scheme="https://linkinstar.gitee.io/tags/io/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>快速上手 dubbo-go</title>
+    <link href="https://linkinstar.gitee.io/2020/06/20/open-source-component/dubbo-go/"/>
+    <id>https://linkinstar.gitee.io/2020/06/20/open-source-component/dubbo-go/</id>
+    <published>2020-06-19T16:00:00.000Z</published>
+    <updated>2020-07-19T14:22:03.480Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;每次技术调研总会发现自己学不动了怎么办？用已有的知识来拓展要学习的新知识就好了~ by LinkinStar&lt;br&gt;最近需要调研使用 dubbo，之前完全是 0 基础，对于 dubbo 只存在于听说，今天上手实战一把，告诉你如何快速用 go 上手 dubbo&lt;br&gt;PS：以下的学习方式适用于很多新技术  &lt;/p&gt;</summary>
+    
+    
+    
+    <category term="dubbo-go" scheme="https://linkinstar.gitee.io/categories/dubbo-go/"/>
+    
+    
+    <category term="dubbo-go" scheme="https://linkinstar.gitee.io/tags/dubbo-go/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>你的内存还好吗</title>
+    <link href="https://linkinstar.gitee.io/2020/06/14/linux/memory/"/>
+    <id>https://linkinstar.gitee.io/2020/06/14/linux/memory/</id>
+    <published>2020-06-13T16:00:00.000Z</published>
+    <updated>2020-06-14T14:28:37.326Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;内存问题往往是线上环境最容易导致的问题，因为其实对于程序来说，内存总是不够用的。而大多数我们在线上遇到的问题总是一个叫 OOM 的，导致这个问题的原因也有很多，今天我们就来看看，如何在线上定位或者排查这样的问题。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="linux" scheme="https://linkinstar.gitee.io/categories/linux/"/>
+    
+    
+    <category term="内存" scheme="https://linkinstar.gitee.io/tags/%E5%86%85%E5%AD%98/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Golang 监控全局变量</title>
+    <link href="https://linkinstar.gitee.io/2020/06/13/golang/basic/vars/"/>
+    <id>https://linkinstar.gitee.io/2020/06/13/golang/basic/vars/</id>
+    <published>2020-06-12T16:00:00.000Z</published>
+    <updated>2020-06-14T14:20:56.436Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;你是否曾经遇到过这样的情况，在开发环境排查问题，因为一些数据保存在了一些全局变量中，这些变量往往是一个 map 或者是一个数组，想看看在运行过程中，这里面究竟存放了什么数据，有时不得不在运行的时候将它输出到日志中，那么如果我想实时看到这些数据的情况又怎么办呢？&lt;/p&gt;
+&lt;p&gt;其实 golang 中已经存在这样的库，就是来做这个事情的 &lt;code&gt;expvar&lt;/code&gt;&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="golang基础" scheme="https://linkinstar.gitee.io/categories/golang%E5%9F%BA%E7%A1%80/"/>
+    
+    
+    <category term="vars" scheme="https://linkinstar.gitee.io/tags/vars/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>你的 CPU 还好吗</title>
+    <link href="https://linkinstar.gitee.io/2020/06/06/linux/cpu/"/>
+    <id>https://linkinstar.gitee.io/2020/06/06/linux/cpu/</id>
+    <published>2020-06-05T16:00:00.000Z</published>
+    <updated>2020-06-14T14:28:48.718Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;最近经常在线上排查一些问题，在大多数情况下，都是代码写的业务逻辑有问题；还有一些情况是内存上导致的问题，如 OOM 或者由于数据量大导致的一些问题；但是很少会关注，但常常又会瞟一眼的，这个关注点就是 CPU。&lt;/p&gt;
+&lt;p&gt;在说到 CPU 的时候往往除了 &lt;code&gt;top&lt;/code&gt; 看一下 CPU 使用率之外，你还会关注别的什么吗？好像也不会。&lt;/p&gt;
+&lt;p&gt;但是其实当真正出现问题的时候，很多 CPU 相关的指标都会反映出一些问题，经过之前的学习今天就来总结记录一下。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="linux" scheme="https://linkinstar.gitee.io/categories/linux/"/>
+    
+    
+    <category term="cpu" scheme="https://linkinstar.gitee.io/tags/cpu/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>python 基础语法笔记</title>
+    <link href="https://linkinstar.gitee.io/2020/05/09/python/basic/basic-grammar/"/>
+    <id>https://linkinstar.gitee.io/2020/05/09/python/basic/basic-grammar/</id>
+    <published>2020-05-08T16:00:00.000Z</published>
+    <updated>2020-05-25T15:52:32.507Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;记录python的一些基础语法，用于查阅&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="python" scheme="https://linkinstar.gitee.io/categories/python/"/>
+    
+    
+    <category term="basic" scheme="https://linkinstar.gitee.io/tags/basic/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Golang用300行代码实现内网穿透</title>
+    <link href="https://linkinstar.gitee.io/2020/04/25/network/nat/"/>
+    <id>https://linkinstar.gitee.io/2020/04/25/network/nat/</id>
+    <published>2020-04-24T16:00:00.000Z</published>
+    <updated>2020-05-25T15:05:00.597Z</updated>
+    
+    
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;我们经常会遇到一个问题，如何将本机的服务暴露到公网上，让别人也可以访问。我们知道，在家上网的时候我们有一个 IP 地址，但是这个 IP 地址并不是一个公网的 IP 地址，别人无法通过一个 IP 地址访问到你的服务，所以在例如：微信接口调试、三方对接的时候，你必须将你的服务部署到一个公网的系统中去，这样太累了。&lt;/p&gt;
+&lt;p&gt;这个时候，内网穿透就出现了，它的作用就是即使你在家的服务，也能被其人访问到。&lt;/p&gt;
+&lt;p&gt;今天让我们来用一个最简单的案例学习一下如何用 go 来做一个最简单的内网穿透工具。&lt;/p&gt;
+&lt;/blockquote&gt;</summary>
+    
+    
+    
+    <category term="network" scheme="https://linkinstar.gitee.io/categories/network/"/>
+    
+    
+    <category term="nat" scheme="https://linkinstar.gitee.io/tags/nat/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>将版本信息打包到go的二进制中</title>
+    <link href="https://linkinstar.gitee.io/2020/04/18/golang/basic/gobuild-x/"/>
+    <id>https://linkinstar.gitee.io/2020/04/18/golang/basic/gobuild-x/</id>
+    <published>2020-04-17T16:00:00.000Z</published>
+    <updated>2020-05-25T15:01:20.024Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;很多时候对于go打包后的二进制文件，我们是无法知道这个二进制是什么当前什么版本、什么时候打包的，而很多软件的命令行都会有一个 -version 的选项来打印出当前程序的版本号，当然你可以直接在程序里面写死这个版本号，但是还有更加优雅的解决方式。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="golang基础" scheme="https://linkinstar.gitee.io/categories/golang%E5%9F%BA%E7%A1%80/"/>
+    
+    
+    <category term="gobuild" scheme="https://linkinstar.gitee.io/tags/gobuild/"/>
+    
+  </entry>
+  
+</feed>

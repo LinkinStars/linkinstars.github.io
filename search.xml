@@ -1543,657 +1543,6 @@
       </tags>
   </entry>
   <entry>
-    <title>下一个 nginx？caddy 自动 https 真香</title>
-    <url>/2020/11/14/golang/open-source-component/caddy/</url>
-    <content><![CDATA[<p>我们通常在部署 web 服务的时候往往会选择 nginx 作为最前面的一个狠角色，它的性能和能力大家也是有目共睹的，反向代理负载均衡等等。而作为后起之秀 caddy 却不被人所熟知，不过渐渐的也开始展露头角。<br>今天我就来介绍这个 caddy ，为什么我会称它有可能成为下一个 nginx。</p>
-<span id="more"></span>
-<p>我先列举几个痛点你看下：</p>
-<ol>
-<li>nginx 的配置文件你是否感觉有时候有点臃肿</li>
-<li>https 需要购买或者申请证书，然后配置是否觉得麻烦？</li>
-<li>linux 下安装 nginx 需要部分依赖</li>
-</ol>
-<p>而 caddy 确实给我了一种眼前一亮的感觉。</p>
-<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>官网：<a href="https://caddyserver.com/">https://caddyserver.com/</a></p>
-<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p><a href="https://caddyserver.com/docs/download">https://caddyserver.com/docs/download</a><br>安装很简单，直接下载对应的二进制文件即可，或者按照对应到操作系统去安装也可以。没有其他依赖。</p>
-<h3 id="使用-1"><a href="#使用-1" class="headerlink" title="使用"></a>使用</h3><p><a href="https://caddyserver.com/docs/getting-started">https://caddyserver.com/docs/getting-started</a><br>一个命令就可以启动，caddy，默认会去当前目录下寻找 <code>Caddyfile</code> 配置文件，也可以通过 –config 去指定文件位置</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">caddy start</span><br><span class="line">caddy stop</span><br><span class="line">caddy reload</span><br></pre></td></tr></table></figure>
-<h3 id="反向代理"><a href="#反向代理" class="headerlink" title="反向代理"></a>反向代理</h3><p><a href="https://caddyserver.com/docs/caddyfile/directives/reverse_proxy">https://caddyserver.com/docs/caddyfile/directives/reverse_proxy</a></p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">https://www.xxxx.com &#123;</span><br><span class="line">  reverse_proxy /api/user* &#123;</span><br><span class="line">    to 192.168.1.101:9000</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="静态文件"><a href="#静态文件" class="headerlink" title="静态文件"></a>静态文件</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">https://www.xxxx.com &#123;</span><br><span class="line">  root * /home/linkinstar/www</span><br><span class="line">  file_server</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="外网服务使用-https"><a href="#外网服务使用-https" class="headerlink" title="外网服务使用 https"></a>外网服务使用 https</h2><p><a href="https://caddyserver.com/docs/quick-starts/https">https://caddyserver.com/docs/quick-starts/https</a></p>
-<p><a href="https://caddyserver.com/docs/automatic-https">https://caddyserver.com/docs/automatic-https</a></p>
-<p>caddy 最让我惊讶的是自动的 https 功能，只要你有一个可以正常访问的域名，将域名指向你外网服务器对应的 ip，然后向上面一样配置好 Caddyfile，只要域名一致，https 就完成了，不需要你额外申请证书，不需要做其他任何的操作，真的很棒👍，可谓是懒人必备</p>
-<p>原理是，它会去 <a href="https://letsencrypt.org/">https://letsencrypt.org/</a> 调用对应的接口去申请证书，这是一个免费证书的申请网站，</p>
-<h2 id="本地使用-https-证书"><a href="#本地使用-https-证书" class="headerlink" title="本地使用 https 证书"></a>本地使用 https 证书</h2><p>当我们的一些内网服务器需要使用 https 证书的时候，怎么办呢？因为内网的服务器没有公网 IP，caddy 去 letsencrypt 申请证书的时候无法验证，所以需要曲线救国。前提你需要一个域名。<a href="https://zhuanlan.zhihu.com/p/63412372">https://zhuanlan.zhihu.com/p/63412372</a></p>
-<h3 id="申请证书"><a href="#申请证书" class="headerlink" title="申请证书"></a>申请证书</h3><p>wget <a href="https://dl.eff.org/certbot-auto">https://dl.eff.org/certbot-auto</a><br>chmod a+x certbot-auto</p>
-<p>certbot-auto –manual –preferred-challenges dns certonly</p>
-<p>接下来根据提示依次输入域名,和一些提示，一般输入y表示同意即可，知道让你去添加一条 txt 解析记录并验证的时候</p>
-<h3 id="将证书输出验证内容进行-dns-解析配置"><a href="#将证书输出验证内容进行-dns-解析配置" class="headerlink" title="将证书输出验证内容进行 dns 解析配置"></a>将证书输出验证内容进行 dns 解析配置</h3><p><img src="http://blog.linkinstars.com//blog/image-20210510233258107.png" alt="image-20210510233258107"></p>
-<p>配置完成之后会在 /etc/letsencrypt/live/xxx.com 目录下生成对应的公钥私钥</p>
-<h3 id="配置Caddyfile"><a href="#配置Caddyfile" class="headerlink" title="配置Caddyfile"></a>配置Caddyfile</h3><figure class="highlight json"><table><tr><td class="code"><pre><span class="line">xxx.com:<span class="number">443</span> &#123;</span><br><span class="line">  tls /etc/letsencrypt/live/xxx.com/cert.pem /etc/letsencrypt/live/xxx.com/privkey.pem</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="性能比较"><a href="#性能比较" class="headerlink" title="性能比较"></a>性能比较</h2><p><a href="https://caddy.community/t/siege-benchmarks-nginx-vs-caddy-identical-systems/2962">https://caddy.community/t/siege-benchmarks-nginx-vs-caddy-identical-systems/2962</a></p>
-<p>从性能上来说，确实 nginx 要更胜一筹，而且官方也承认（毕竟 nginx 的设计就是干这个的）</p>
-<p>不过从比较的数据上来说，能让普通用户使用很满意了，并没有一定需要追求极致的性能体验，毕竟免费的 https 已经有点香了</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ol>
-<li>caddy 发挥了 go 传统的优势安装没有依赖，使用方便</li>
-<li>自动化的 https 证书的申请，很让人舒服</li>
-<li>配置项更加清晰和简单，一目了然</li>
-</ol>
-<h3 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h3><ol>
-<li>性能比 nginx 略逊一筹</li>
-<li>重启的时候 https 会重新申请，会有短暂的停顿</li>
-<li>使用案例少了一些</li>
-</ol>
-<p>总的来说，如果你正需要一个免费方便的 https 的网关，那就试试 caddy 吧，一定不会让你失望的，而 caddy 也慢慢在发展，虽然从设计角度讲模型可能不如 nginx，但是从使用角度讲，可能我后续更偏爱 caddy 一些</p>
-<h2 id="参考博客"><a href="#参考博客" class="headerlink" title="参考博客"></a>参考博客</h2><p><a href="https://segmentfault.com/a/1190000022733237">https://segmentfault.com/a/1190000022733237</a></p>
-]]></content>
-      <categories>
-        <category>caddy</category>
-      </categories>
-      <tags>
-        <tag>caddy</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>细说docker - 容器技术</title>
-    <url>/2020/01/04/golang/open-source-component/docker-dis/</url>
-    <content><![CDATA[<p>docker对于现在的我们来说，已经是一个非常熟悉的东西了，docker无论是在部署打包，自动化，等方方面面都起着重要的作用，但是你是否有疑问，docker究竟是如何帮我们创建一个个隔离的环境的呢？今天我们就来看看，仔细说说docker</p>
-<p>PS: 以下的讨论都限定在linux环境下，在windows和macos下容器技术实现不相同，不在讨论范围内。</p>
-<span id="more"></span>
-<h2 id="大方向"><a href="#大方向" class="headerlink" title="大方向"></a>大方向</h2><p>为什么先要提到这个词呢？因为所有在操作系统上运行的程序都叫做进程。docker也不例外，从大的方向来讲，<strong>docker就是帮你创建了一个进程而已</strong>。而不一样的是，docker通过限制了各种环境，就像给这个进程画了一个圈，所以在这个进程本身看来，它自己好像被隔离了一般。</p>
-<ul>
-<li>docker容器技术的核心，就是通过约束和修改进程的动态表现，从而为其创造出一个“边界”</li>
-</ul>
-<h2 id="限制条件"><a href="#限制条件" class="headerlink" title="限制条件"></a>限制条件</h2><p>那么我们有了大方向，那么来细细看看，首先的第一个问题就来了，docker是通过什么方法对这个进程进行限制的呢？</p>
-<h3 id="Namespace"><a href="#Namespace" class="headerlink" title="Namespace"></a>Namespace</h3><p>命名空间，没错就是它，是它限制了docker容器的环境。其实这是linux的一个功能而已，只不过没人想到docker会那它来做这个事情。下面看个例子，一下是我在一个nginx容器中利用ps命令查看的进程样子<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/ # ps -ef</span><br><span class="line">PID   USER     COMMAND</span><br><span class="line">    1 root     sh /start.sh</span><br><span class="line">    8 root     nginx: master process /usr/sbin/nginx</span><br><span class="line">    9 nobody   nginx: worker process</span><br><span class="line">   18 root     /bin/sh</span><br><span class="line">   25 root     ps -ef</span><br></pre></td></tr></table></figure></p>
-<p>我们可以看到，PID是从1开始的，当前宿主机肯定也有PID为1的进程，这说明容器中所有的进程看起来好像和宿主机隔离了。其实这就是利用了 CLONE_NEWPID</p>
-<p>我们知道，在linux下可以利用<br><code>clone(main_function, stack_size, SIGCHLD, NULL);</code><br>方法创建进程，如果同时你再参数中设定参数CLONE_NEWPID<br><code>clone(main_function, stack_size, CLONE_NEWPID | SIGCHLD, NULL);</code> </p>
-<p>那么新创建的进程就会在一个新的空间下，在这个空间中它自己的pid就是1；而其实在主机本身看来这个进程的pid还是一个别的数字。<br>由于新的进程在它自己的空间中认为自己是1号进程，所以看起来好像就和主机本身进程隔离的一样， 而其实只是它看不到别人罢了。这就是Namespace的作用。</p>
-<p>同样的 CLONE_NEWCGROUP、CLONE_NEWIPC、CLONE_NEWNET、CLONE_NEWNS、CLONE_NEWPID、CLONE_NEWUSER 和 CLONE_NEWUTS，通过这些选项我们就能创建出一些隔离于宿主机的网络，挂载点等等，从而实现了环境上的限制。</p>
-<h3 id="CGroups"><a href="#CGroups" class="headerlink" title="CGroups"></a>CGroups</h3><p>当我们利用Namespace搞了一个相对隔离的环境，但是有些东西Namespace没有办法搞，比如CPU和内存。</p>
-<p>我们知道如果使用vm等一些虚拟化软件进行虚拟机的创建你是可以给虚拟机设定cpu使用的核心数还有内存的使用量，来保证虚拟机不会超过使用的量而导致别的虚拟机无法使用。</p>
-<p>而在docker容器中好像我们看似没有什么限制条件来约束一个容器的cpu和内存，如果没有约束那么很容易出现的问题就是，一个容器的运行吃掉了全部的cpu资源或者是一个容易的内存泄漏导致吃掉了整个服务器的内存资源，这是我们不希望看到的。</p>
-<p>于是CGroups技术就是干这个事情的。CGroups其实叫做Linux Control Group，就是用来限制一个进程的使用个资源上限的，包括 CPU、内存、磁盘、网络带宽等等。</p>
-<p>我们可以进入<code>/sys/fs/cgroup</code>这个目录下就能看到CGroups所有的限制都在里面了。</p>
-<p>每一个 CGroup 下面都有一个 tasks 文件，其中存储着属于当前控制组的所有进程的 pid，作为负责 cpu 的子系统，cpu.cfs_quota_us 文件中的内容能够对 CPU 的使用作出限制，如果当前文件的内容为 50000，那么当前控制组中的全部进程的 CPU 占用率不能超过 50%。</p>
-<p>这里对于CGroups就不细说了，只要知道它能帮助我们限制这些就足够了。</p>
-<h3 id="chroot"><a href="#chroot" class="headerlink" title="chroot"></a>chroot</h3><p>在namespace和cgroup的隔离之后，docker还有一个步骤需要做的是，如何去隔离文件系统。</p>
-<p>因为即使开启了Mount Namespace 但是容器进程也能看到宿主机的文件系统，因为Mount Namespace修改的是容器进程对文件系统挂载点的认知，但是如果没有执行mount命令，那么当前还是使用的宿主机的文件系统，但这肯定不是我们想要的。</p>
-<p>而在linux下有一个命令很好的解决了这个问题，那就是chroot。这个命令是 change root directory 的缩写，意思就是切换当前系统的root目录。我们知道在linux系统中根路径就是“/”，使用这个命令就可以切换我们的根路径变成别的路径。</p>
-<p>docker就是使用chroot来实现说让docker容器所有在的目录的根目录进行修改，从而在容器角度看来是看不到宿主机的目录，因为它会认为自己这里就是根目录了。</p>
-<p>对于chroot详细的介绍这里就不展开了，感兴趣可以查看：<a href="https://www.ibm.com/developerworks/cn/linux/l-cn-chroot/index.html">https://www.ibm.com/developerworks/cn/linux/l-cn-chroot/index.html</a></p>
-<h2 id="镜像"><a href="#镜像" class="headerlink" title="镜像"></a>镜像</h2><p>从上面我们已经可以知道，docker通过 namespace、cgroup、chroot 技术帮我们创建了一个拥有限制条件和隔离环境的进程，从而实现了一个容器，但是还有一个重要的技术在docker中也是至关重要的，那就是镜像。<br>在使用docker的时候，最方便的莫过于你可以通过docker build命令进行镜像的制作，然后将镜像推送到远端的仓库中去，任何机器只需要连接仓库拉取镜像就可以构建出一模一样的容器，那么镜像里面究竟放了什么东西呢？</p>
-<h3 id="镜像的本质"><a href="#镜像的本质" class="headerlink" title="镜像的本质"></a>镜像的本质</h3><p>其实 docker 镜像本身就是一个压缩包，它将我们制作好的文件系统打包好了。<br>我们可以用 <code>docker export</code> 对镜像文件进行导出。我们会发现其实镜像中的目录结构和linux一样，其实就是一个文件系统。</p>
-<h3 id="镜像分层技术"><a href="#镜像分层技术" class="headerlink" title="镜像分层技术"></a>镜像分层技术</h3><p>但是如果仅仅是做一个简单的文件打包的工作，那么你就太小看docker镜像本身了。</p>
-<p>那说到实现，首先要说说 UnionFS（Union File System）它的功能非常简单，就是将多个不同位置的目录联合挂载到同一个目录下，并且如果目录下具有相同的文件会被合并。就是这个功能让docker实现了镜像这个东西。</p>
-<p>当前我们在制作镜像的时候，在 docker-file 中每一条 docker 指令都会构建一个 lay，每个 lay 其实都是对已有的文件系统做一个操作，最终docker会把所有的 lay 通过 UnionFS 挂载到同一个目录下面，从而就实现了镜像分层后最终还是一个完整的文件系统的操作。<br><img src="http://blog.linkinstars.com/mweb/15781264508223.jpg" alt="-w834"></p>
-<p>需要注意的是，当前我们在使用镜像的时候，我们在 run 一个 docker 之后里面的一些应用往往会对新创建的文件系统做出修改，如：创建日志文件。但是当我们删除这个容器的时候会发现，其实这个些创建的文件是不会被写入到镜像中去的。<br>这是因为，docker中的层是不一样的，有只读层，可读写层，init层。当镜像被 docker run 命令创建时就会在镜像的最上层添加一个可读写层，也就是容器层，所有对于运行时容器的修改其实都是对这个容器读写层的修改。容器和镜像的区别就在于，所有的镜像都是只读层的，而每一个容器其实等于镜像加上一个可读写的层。<br><img src="http://blog.linkinstars.com/mweb/15781265788714.jpg" alt="-w1660"><br>这是我通过 dive 工具查看java这个docker镜像所示的东西，可以清楚的看到它的分层情况，是通过一层层叠加而来，而右边就是它的文件系统里面的样子了。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Docker 使用namespace、cgroups、chroot画了一个圈，圈出了一个近乎独立的环境，而其本质还是一个进程。使用UnionFS来实现了镜像分层的整合，从而让docker镜像实现了分层构建。<br>总的来说，其实docker看起来非常厉害，启动一个容器飞快比传统的虚拟机好用了太多，在不知道实现原理的情况下，感觉很神奇。但是了解之后你会发现，其实docker运用的技术并不复杂，它只是将一些已有的技术做了一个整合，这些技术也并非docker去创造的，namespace、cgroups都是linux提供的功能罢了。但是在docker出现以前，谁能想到这些东西组合在一起就能碰撞出不一样的火花呢？</p>
-]]></content>
-      <categories>
-        <category>docker</category>
-      </categories>
-      <tags>
-        <tag>docker</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>快速上手 dubbo-go</title>
-    <url>/2020/06/20/golang/open-source-component/dubbo-go/</url>
-    <content><![CDATA[<p>每次技术调研总会发现自己学不动了怎么办？用已有的知识来拓展要学习的新知识就好了~ by LinkinStar<br>最近需要调研使用 dubbo，之前完全是 0 基础，对于 dubbo 只存在于听说，今天上手实战一把，告诉你如何快速用 go 上手 dubbo<br>PS：以下的学习方式适用于很多新技术  </p>
-<span id="more"></span>
-<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p><strong>首先学习一个技术首先要看看它的整体架构和基本概念</strong>，每个技术都有着自己的名词解释和实现方式，如果文档齐全就简单很多。</p>
-<p><a href="http://dubbo.apache.org/zh-cn/docs/user/preface/background.html">http://dubbo.apache.org/zh-cn/docs/user/preface/background.html</a></p>
-<p>大致浏览了背景、需求、架构之后基本上有一个大致概念</p>
-<p><img src="http://blog.linkinstars.com//blog/1240-20200719222110766.png" alt="image.png"></p>
-<p>其实整体架构和很多微服务的架构都是类似的，就是有一个注册中心管理所有的服务列表，服务提供方先向注册中心注册，而消费方向注册中心请求服务列表，通过服务列表调用最终的服务。总的来说 dubbo 将整个过程封装在了里面，而作为使用者的我们来说更加关心业务实现，它帮我们做好了治理的工作。</p>
-<p>然后我抓住了几个我想要知道的重点：</p>
-<ul>
-<li>注册中心可替换，官方推荐的是 zk</li>
-<li>如果有变更，注册中心将基于长连接推送变更数据给消费者，注册中心，服务提供者，服务消费者三者之间均为长连接</li>
-<li>基于软负载均衡算法，选一台提供者进行调用，如果调用失败，再选另一台调用</li>
-<li>消费者在本地缓存了提供者列表</li>
-</ul>
-<h2 id="实际上手"><a href="#实际上手" class="headerlink" title="实际上手"></a>实际上手</h2><p>官网文档中也给出如果使用 golang 开发，那么有 <a href="https://github.com/apache/dubbo-go">https://github.com/apache/dubbo-go</a> 可以用，那么废话不多说，上手实践一把先。因为你看再多，都比不上实践一把来学的快。</p>
-<h3 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h3><p>大多数教程就会跟你说，一个 helloWorld 需要 zookeeper 环境，但是不告诉你如何搭建，因为这对于他们来说太简单了，而我不一样，我是 0 基础，那如何快速搭建一个需要调研项目的环境呢？最好的方式就是 docker。</p>
-<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&#x27;3&#x27;</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">zookeeper:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">zookeeper</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">2181</span><span class="string">:2181</span></span><br><span class="line">  <span class="attr">admin:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">apache/dubbo-admin</span></span><br><span class="line">    <span class="attr">depends_on:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">zookeeper</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">8080</span><span class="string">:8080</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">admin.registry.address=zookeeper://zookeeper:2181</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">admin.config-center=zookeeper://zookeeper:2181</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">admin.metadata-report.address=zookeeper://zookeeper:2181</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&#x27;3&#x27;</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">zookeeper:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">zookeeper</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">2181</span><span class="string">:2181</span></span><br><span class="line">  <span class="attr">admin:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">chenchuxin/dubbo-admin</span></span><br><span class="line">    <span class="attr">depends_on:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">zookeeper</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">8080</span><span class="string">:8080</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">dubbo.registry.address=zookeeper://zookeeper:2181</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">dubbo.admin.root.password=root</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">dubbo.admin.guest.password=guest</span></span><br></pre></td></tr></table></figure>
-<p>上面两个 docker-compose 文件一个是官方提供的管理工具，一个包含的是个人修改之后的管理工具，记住这里有个用户名密码是 root-root，看你喜欢</p>
-<p>废话不多说，直接创建 docker-compose.yaml 然后 <code>docker-compose up</code> 你就得到了一个环境，棒👍</p>
-<h3 id="样例下载"><a href="#样例下载" class="headerlink" title="样例下载"></a>样例下载</h3><p>有的技术会给出官方的实验样例，dubbo-go 也不例外</p>
-<p><a href="https://github.com/apache/dubbo-samples">https://github.com/apache/dubbo-samples</a></p>
-<p>里面包含了 go 和 java 的样例，有了它你就能快速上手了，把它下载到本地</p>
-<h3 id="样例运行"><a href="#样例运行" class="headerlink" title="样例运行"></a>样例运行</h3><p>首先要做的第一步就是把 helloworld 给跑起来，进入 golang 目录，里面有个 README.md 看一下。然后开搞。</p>
-<p>打开一个终端运行服务方</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> ARCH=mac</span><br><span class="line"><span class="built_in">export</span> ENV=dev</span><br><span class="line"><span class="built_in">cd</span> helloworld/dubbo/go-server</span><br><span class="line">sh ./assembly/<span class="variable">$ARCH</span>/<span class="variable">$ENV</span>.sh</span><br><span class="line"><span class="built_in">cd</span> ./target/linux/user_info_server-0.3.1-20190517-0930-release</span><br><span class="line">sh ./bin/load.sh start</span><br></pre></td></tr></table></figure>
-<p>打开另一个终端运行客户端</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> ARCH=mac</span><br><span class="line"><span class="built_in">export</span> ENV=dev</span><br><span class="line"><span class="built_in">cd</span> helloworld/dubbo/go-client</span><br><span class="line">sh ./assembly/<span class="variable">$ARCH</span>/<span class="variable">$ENV</span>.sh</span><br><span class="line"><span class="built_in">cd</span> ./target/linux/user_info_client-0.3.1-20190517-0921-release</span><br><span class="line">sh ./bin/load_user_info_client.sh start</span><br></pre></td></tr></table></figure>
-<p>启动过程中会出现一些警告，问题不大，如果成功，那么客户端会有一个调用服务端的请求，并在控制台中以白色底色进行打印</p>
-<p><img src="http://blog.linkinstars.com//blog/1240-20200719222118263.png" alt="image.png"></p>
-<p>java 的服务也有相对应的启动方式，按照 README 中所说明的也可以进行注册和调用，并且 java 和 go 之间是可以互相调用的</p>
-<h3 id="查看服务"><a href="#查看服务" class="headerlink" title="查看服务"></a>查看服务</h3><p>因为我们部署的时候有一个 dubbo-admin 用于管理 zk 上注册的服务，我们可以访问本地的 8080 端口看到对应的服务情况</p>
-<p><img src="http://blog.linkinstars.com//blog/1240-20200719222122876.png" alt="image.png"></p>
-<p>至此你应该已经对于整体的链路调用有一个大致的认识，结合之前官网文档的中的架构图，应该也清晰了。</p>
-<h2 id="如何使用"><a href="#如何使用" class="headerlink" title="如何使用"></a>如何使用</h2><p>那么现在你已经运行起来了，那么势必就要来看看具体是如何进行使用的了。</p>
-<h3 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h3><p>服务端，也就是服务提供者；</p>
-<p>位置在：<code>dubbo-samples/golang/helloworld/dubbo/go-server/app</code></p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 将服务进行注册</span></span><br><span class="line">config.SetProviderService(<span class="built_in">new</span>(UserProvider))</span><br><span class="line"><span class="comment">// 注册对象的hessian序列化</span></span><br><span class="line">hessian.RegisterPOJO(&amp;User&#123;&#125;)</span><br></pre></td></tr></table></figure>
-<p>是不是看起来其实很简单，其实重点就是上面两句代码了</p>
-<p>对于服务本身来说</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> UserProvider <span class="keyword">struct</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(u *UserProvider)</span> <span class="title">GetUser</span><span class="params">(ctx context.Context, req []<span class="keyword">interface</span>&#123;&#125;)</span> <span class="params">(*User, error)</span></span> &#123;</span><br><span class="line">	<span class="built_in">println</span>(<span class="string">&quot;req:%#v&quot;</span>, req)</span><br><span class="line">	rsp := User&#123;<span class="string">&quot;A001&quot;</span>, <span class="string">&quot;Alex Stocks&quot;</span>, <span class="number">18</span>, time.Now()&#125;</span><br><span class="line">	<span class="built_in">println</span>(<span class="string">&quot;rsp:%#v&quot;</span>, rsp)</span><br><span class="line">	<span class="keyword">return</span> &amp;rsp, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(u *UserProvider)</span> <span class="title">Reference</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="string">&quot;UserProvider&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>其实就是需要实现下面那个接口就可以了</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// rpc service interface</span></span><br><span class="line"><span class="keyword">type</span> RPCService <span class="keyword">interface</span> &#123;</span><br><span class="line">	Reference() <span class="keyword">string</span> <span class="comment">// rpc service id or reference id</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>其中有一步骤不要忘记了是config.Load()，会加载配置文件的相关配置，不然你以为注册中心的地址等等是在哪里配置的呢？</p>
-<h3 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h3><p>看了服务端，其实客户端也就很简单了</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line">config.SetConsumerService(userProvider)</span><br><span class="line">hessian.RegisterPOJO(&amp;User&#123;&#125;)</span><br></pre></td></tr></table></figure>
-<p>其实也是差不多的，也需要注册一个消费服务，并将序列化方式给注册上去</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line">user := &amp;User&#123;&#125;</span><br><span class="line">err := userProvider.GetUser(context.TODO(), []<span class="keyword">interface</span>&#123;&#125;&#123;<span class="string">&quot;A001&quot;</span>&#125;, user)</span><br></pre></td></tr></table></figure>
-<p>使用也就很简单了，同样的也需要实现 Reference 接口</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> UserProvider <span class="keyword">struct</span> &#123;</span><br><span class="line">	GetUser <span class="function"><span class="keyword">func</span><span class="params">(ctx context.Context, req []<span class="keyword">interface</span>&#123;&#125;, rsp *User)</span> <span class="title">error</span></span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(u *UserProvider)</span> <span class="title">Reference</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="string">&quot;UserProvider&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="回头想想"><a href="#回头想想" class="headerlink" title="回头想想"></a>回头想想</h3><p>当我们看完了代码的上的使用，再回头想想 dubbo 的作用，你就会发现其实 dubbo 帮你做的事情真的屏蔽了很多。</p>
-<ul>
-<li>你不需要关心服务是怎么注册的</li>
-<li>你不需要关心服务是怎么获取的</li>
-<li>你不需要关系服务是怎么调用的</li>
-<li>甚至序列化的过程都是基本透明的</li>
-</ul>
-<p>想对比来说，如果让你自己去是实现微服务，那是不是说，你需要实现服务的拉取，服务的负载均衡，服务的发现，序列化…..</p>
-<p>这下你应该明白了 dubbo 是做什么的也就明白了它为什么会出现了</p>
-<h2 id="其他能力"><a href="#其他能力" class="headerlink" title="其他能力"></a>其他能力</h2><p>当你学习了一个技术的基本使用之后，要学习其他的能力，以便在使用的过程中不会出现自己重复造轮子或者说有轮子没用到的情况，<a href="https://github.com/apache/dubbo-samples">https://github.com/apache/dubbo-samples</a> 不止有 helloworld 还要很多别的案例供你参考，你可以继续看看并进行试验。</p>
-<h3 id="支持扩展"><a href="#支持扩展" class="headerlink" title="支持扩展"></a>支持扩展</h3><p><a href="https://github.com/apache/dubbo-go">https://github.com/apache/dubbo-go</a></p>
-<p>在 Feature list 中列举了 dubbo-go 所支持的相关功能，比如序列化，比如注册中心，在比如过滤器。</p>
-<p>也就是说，在使用 dubbo-go 的时候相关功能都是插件化的，想用什么就看你自己了，比如注册中心我想用 etcd，比如调用的协议我想换成 grpc 都可以。</p>
-<h2 id="相关问题"><a href="#相关问题" class="headerlink" title="相关问题"></a>相关问题</h2><p><strong>对于一个技术调研，那么肯定会有相关问题等着你去发现去考虑。</strong></p>
-<p>下面是我能想到的一些问题：</p>
-<ul>
-<li>当前 dubbo-go 的版本最高在 1.4，所对应的 dubbo 版本应该是 2.6.x，如果调用更高版本的服务是否会有问题</li>
-<li>java 和 go 之间互相调用，各种类型转换之间是否存在问题，是否容易出现无法正确反序列化的问题</li>
-<li>….</li>
-</ul>
-<h2 id="后续学习"><a href="#后续学习" class="headerlink" title="后续学习"></a>后续学习</h2><p>那么上面只是说能让你上手 dubbo-go，但是实际使用可能存在距离。为什么这么说呢？如果你在不动里面任何的原理情况下，那么如果遇到问题，你很可能就束手无策了。比如如果线上服务无法正常发现，你应该如何排查？调用过程中出现问题如何定位？</p>
-<p>所以后续你需要做的是：</p>
-<ul>
-<li>看看整体设计架构和思路，明白整条链路调用过程和规则</li>
-<li>学习它的接口设计，为什么别人设计的接口能兼容那么多的注册中心？如果让你来设计你怎么设计呢？</li>
-<li>性能也很重要，网上说性能很不错，为什么呢？什么地方做了优化，负载均衡的算法是怎么样的，你能自定义吗？</li>
-</ul>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>总的来说，对于 dubbo-go 整体的使用上还是非常好上手的，自己想了一下，如果当前项目想要接入的话，主要是服务的暴露、序列化方式、鉴权调整等存在开发工作。</p>
-<p>上面砖头也抛的差不多了，对于你快速上手应该没有问题了，剩下的就要靠你自己了。</p>
-]]></content>
-      <categories>
-        <category>dubbo-go</category>
-      </categories>
-      <tags>
-        <tag>dubbo-go</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>浅入深出ETCD之【简介与命令行使用】</title>
-    <url>/2019/06/10/golang/open-source-component/etcd-brief/</url>
-    <content><![CDATA[<p>你知道etcd吗？随着k8s的使用广泛之后，etcd被非常多的人所知道，同时又因为它可靠的分布式特性被很多人喜欢。所以，我准备有几篇博文来记录一下，从基本使用到线上部署再到原理分析，做一个系列。那么，今天先来说说它的简介与命令行的使用。</p>
-<span id="more"></span>
-<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><h3 id="ETCD是什么"><a href="#ETCD是什么" class="headerlink" title="ETCD是什么"></a>ETCD是什么</h3><p>我个人总结为下面用几个要点：</p>
-<ul>
-<li>高可用K-V存储，就类似于redis一样的键值对存储。</li>
-<li>允许应用实时监听存储中的K-V变化。</li>
-<li>能够容忍单点故障，能够应对网络分区。</li>
-<li>etcd利用raft在集群中同步K-V信息，raft是强一致的集群日志同步算法。</li>
-</ul>
-<p>总结：etcd是一个分布式高可用k-v存储，通过复制达到每个节点存储的信息一致，从而保证高可用。</p>
-<h3 id="数据复制"><a href="#数据复制" class="headerlink" title="数据复制"></a>数据复制</h3><p>这里简单说一下复制的具体流程：</p>
-<p><img src="http://blog.linkinstars.com/mweb/15601472125417.jpg" alt></p>
-<p>（client为我们的客户端，用来发出存储请求，leader和follower都是etcd的节点）<br>就如图上所看到的，我叫它两段式提交：</p>
-<ol>
-<li>客户端请求leader发送存储的数据，然后leader节点要将信息通过日志复制给大多数的follower节点，如上图所示，只需要复制给两个（加上它自己是三个）那么就是大多数节点。</li>
-<li>leader当复制完成之后才会本地提交，然后返回给客户端成功，（如果没有或者不能复制给大多数节点，那么则存储失败）此时再同时其他follower去他们自己本地提交。<br>是不是有一种分布式事务的感觉？分布式的解决通常都是这种感觉。</li>
-</ol>
-<p>我们也可以看到，etcd通过先将数据存放在大多数节点上面从而保证数据不会出错并且效率较高，最终所有节点数据还是会同步一致的。</p>
-<ul>
-<li>官方给出写入的性能：1000/s</li>
-</ul>
-<p>PS:这里因为是简介，所以就简单提一下，有关如何选举出leader还有raft协议的一些具体细节，以及当出现网络分区或者节点异常问题的恢复会在之后的博客中给出。</p>
-<h3 id="存储结构"><a href="#存储结构" class="headerlink" title="存储结构"></a>存储结构</h3><p>底层存储key是有序排列的<br>‘key’ -&gt; ‘value’</p>
-<p>aaa/bbb -&gt; 111<br>aaa/bbc -&gt; 3333<br>bbb/aaa -&gt; 1321<br>ccc -&gt; 24<br>就是按照key的顺序依次排列，相同前缀的key会被放在一起，这样到存储结构，当查询时<strong>可以通过key的前缀将一系列的value都取出来</strong></p>
-<h3 id="watch机制和lease租约"><a href="#watch机制和lease租约" class="headerlink" title="watch机制和lease租约"></a>watch机制和lease租约</h3><p>etcd有一个很棒的机制要单独提一句，就是watch，它允许你去监控一个key的变化。当你监控了之后，这个key的添加修改删除都会被监控到。<br>lease租约，这个机制和redis中的key过期机制一样，可以申请一个租约，这个租约有一个时间限制，比如60秒，你可以将这个租约设置到一个key上，那么这个key过60秒就会被自动删除。当然也可以进行续租。</p>
-<p>具体使用情况，可以从后面的命令行操作中看到。</p>
-<h3 id="还有一些小点"><a href="#还有一些小点" class="headerlink" title="还有一些小点"></a>还有一些小点</h3><ul>
-<li>etcd使用grpc，所以网络性能会高</li>
-<li>部署节点数量要求是2N+1个</li>
-<li>选举leader需要半数以上的节点参与</li>
-<li>etcd是支持事务操作的，可以if第一次a提交正常，then提交b，else不提交b</li>
-</ul>
-<h2 id="本地单节点部署"><a href="#本地单节点部署" class="headerlink" title="本地单节点部署"></a>本地单节点部署</h2><p>我们一开始学习和测试的时候只需要在本地部署一个单节点就可以了，单节点的部署比较方便这边简单说明一下。<br>首先下载对应的版本：<a href="https://github.com/etcd-io/etcd/releases">https://github.com/etcd-io/etcd/releases</a><br>我这边使用的mac对应的darwin-amd64的版本，其他版本应该类似。<br>下载解压之后有两个文件比较重要：</p>
-<ul>
-<li>etcd 这个是节点</li>
-<li>etcdctl 这个是客户端<br>进入所在目录使用命令进行启动和使用</li>
-</ul>
-<p>使用节点命令<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜  ./etcd</span><br></pre></td></tr></table></figure></p>
-<p>使用客户端命令<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ ./etcdctl</span><br><span class="line">NAME:</span><br><span class="line">   etcdctl - A simple <span class="built_in">command</span> line client <span class="keyword">for</span> etcd.</span><br><span class="line"></span><br><span class="line">WARNING:</span><br><span class="line">   Environment variable ETCDCTL_API is not <span class="built_in">set</span>; defaults to etcdctl v2.</span><br><span class="line">   Set environment variable ETCDCTL_API=3 to use v3 API or ETCDCTL_API=2 to use v2 API.</span><br></pre></td></tr></table></figure></p>
-<p>之后会出现上述类似警告，告诉你，默认使用的是v2版本的API，你需要设置环境变量ETCDCTL_API=3就能使用v3版本的API了，这里我们使用命令export ETCDCTL_API=3</p>
-<p>或者你可以手动修改环境变量添加export ETCDCTL_API=3就可以了，当不出现警告的时候证明环境变量设置正确。</p>
-<h2 id="简单命令行操作"><a href="#简单命令行操作" class="headerlink" title="简单命令行操作"></a>简单命令行操作</h2><p>下面介绍几个最基本的etcd的操作，其实非常简单。主要与redis不同的是拥有独特的watch机制，这个机制非常棒。</p>
-<h3 id="put"><a href="#put" class="headerlink" title="put"></a>put</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ ./etcdctl put /aaa/a 1</span><br><span class="line">OK</span><br><span class="line">➜ ./etcdctl put /aaa/b 2</span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
-<h3 id="get"><a href="#get" class="headerlink" title="get"></a>get</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ ./etcdctl get /aaa/a</span><br><span class="line">/aaa/a</span><br><span class="line">1</span><br><span class="line">➜ ./etcdctl get --prefix /aaa</span><br><span class="line">/aaa/a</span><br><span class="line">1</span><br><span class="line">/aaa/b</span><br><span class="line">2</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>–prefix意思是取出所有前缀为/aaa的key</p>
-</blockquote>
-<h3 id="watch"><a href="#watch" class="headerlink" title="watch"></a>watch</h3><p>新开一个窗口使用命令watch进行监听<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ ./etcdctl watch /aaa/a</span><br></pre></td></tr></table></figure></p>
-<p>然后对/aaa/a这个key的操作全部都会被监听到<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ ./etcdctl put /aaa/a 123</span><br><span class="line">OK</span><br><span class="line">➜ ./etcdctl del /aaa/a</span><br><span class="line">1</span><br></pre></td></tr></table></figure><br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">➜ ./etcdctl watch /aaa/a</span><br><span class="line">PUT</span><br><span class="line">/aaa/a</span><br><span class="line">123</span><br><span class="line">DELETE</span><br><span class="line">/aaa/a</span><br></pre></td></tr></table></figure></p>
-<h3 id="lease"><a href="#lease" class="headerlink" title="lease"></a>lease</h3><p>创建一个60s的租约<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ ./etcdctl lease grant 60</span><br><span class="line">lease 694d6b2b7d7e6a0c granted with TTL(60s)</span><br></pre></td></tr></table></figure></p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ ./etcdctl put /aaa/a 123 --lease=694d6b2b7d7e6a0c</span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
-<p>put的时候使用租约注意，这里需要输入上面租约的16进制标识符<br>然后监听的地方会发现，60秒后，/aaa/a这个key被自动删除了</p>
-<p>当然你可以使用keep-alive进行续租，如：<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ ./etcdctl lease keep-alive 694d6b2ac4a35625</span><br></pre></td></tr></table></figure></p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>以上简单说明了etcd的一些基本信息，单节点部署，以及一些基本用法，从上述信息我们总结可知：</p>
-<ol>
-<li>etcd是分布式的，能保证在单点故障下也能正常使用</li>
-<li>分布式也会导致问题，etcd写入性能相较redis肯定有所不及</li>
-<li>etcd独特的watch机制可以用于很多场景，如配置更新分发等</li>
-</ol>
-<p>那这里就说这么多，看完你就应该大致知道etcd是个啥玩意了，从现在看来你可能还没有感觉它有什么厉害的地方，后面我们结合实际的场景使用就能更加明白了。</p>
-]]></content>
-      <categories>
-        <category>etcd</category>
-      </categories>
-      <tags>
-        <tag>etcd</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>浅入深出ETCD之【集群部署与golang客户端使用】</title>
-    <url>/2019/06/14/golang/open-source-component/etcd-cluster-client/</url>
-    <content><![CDATA[<p>之前说了etcd的简介，命令行使用，一些基本原理。这次来说说现实一点的集群部署和golang版本的客户端使用。因为在实际使用过程中，etcd的节点肯定是需要2N+1个进行部署的，所以有必要说明一下集群的部署。</p>
-<span id="more"></span>
-<h2 id="集群部署"><a href="#集群部署" class="headerlink" title="集群部署"></a>集群部署</h2><p>网上有很多集群部署的教程，有的很复杂，其实对于我们实际使用来说，其实配置并不复杂，下面举例一种最简单的集群配置。（简单到你想不到~）</p>
-<h3 id="下载"><a href="#下载" class="headerlink" title="下载"></a>下载</h3><p><a href="https://github.com/etcd-io/etcd/releases">https://github.com/etcd-io/etcd/releases</a><br>还是在github上面找到需要下载的版本<br>我使用的是etcd-v3.3.13-linux-amd64.tar.gz<br>使用wget下载到linux你喜欢的目录，或者本地下载完成之后上传均可。</p>
-<h3 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h3><p>首先我找了三台机器，对应ip为<br>192.168.4.224<br>192.168.4.225<br>192.168.4.226<br><strong>PS：提醒一下记得开发对应防火墙的端口</strong></p>
-<p>然后将下载的文件解压，之后进入解压后的目录，分别使用下面的命令启动。(注意下面的命令对应的是三台不同的机器，你需要修改对应为你自己的ip)</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ ./etcd --name infra0 --initial-advertise-peer-urls http://192.168.4.224:2380 \</span><br><span class="line">--listen-peer-urls http://192.168.4.224:2380 \</span><br><span class="line">--listen-client-urls http://192.168.4.224:2379,http://127.0.0.1:2379 \</span><br><span class="line">--advertise-client-urls http://192.168.4.224:2379 \</span><br><span class="line">--initial-cluster-token etcd-cluster-1 \</span><br><span class="line">--initial-cluster infra0=http://192.168.4.224:2380,infra1=http://192.168.4.225:2380,infra2=http://192.168.4.226:2380 \</span><br><span class="line">--initial-cluster-state new</span><br><span class="line"></span><br><span class="line">$ ./etcd --name infra1 --initial-advertise-peer-urls http://192.168.4.225:2380 \</span><br><span class="line">--listen-peer-urls http://192.168.4.225:2380 \</span><br><span class="line">--listen-client-urls http://192.168.4.225:2379,http://127.0.0.1:2379 \</span><br><span class="line">--advertise-client-urls http://192.168.4.225:2379 \</span><br><span class="line">--initial-cluster-token etcd-cluster-1 \</span><br><span class="line">--initial-cluster infra0=http://192.168.4.224:2380,infra1=http://192.168.4.225:2380,infra2=http://192.168.4.226:2380 \</span><br><span class="line">--initial-cluster-state new</span><br><span class="line"></span><br><span class="line">$ ./etcd --name infra2 --initial-advertise-peer-urls http://192.168.4.226:2380 \</span><br><span class="line">--listen-peer-urls http://192.168.4.226:2380 \</span><br><span class="line">--listen-client-urls http://192.168.4.226:2379,http://127.0.0.1:2379 \</span><br><span class="line">--advertise-client-urls http://192.168.4.226:2379 \</span><br><span class="line">--initial-cluster-token etcd-cluster-1 \</span><br><span class="line">--initial-cluster infra0=http://192.168.4.224:2380,infra1=http://192.168.4.225:2380,infra2=http://192.168.4.226:2380 \</span><br><span class="line">--initial-cluster-state new</span><br></pre></td></tr></table></figure>
-<p>至此，三个节点的集群部署完成。😂😂😂没错就是这么easy，没有网上说的那么复杂。</p>
-<h3 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h3><p>如果你嫌弃每次使用这么长的命令进行启动，你可以将它写为配置文件：<br><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 当前节点名称</span></span><br><span class="line"><span class="attr">name:</span> <span class="string">infra1</span></span><br><span class="line"><span class="comment"># etcd数据保存目录</span></span><br><span class="line"><span class="attr">data-dir:</span> <span class="string">/usr/local/etcd</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 供外部客户端使用的url</span></span><br><span class="line"><span class="attr">listen-client-urls:</span> <span class="string">http://192.168.4.225:2379,http://127.0.0.1:2379</span></span><br><span class="line"><span class="comment"># 广播给外部客户端使用的url</span></span><br><span class="line"><span class="attr">advertise-client-urls:</span> <span class="string">http://192.168.4.225:2379</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 集群内部通信使用的URL</span></span><br><span class="line"><span class="attr">listen-peer-urls:</span> <span class="string">http://192.168.4.225:2380</span></span><br><span class="line"><span class="comment"># 广播给集群内其他成员访问的URL</span></span><br><span class="line"><span class="attr">initial-advertise-peer-urls:</span> <span class="string">http://192.168.4.225:2380</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 集群的名称</span></span><br><span class="line"><span class="attr">initial-cluster-token:</span> <span class="string">etcd-cluster-1</span></span><br><span class="line"><span class="comment"># 初始集群成员列表</span></span><br><span class="line"><span class="attr">initial-cluster:</span> <span class="string">infra0=http://192.168.4.224:2380,infra1=http://192.168.4.225:2380,infra2=http://192.168.4.226:2380</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#初始集群状态</span></span><br><span class="line"><span class="attr">initial-cluster-state:</span> <span class="string">new</span></span><br></pre></td></tr></table></figure></p>
-<p>然后指定配置文件的路径进行启动就可以了<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">./etcd --config-file=conf.yml</span><br></pre></td></tr></table></figure></p>
-<h2 id="其他部署策略"><a href="#其他部署策略" class="headerlink" title="其他部署策略"></a>其他部署策略</h2><p>以上的部署一方面，我个人部署时使用的最简单方式，更简单的可能是使用yum进行etcd的下载。<br>当然上述方式也存在一些问题，现在的etcd相当于裸奔的情况：</p>
-<ul>
-<li>没有鉴权就想到于任何人知道ip和端口就可以连接上你的etcd，所以当前可能只适用于内网使用，服务通过内网ip进行访问（这个可以通过添加权限和用户来完成）</li>
-<li>当前通信是没有加密的</li>
-<li>当前etcd是利用静态ip来进行配置的，我认为这也是实际中用到最普通的情况，但是etcd还提供发现机制来进行部署和配置，更加灵活</li>
-</ul>
-<p>等等，这些部署策略更多针对于线上，因为官方写的非常详细了，我感觉再写也就班门弄斧了。<br><a href="https://doczhcn.gitbook.io/etcd/index/index-1/clustering">https://doczhcn.gitbook.io/etcd/index/index-1/clustering</a></p>
-<h2 id="Golang客户端使用"><a href="#Golang客户端使用" class="headerlink" title="Golang客户端使用"></a>Golang客户端使用</h2><p>这里来实际用代码操作一下etcd，还是和之前使用命令行一样，get/put/del/watch/lease用一下这些操作，其他操作请查看doc<br><a href="https://godoc.org/github.com/coreos/etcd/clientv3">https://godoc.org/github.com/coreos/etcd/clientv3</a></p>
-<h3 id="客户端下载"><a href="#客户端下载" class="headerlink" title="客户端下载"></a>客户端下载</h3><p>这里不建议使用go get进行下载，真的太慢了，可以直接从github上面下载之后放到对应目录快一些。<a href="https://github.com/etcd-io/etcd">https://github.com/etcd-io/etcd</a><br>下载解压之后放到gopath下对应：go/src/go.etcd.io/etcd</p>
-<h3 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h3><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">&quot;context&quot;</span></span><br><span class="line">    <span class="string">&quot;fmt&quot;</span></span><br><span class="line">    <span class="string">&quot;go.etcd.io/etcd/clientv3&quot;</span></span><br><span class="line">    <span class="string">&quot;go.etcd.io/etcd/mvcc/mvccpb&quot;</span></span><br><span class="line">    <span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="comment">// 配置客户端连接</span></span><br><span class="line">    client, err := clientv3.New(clientv3.Config&#123;</span><br><span class="line">        <span class="comment">// Endpoints:   []string&#123;&quot;127.0.0.1:2379&quot;&#125;,</span></span><br><span class="line">        Endpoints:   []<span class="keyword">string</span>&#123;<span class="string">&quot;192.168.4.224:2379&quot;</span>, <span class="string">&quot;192.168.4.225:2379&quot;</span>, <span class="string">&quot;192.168.4.226:2379&quot;</span>&#125;,</span><br><span class="line">        DialTimeout: <span class="number">5</span> * time.Second,</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="built_in">panic</span>(err)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">defer</span> client.Close()</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 启动watch监听</span></span><br><span class="line">    watch := client.Watch(context.TODO(), <span class="string">&quot;aaa&quot;</span>)</span><br><span class="line">    <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">for</span> &#123;</span><br><span class="line">            watchResponse := &lt;- watch</span><br><span class="line">            <span class="keyword">for</span> _, ev := <span class="keyword">range</span> watchResponse.Events &#123;</span><br><span class="line">                <span class="keyword">switch</span> ev.Type &#123;</span><br><span class="line">                <span class="keyword">case</span> mvccpb.DELETE:</span><br><span class="line">                    fmt.Printf(<span class="string">&quot;监听到del：%s\n&quot;</span>, ev.Kv.Key)</span><br><span class="line">                <span class="keyword">case</span> mvccpb.PUT:</span><br><span class="line">                    fmt.Printf(<span class="string">&quot;监听到put：%s, %s\n&quot;</span>, ev.Kv.Key, ev.Kv.Value)</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;()</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 新增</span></span><br><span class="line">    putResponse, err := client.Put(context.TODO(), <span class="string">&quot;aaa&quot;</span>, <span class="string">&quot;xxx&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        fmt.Println(err)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">    fmt.Println(putResponse.Header.String())</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 查询</span></span><br><span class="line">    getResponse, err := client.Get(context.TODO(), <span class="string">&quot;aaa&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        fmt.Println(err)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">    fmt.Println(getResponse.Kvs)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 删除</span></span><br><span class="line">    deleteResponse, err := client.Delete(context.TODO(), <span class="string">&quot;aaa&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        fmt.Println(err)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">    fmt.Println(deleteResponse.Header.String())</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 申请租约</span></span><br><span class="line">    grantResponse, err := client.Grant(context.TODO(), <span class="number">10</span>)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        fmt.Println(err)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 使用租约</span></span><br><span class="line">    response, err := client.Put(context.TODO(), <span class="string">&quot;aaa&quot;</span>, <span class="string">&quot;xxx&quot;</span>, clientv3.WithLease(grantResponse.ID))</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        fmt.Println(err)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">    fmt.Println(response.Header.String())</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 等待租约自动过期</span></span><br><span class="line">    time.Sleep(time.Second * <span class="number">20</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>大致能得到以下输出</p>
-<blockquote>
-<p>监听到put：aaa, xxx<br>cluster_id:14841639068965178418 member_id:10276657743932975437 revision:53 raft_term:4<br>[key:”aaa” create_revision:53 mod_revision:53 version:1 value:”xxx” ]<br>监听到del：aaa<br>cluster_id:14841639068965178418 member_id:10276657743932975437 revision:54 raft_term:4<br>监听到put：aaa, xxx<br>cluster_id:14841639068965178418 member_id:10276657743932975437 revision:55 raft_term:4<br>监听到del：aaa</p>
-</blockquote>
-<p>其实使用起来还是非常简单，我就不过多赘述了。</p>
-]]></content>
-      <categories>
-        <category>etcd</category>
-      </categories>
-      <tags>
-        <tag>etcd</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>浅入深出ETCD之【raft原理】</title>
-    <url>/2019/06/12/golang/open-source-component/etcd-raft/</url>
-    <content><![CDATA[<p>这次我们来说说，有关于etcd原理的一些事情。之前我们已经了解到了etcd是一个分布式的k-v存储，那么它究竟是如何保证数据是如何复制到每个节点上面去的呢？又是如何保证在网络分区的情况下能正常工作下去？raft协议到底是什么？带着这些问题我们继续往下看。</p>
-<span id="more"></span>
-<h2 id="raft选举策略"><a href="#raft选举策略" class="headerlink" title="raft选举策略"></a>raft选举策略</h2><p>我们知道etcd使用raft协议来保证整个分布式的节点网络能正常的运转并且能正确的将数据复制到每个节点上面去。那么什么是raft协议嘞？</p>
-<p>首先我们有这样一个背景：raft是想维护整一个网络，其中有一个领导人，这个领导人负责将收到的信息同步给网络中的其他所有节点，从而保证整个网络数据一致。</p>
-<p>如果你有一定的英文基础，我建议直接查看下面这个网站，它用动画非常清楚的描述了raft选举的整个过程：<a href="http://thesecretlivesofdata.com/raft/">http://thesecretlivesofdata.com/raft/</a></p>
-<p>这个其实已经说明的超级棒了，如果你还看不懂，我下面会用最简单的几个要点来进行最简单的说明。</p>
-<h3 id="大多数理论"><a href="#大多数理论" class="headerlink" title="大多数理论"></a>大多数理论</h3><p>首先说明一个理论，叫做大多数理论，很简单，举个栗子：</p>
-<ul>
-<li>有10个人，如果你将苹果给其中的6个人（大多数），那么你随机选择5个人，一定有一个人会有苹果。</li>
-</ul>
-<p>在etcd中的应用：</p>
-<ul>
-<li>选举中只要有大多数（超过半数的人给你投票）你肯定就是票数最多的了，不可能有人比你更多。</li>
-<li>只需要将日志复制给大多数的节点，那么只要有一半的节点正常工作就能保证数据最新</li>
-</ul>
-<h3 id="选举状态"><a href="#选举状态" class="headerlink" title="选举状态"></a>选举状态</h3><p>下面是一些选举过程中节点的状态<br>leader 表示选举最终产生的领导人<br>candidate 候选状态，表示当前正在参与选举<br>follower 表示选举最终自己不是领导人，那自己就是从属节点</p>
-<h3 id="选举过程与要点"><a href="#选举过程与要点" class="headerlink" title="选举过程与要点"></a>选举过程与要点</h3><p><img src="http://blog.linkinstars.com/mweb/15603076610892.jpg" alt></p>
-<ol>
-<li>所有节点一开始都是follower状态</li>
-<li>当节点处于follower状态时，每个节点随机经过一段时间，<strong>如果没有收到leader的消息就会进入candidate状态</strong>（证明当前没有leader节点需要重新进行选举），如果收到信息就会继续保持follower状态</li>
-<li>当节点处于candidate就会要求别人给自己投票，<strong>收到大多数的节点的投票那就转变为leader状态</strong>，否则要么是别的节点成为了leader，要么就是因为特殊情况导致这次选举失败重新进行选举</li>
-<li>每次选举举办的时候有一个term，在每一个term中，<strong>每个节点只能投票一次</strong></li>
-<li>投票的时候必须投给当前数据至少和自己一样的节点，并且term大的优先</li>
-</ol>
-<h2 id="日志复制规则"><a href="#日志复制规则" class="headerlink" title="日志复制规则"></a>日志复制规则</h2><p>etcd是通过日志复制来实现数据同步的<br><img src="http://blog.linkinstars.com/mweb/15603077783791.jpg" alt><br>这个图网上也很多，说明的是日志复制的规则<br>每个节点都有一份自己的日志，有的节点多，有的节点少，日志最多的肯定是leader。<br>上图还有几个要点，我看别人没提到，我就提一下：</p>
-<ol>
-<li>颜色代表term</li>
-<li>第四行表示的这个节点，第一term下复制了两个日志就异常挂掉了</li>
-<li>最终只有第三行这个follower和第一行的leader保持了同步</li>
-</ol>
-<h2 id="异常情况"><a href="#异常情况" class="headerlink" title="异常情况"></a>异常情况</h2><p>raft之所以厉害因为即使出现一些特殊情况，整个网络在一定的时间之后也能自动恢复并正常工作。</p>
-<h3 id="一个节点的异常"><a href="#一个节点的异常" class="headerlink" title="一个节点的异常"></a>一个节点的异常</h3><p>首先最常见的情况就是一个节点出现异常，有可能是这个节点的服务器挂了，或者别的什么原因。</p>
-<ul>
-<li>如果出现问题的这个节点是follower，那么没有关系，整个网络依旧能正常运行，当这个节点再次加入网络的时候也只需要同步后面的数据即可。</li>
-<li>如果出现问题的是leader，有一点麻烦，因为网络中没有leader节点了，那么就会重新进行选举，重新找一个leader，当这个异常节点恢复之后发现当前网络中有leader了，而且term还比自己大，那么自己就退位称为follower。</li>
-</ul>
-<h3 id="网络分区"><a href="#网络分区" class="headerlink" title="网络分区"></a>网络分区</h3><p>还有一种异常情况是由于网络导致的，网络出现异常，导致节点之间的通信存在异常，一部分节点与另一部分之间没有办法访问了。如下图所示：<br><img src="http://blog.linkinstars.com/mweb/15603110122471.jpg" alt></p>
-<p>上面三个follower没有办法与下面的节点进行通信。</p>
-<ul>
-<li>当客户端再次请求leader发送数据的时候，leader发现没有办法将数据同步给给大多数节点，它只能给自己和旁边的一个，此时leader没有办法给客户端反馈。</li>
-<li>上面三个节点由于收不到leader的消息，那么会认为网络中没有leader存在，会重新进行选举操作，因为当前上面有三个节点存在（只要有超过半数的节点参与选举就行），所以可以重新选举成功，选出新的leader告诉客户端，客户端就会重新发送数据到新的leader。</li>
-<li>当网络恢复之后又会找到最新的leader从而将数据同步至最新的状态。</li>
-</ul>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>总的来说，只要整个网络中存在大多数节点正常运行，那么etcd就是可用的，并且能够保证数据正确。当网络恢复之后也能将数据调整到最新的状态。<br>raft强大的地方在于它能自动的进行状态的变化，自动进行选举，并且选举遵循一定的策略，进而保证整个网络的正常运转。同时保证数据的一致性。<br>了解etcd的这个原理有助于我们后续的使用以及源码的阅读。</p>
-]]></content>
-      <categories>
-        <category>etcd</category>
-      </categories>
-      <tags>
-        <tag>etcd</tag>
-        <tag>raft</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>大话图解gin源码</title>
-    <url>/2019/08/20/golang/open-source-component/gin/</url>
-    <content><![CDATA[<p>最近在网上搜了一下，对于gin框架用的人还是比较多的，我自己之前也在使用，但是对于源码解析这块，我没有看到自己想看到的那种从框架入手的解析图，所以嘿嘿嘿，我的机会就来了，今天就带来最完整的gin源码图解。希望通过这篇博客你也能自己学会拆轮子。</p>
-<p>PS：本文建立在你已经能熟练使用gin的基础之上，如果还没用过可以去官网看一下：<br><a href="https://gin-gonic.com/zh-cn/docs/">https://gin-gonic.com/zh-cn/docs/</a><br>然后gin是对golang的http包的封装，所以最好对http包也要有了解。</p>
-<span id="more"></span>
-<h2 id="整体分析逻辑"><a href="#整体分析逻辑" class="headerlink" title="整体分析逻辑"></a>整体分析逻辑</h2><p>先来说明一下我整体拆解的逻辑，对于一个框架，我喜欢从下面几个方面去入手拆解：</p>
-<ol>
-<li>启动方式</li>
-<li>如何使用</li>
-<li>实现与特点<br>针对于gin，我也将从这几个方面去入手，就会得到下面几个问题，带着问题看源码是必备条件。<br>首先启动的时候gin做了些什么？<br>gin封装了什么然后怎么去实现的？<br>gin整体结构是怎么样的，有哪些结构？<br>…</li>
-</ol>
-<p>然后使用一个比较小的demo，然后先从方法入手，进源码看。<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    router := gin.Default()</span><br><span class="line">    </span><br><span class="line">    router.Use(gin.Recovery())</span><br><span class="line">    </span><br><span class="line">    router.GET(<span class="string">&quot;/test&quot;</span>, <span class="function"><span class="keyword">func</span><span class="params">(context *gin.Context)</span></span> &#123;</span><br><span class="line">        context.JSON(http.StatusOK, gin.H&#123;</span><br><span class="line">            <span class="string">&quot;code&quot;</span> : <span class="number">1</span>,</span><br><span class="line">            <span class="string">&quot;message&quot;</span> : <span class="string">&quot;xxx&quot;</span>,</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> err := router.Run(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="built_in">panic</span>(err)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h2 id="整体结构认识"><a href="#整体结构认识" class="headerlink" title="整体结构认识"></a>整体结构认识</h2><p><img src="http://blog.linkinstars.com/mweb/15662772307077.jpg" alt><br>Engine是一个总的引擎，保存了各个组件的信息<br>RouterGroup是一个路由组，保存了路由信息<br>trees是一棵树，保存了url与handle的映射关系<br>engine中的pool用于复用Context<br>Context用于request中传递值</p>
-<p>这样你就对gin的整个结构有了大致的认识，当然有一些细节字段我这里就不展开了。</p>
-<h2 id="每个方法分析"><a href="#每个方法分析" class="headerlink" title="每个方法分析"></a>每个方法分析</h2><h3 id="gin-Default"><a href="#gin-Default" class="headerlink" title="gin.Default()"></a>gin.Default()</h3><p><img src="http://blog.linkinstars.com/mweb/15662774362702.jpg" alt><br>调用过程大概是这样，这是一个gin的初始化方法，目的是为了创建整个引擎，并初始化相关参数。初始化RouterGroup、pool等</p>
-<h3 id="router-Use"><a href="#router-Use" class="headerlink" title="router.Use()"></a>router.Use()</h3><p><img src="http://blog.linkinstars.com/mweb/15662775073706.jpg" alt><br>这个是一个使用中间件的方法，当然中间件也有别的方法，这边使用use举例，其实就是将请求过程中需要调用的中间件放入到HandlersChain，这个是一个数组<br>PS：你不知道中间件？那你用一下就知道了，我们很多时候再请求前后需要加入通用方法如鉴权等，就会用到它</p>
-<h3 id="router-GET"><a href="#router-GET" class="headerlink" title="router.GET"></a>router.GET</h3><p><img src="http://blog.linkinstars.com/mweb/15662776382936.jpg" alt><br>这个就是构建url和具体处理请求的handle的关系了，其实目标很明确，就是要将这组关系存入到最终的trees中去，这里先这样，后面会有详细解释。</p>
-<h3 id="router-Run"><a href="#router-Run" class="headerlink" title="router.Run()"></a>router.Run()</h3><p><img src="http://blog.linkinstars.com/mweb/15662777270926.jpg" alt><br>这个就非常简单了，就是调用golang中http包下的方法监听服务端口而已，没啥好说的，启动了嘛。</p>
-<h3 id="func-engine-Engine-ServeHTTP"><a href="#func-engine-Engine-ServeHTTP" class="headerlink" title="func (engine *Engine) ServeHTTP"></a>func (engine *Engine) ServeHTTP</h3><p>你以为这就完了？？？上面只是启动的时候，那么请求过来的时候怎么办呢？<br>我们知道如果要接收请求，那么就需要实现下面这个接口<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> Handler <span class="keyword">interface</span> &#123;</span><br><span class="line">	ServeHTTP(ResponseWriter, *Request)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>接口中ServeHTTP就是用来处理请求的，所有请求都会经过这个方法去处理。<br>那么gin是怎么实现这个方法的呢？<br><img src="http://blog.linkinstars.com/mweb/15662778798063.jpg" alt><br>这个就是调用过程，总的来说就是根据请求的url和method找到对应的handle去处理，还记得之前那棵树吗？对，就是去里面找。同时利用context进行参数传递，最后注意很隐秘的用c.Next进行递归的调用（我已开始都没找到）为啥要递归？因为有中间件鸭！handle是一个链式过程而非只有一个handle</p>
-<p>至此所有gin的框架里面的内容应该都包括了，包括整个实现过程，其实并不复杂，你可以根据上面的过程在源码中找到对应的地方详细查看。</p>
-<h2 id="好在哪里？"><a href="#好在哪里？" class="headerlink" title="好在哪里？"></a>好在哪里？</h2><p>我们看源码肯定不能看完，哦，知道怎么实现就完事了，我们最终的目的是要学习其中的优点，那么这个框架有哪些好的地方呢？我个人总结了以下三点供你参考。</p>
-<h3 id="context"><a href="#context" class="headerlink" title="context"></a>context</h3><p>使用context包含了Request，Writer等信息，用它来传递参数，也算是利用golang的一个特性去做的，我没想到。</p>
-<h3 id="sync-pool"><a href="#sync-pool" class="headerlink" title="sync.pool"></a>sync.pool</h3><p>利用pool来重复利用对象，因为请求很多，所以会产生很多数量的context，利用sync.pool进行复用，从而减少内存的分配也提高了效率，值得学习。</p>
-<h3 id="trees"><a href="#trees" class="headerlink" title="trees"></a>trees</h3><p>用什么数据结构存放的url和handle的映射关系呢？<br>我一开始想到的就是map，直接弄个hashmap存一下不就好了嘛，没想到gin用了一颗树来进行存放，内部实现很复杂，这里不做展开，据说是radix tree，我就是把它理解成字典树，从而提高存储和查询，棒。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>其实gin框架本身实现好像并不是很复杂，很适合新手进行学习，其中也有一些设计思想可以借鉴。</p>
-]]></content>
-      <categories>
-        <category>gin</category>
-      </categories>
-      <tags>
-        <tag>gin</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>轻量级 k8s 应用日志收集方案 loki</title>
-    <url>/2021/04/20/golang/open-source-component/loki/</url>
-    <content><![CDATA[<p>微服务早已是一个过时的热词，同时，容器 和 k8s 的出现让它更一步成为了一种时尚。同样会带来很多附赠的问题，<strong>日志收集</strong>就是其中一个比较重要的问题。当应用容器化之后，需要查看日志，如果还需要登录服务器，找到对应目录，然后 tail 查看，成本太高了，极大的影响效率。当前其实日志收集方案很多，在实践了多个方案之后，我终于能在今天写出我个人认为我最喜欢的一个方案了 <strong>loki</strong></p>
-<span id="more"></span>
-<h2 id="我的需求"><a href="#我的需求" class="headerlink" title="我的需求"></a>我的需求</h2><p>技术上没有银弹，需要根据实际需求来选择方案，那么我的需求是这样的，你可以做个比较：</p>
-<ol>
-<li>当前所有的应用是部署在 k8s 中的，需要收集所有的应用的日志到一个地方做展示</li>
-<li>部署最好要轻量，对于性能要求并不高（当前日志量并不大）</li>
-<li>日志展示方式友好，能支持基本的时间查询，或者是定位到某个关键字</li>
-</ol>
-<h2 id="可选方案"><a href="#可选方案" class="headerlink" title="可选方案"></a>可选方案</h2><p>从之前的公司包括个人的一些项目上都尝试过很多不同的组合和方案，列举出三个最具有可比性的方案：（以下为个人使用案例，并不能代表所有大众观点，图片来源本地测试服，线上日志不允许公开，但同样禁止转载~）</p>
-<h3 id="ELK"><a href="#ELK" class="headerlink" title="ELK"></a>ELK</h3><p><img src="http://blog.linkinstars.com//blog/elk.png" alt="ELK"></p>
-<p>这似乎是业界最成熟的日志收集方案之一了，因为无论你问哪个有点经验的程序员，提到日志收集，必然会给到这个，我当然不是说这个方案不行，因为我知道很多公司都采用了这个方案，并且稳定运行着，所以这个方案我也尝试去使用过，带来的问题有下面几个：</p>
-<ol>
-<li>部署并不容易，当前现在已经好很多了，当年确实手工部署比较困难，会有很多意外</li>
-<li>占用资源过多，特别是 logstash，懂得都懂</li>
-<li>ES 使用比较困难，上手成本比较高，因为并不是所有的开发对于 ES 的使用都是熟练的，包括我自己都是需要查看文档之后才能回忆起来很多操作</li>
-</ol>
-<p>当然后面改进了：变成了 EFK</p>
-<p>其中的 F 可以是 filebeat、fluentd、fluent-bit 这样日志采集的部分可以占用更少的资源，使用上会更加轻量一些，所以，其实现在 EFK 算是一个通用的商业日志收集的解决方案了。我觉得如果是一个中型或者大型的项目可以使用这样成熟的解决方案，没有问题。</p>
-<h3 id="FIC"><a href="#FIC" class="headerlink" title="FIC"></a>FIC</h3><p>FIC 可能小众一些，但是这是我第二个使用上来说对于我来说使用下来感觉不错的方案：fluentbit + influxdb + chronograf</p>
-<p>其实我蛮喜欢 influxdb 这家公司出品的东西的，使用感觉还不错，因为 influxdb 作为一个时序数据库来说其实非常轻量了，部署也很方便，配置上面也比较简单，主要还是日志收集上面的配置，并且 influxdb 的使用比起 es 来说理解起来更加的简单一点，更容易上手</p>
-<p><img src="http://blog.linkinstars.com//blog/chronograf.png" alt="chronograf"></p>
-<p>部署方式：<a href="https://www.jianshu.com/p/c5faf3c10bce">https://www.jianshu.com/p/c5faf3c10bce</a></p>
-<p>在使用的 FIC 的时候，我发现它对于单体应用还是相当友好的，搭建使用都非常舒服，并且 chronograf 的页面比 kibana 个人认为要舒服很多，简洁。当然也有它自己的问题：</p>
-<ol>
-<li>influxdb 还是比较吃内存的</li>
-<li>日志量大的时候 chronograf 明显第一次进去会卡，不知道现在优化没有，然后如果当入库数据异常的时候其实页面会报错的：之前我提过 issue 应该已经修复</li>
-<li>日志关键字搜索的时候会卡，准确的说比较慢</li>
-<li>其实 fluentbit 对于多行日志的处理很鸡肋，因为每家每户的日志格式其实不太一样，公司内部日志格式都不一样，我还尝试重新自己造过轮子，发送到 influxdb ，后面才发现 filebeat 也能满足要求。</li>
-<li>tag 会爆炸，塞日志的时候，如果日志量巨大，因为会根据日志级别打 tag 建立索引，而 influxdb 是有默认限制的，所以当时也踩了坑，调整了配置后得以解决</li>
-</ol>
-<p>但是 其实 FIC 对于系统日志也就是 syslog 的监控还是有着自己独特的一面，有机会你可以尝试一下，还是相当不错的，这个方案我也使用了一段时间了。</p>
-<h3 id="Loki"><a href="#Loki" class="headerlink" title="Loki"></a>Loki</h3><p>这是我当前使用过一段时间之后，最终认可的一个方案：<a href="https://github.com/grafana/loki">https://github.com/grafana/loki</a></p>
-<p>其实在使用 FIC 的时候我就犹豫过当时要不要使用 loki 犹豫当时的公司内部没有大力推 k8s ，多数都是 docker-compose 的使用，更多的是小单体居多的。而当时 loki 也是没有很多的实际使用经验，不敢往上推，怕出问题。但是后面有了机会实践之后就真香了。</p>
-<p>其实 loki 包含三个组件：</p>
-<ol>
-<li><strong>Promtail</strong>:日志收集工具</li>
-<li><strong>Loki</strong>:日志聚合系统</li>
-<li><strong>Grafana</strong>:可视化工具</li>
-</ol>
-<p>grafana 其实很熟悉了，很多监控展示都用到它了，用起来也相当的舒服，有很多的展示方式，当时在比较的时候，当初 grafana 还只有表格展示模式，所以就比较尴尬，后面出现了 log 模式就很舒服了。</p>
-<p><img src="http://blog.linkinstars.com//blog/grafana.png" alt="grafana"></p>
-<p>我觉得 loki 让我舒服在下面几个点：</p>
-<ol>
-<li>k8s 内部署非常方便，几乎是一个 helm 就能部署好了，不需要额外的配置，默认的配置已经足够日常的使用了</li>
-<li>能筛选到某应用，甚至到某个 pod 的日志，查问题的时候非常方便</li>
-<li>支持关键字搜索，我甚至不需要调整原有的日志格式，就能有很好的支持，如果调整输出日志的格式为官方推荐的 logfmt 的话可能更加靠谱</li>
-<li>日志数据本身会被压缩，使用成本低</li>
-<li>几乎没有入侵：我没有调整日志格式，不需要建立特定的 sidecar 去监控日志也就不需要改动原有的 deployment 的 yaml 配置，就是使用 loki 不需要我改动什么就能用起来</li>
-</ol>
-<p>但是毕竟没有 ES 那么多建立的索引，当日志量大的时候搜索没有那么快，但是也足够满足我的要求了，足够用了。（当然如果调整loki一些参数如缓存等可以大大加快查询速度，个人没有调整，已经足够使用）</p>
-<p>虽然网上见到有吐槽过性能的，但是目前个人使用下来暂时没有遇到瓶颈。后面还会持续关注@TODO。</p>
-<p><strong>PS: 需要注意的是，你的应用日志需要输出到 stdout 中</strong> 这里有关 k8s 日志收集方案不做过多讨论，因为网上的方案大多三种，一种 stdout，一种挂 sidecar，一种用 DaemonSet 各有各的说法。</p>
-<h2 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h2><p>官方已经给出了很多部署的方案，其中我选择的是 helm，非常轻松：<a href="https://grafana.com/docs/loki/latest/installation/helm/">https://grafana.com/docs/loki/latest/installation/helm/</a></p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 添加 repo 并更新</span></span><br><span class="line">helm repo add grafana https://grafana.github.io/helm-charts</span><br><span class="line">helm repo update</span><br><span class="line"></span><br><span class="line"><span class="comment"># 注意这里后面是 -stack 的是默认打包好在一起的，没stack的是默认只有 loki 的，自定义安装请参考官网给出的命令</span></span><br><span class="line">helm upgrade --install loki --namespace=loki grafana/loki-stack</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装 grafana</span></span><br><span class="line">helm install loki-grafana --namespace=&lt;YOUR-NAMESPACE&gt; grafana/grafana</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看 grafana 的密码</span></span><br><span class="line">kubectl get secret --namespace &lt;YOUR-NAMESPACE&gt; loki-grafana -o jsonpath=<span class="string">&quot;&#123;.data.admin-password&#125;&quot;</span> | base64 --decode ; <span class="built_in">echo</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 临时暴露 端口 进行访问测试</span></span><br><span class="line">kubectl port-forward --namespace &lt;YOUR-NAMESPACE&gt; service/loki-grafana 3000:80</span><br></pre></td></tr></table></figure>
-<p>然后设置对应的 service 暴露出你需要使用的端口即可，其实非常容易操作。</p>
-<p>使用 admin 和上面查看的  grafana 的密码即可进入，然后添加数据源选择 loki</p>
-<p><img src="http://blog.linkinstars.com//blog/loki-data-sources.png" alt="loki-data-sources"></p>
-<p>注意这里的地址输入 <a href="http://loki:3100">http://loki:3100</a> 即可，没有什么其他需要配置的。我真的觉得 so easy</p>
-<p>如果没有意外，就可以使用 grafana 的 explorer 进行日志查看的了，前提是运行一段时间，让你的输出一些日志。</p>
-<h3 id="关键字检索"><a href="#关键字检索" class="headerlink" title="关键字检索"></a>关键字检索</h3><p>其实我一开始还担心没办法进行日志关键字检索，找了半天，才发现很简单，只需要在最上面的输入框中写入 <code>&#123;job=&quot;mysql&quot;&#125; |= &quot;error&quot;</code> 其中的 error 就是你要找的关键字，就可以了，还有一些正则表达式这里就不多介绍了，explorer 打开的一开始有提示的。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>其他使用细节因为涉及具体生产使用，不方便截图，我将一些必要的的链接参考扔在下面，应该足够你使用了。</p>
-<p>总的来说，我要的 loki 都有，并且部署方便，想要替换也很方便，直接删掉就好了，然后满足我日志查看的全部需求，而且占用资源情况也没有其他几个那么高，完美~ 后悔没有早点用上它。不过后面也会持续追踪使用情况，后面会再出一个有关使用过程中的坑点的博客。</p>
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p>部署相关：<a href="https://blog.cong.moe/post/2020-07-27-use_loki_as_k8s_log_collector/">https://blog.cong.moe/post/2020-07-27-use_loki_as_k8s_log_collector/</a></p>
-<p><a href="https://bbs.huaweicloud.com/blogs/200177">https://bbs.huaweicloud.com/blogs/200177</a></p>
-<p><a href="https://www.qikqiak.com/post/use-loki-monitor-alert/">https://www.qikqiak.com/post/use-loki-monitor-alert/</a></p>
-<p><a href="https://www.qikqiak.com/post/grafana-loki-usage/">https://www.qikqiak.com/post/grafana-loki-usage/</a></p>
-<p>官方最佳实践：<a href="https://grafana.com/docs/loki/latest/best-practices/current-best-practices/">https://grafana.com/docs/loki/latest/best-practices/current-best-practices/</a></p>
-<p>通过设定annotations只收集固定 pod 的日志：<a href="https://blog.csdn.net/kozazyh/article/details/102881301">https://blog.csdn.net/kozazyh/article/details/102881301</a> （个人认为没有必要，这样对于 k8s 的 yaml 文件有入侵）</p>
-<p>如何设置只收集固定 namespace 的日志：<a href="https://www.giantswarm.io/blog/grafana-logging-using-loki">https://www.giantswarm.io/blog/grafana-logging-using-loki</a></p>
-]]></content>
-      <categories>
-        <category>loki</category>
-      </categories>
-      <tags>
-        <tag>loki</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>monitoror/monitoror 最轻量的监控大屏</title>
-    <url>/2021/04/12/golang/open-source-component/monitoror/</url>
-    <content><![CDATA[<p>一提到监控大屏，那第一想法就是 grafana 对吧，各种样式图形都非常好看，而且支持各种数据源。而今天要分享的是一个更加轻量的监控大屏 monitoror/monitoror</p>
-<p>有了它能帮你快读构建一个的对于网站或者应用的监控页面，特别是在小应用数量多的时候非常简单易用，作为一个大屏展示时它我觉得它足够简洁</p>
-<span id="more"></span>
-<p align="center"><br>    <img src="https://github.com/monitoror/monitoror/raw/develop/.assets/monitoror-mockup.svg" alt width="70%"> <br><br></p>
-
-<h2 id="demo-amp-repo"><a href="#demo-amp-repo" class="headerlink" title="demo &amp; repo"></a>demo &amp; repo</h2><p><a href="https://demo.monitoror.com/">https://demo.monitoror.com/</a></p>
-<p><a href="https://github.com/monitoror/monitoror">https://github.com/monitoror/monitoror</a></p>
-<h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><ul>
-<li>部署轻量</li>
-<li>配置简单</li>
-<li>大屏简洁</li>
-</ul>
-<h2 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h2><h3 id="二进制部署"><a href="#二进制部署" class="headerlink" title="二进制部署"></a>二进制部署</h3><p><a href="https://monitoror.com/documentation/get-started/">https://monitoror.com/documentation/get-started/</a></p>
-<p>非常简单，只需要将二进制文件下载，然后按照要求配置对应的配置文件，就可以了</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">chmod +x monitoror</span><br><span class="line">./monitoror</span><br></pre></td></tr></table></figure>
-<p>配置文件.env</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">MO_CONFIG=&quot;./config.json&quot;</span><br></pre></td></tr></table></figure>
-<p>配置文件config.json</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;version&quot;</span>: <span class="string">&quot;2.0&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;columns&quot;</span>: <span class="number">2</span>,</span><br><span class="line">  <span class="attr">&quot;tiles&quot;</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;PORT&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;label&quot;</span>: <span class="string">&quot;Welcome config example&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;params&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;hostname&quot;</span>: <span class="string">&quot;127.0.0.1&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;port&quot;</span>: <span class="number">8080</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;HTTP-RAW&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;label&quot;</span>: <span class="string">&quot;Monitoror stars&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;params&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;url&quot;</span>: <span class="string">&quot;https://github.com/monitoror/monitoror&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;regex&quot;</span>: <span class="string">&quot;(\\d+) users starred&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="k8s-部署"><a href="#k8s-部署" class="headerlink" title="k8s 部署"></a>k8s 部署</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">monitoror</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">monitoror</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">monitoror</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">monitoror</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">monitoror</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">monitoror</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">monitoror/monitoror:latest</span></span><br><span class="line">        <span class="attr">env:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">MO_CONFIG</span></span><br><span class="line">          <span class="attr">value:</span> <span class="string">&quot;/conf/monitoror.json&quot;</span></span><br><span class="line">        <span class="attr">volumeMounts:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">config-volume</span></span><br><span class="line">          <span class="attr">mountPath:</span> <span class="string">&quot;/conf&quot;</span></span><br><span class="line">        <span class="attr">ports:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">web</span></span><br><span class="line">          <span class="attr">containerPort:</span> <span class="number">32000</span></span><br><span class="line">        <span class="attr">resources:</span></span><br><span class="line">          <span class="attr">limits:</span></span><br><span class="line">            <span class="attr">cpu:</span> <span class="string">100m</span></span><br><span class="line">            <span class="attr">memory:</span> <span class="string">200Mi</span></span><br><span class="line">      <span class="attr">volumes:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">config-volume</span></span><br><span class="line">          <span class="attr">configMap:</span></span><br><span class="line">            <span class="attr">name:</span> <span class="string">monitoror-config</span></span><br><span class="line">            <span class="attr">items:</span> </span><br><span class="line">            <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">monitoror.json</span></span><br><span class="line">              <span class="attr">path:</span> <span class="string">monitoror.json</span></span><br></pre></td></tr></table></figure>
-<p>其中需要注意的就是配置文件 configmap 挂载的位置</p>
-<p>还有环境变量 MO_CONFIG 需要指定对应的配置文件路径</p>
-<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><p><a href="https://monitoror.com/documentation/#configuration">https://monitoror.com/documentation/#configuration</a></p>
-<p>monitoror 的配置很简单</p>
-<h3 id="监控端口"><a href="#监控端口" class="headerlink" title="监控端口"></a>监控端口</h3><p>只需要填入对应的地址和端口即可</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;PORT&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;label&quot;</span>: <span class="string">&quot;Welcome config example&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;params&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;hostname&quot;</span>: <span class="string">&quot;127.0.0.1&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;port&quot;</span>: <span class="number">8080</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="监控HTTP"><a href="#监控HTTP" class="headerlink" title="监控HTTP"></a>监控HTTP</h3><p>只需要填入对应的地址，然后还可以做简单的处理，还有可能监控对应的 http code 状态码</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;HTTP-RAW&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;label&quot;</span>: <span class="string">&quot;Monitoror stars&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;params&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;url&quot;</span>: <span class="string">&quot;https://github.com/monitoror/monitoror&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;regex&quot;</span>: <span class="string">&quot;(\\d+) users starred&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="多平台"><a href="#多平台" class="headerlink" title="多平台"></a>多平台</h2><p><a href="https://monitoror.com/guides/">https://monitoror.com/guides/</a></p>
-<p>甚至可以将这个安装到树莓派上去，这个就很有意思了，因为轻量的关系，这个作为一个监控随便插到哪里，还蛮有意思的</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>如果你需要最快速的搭建一个可用的监控大屏，或许这就是一个不错的选择；当然如果你需要更多的数据监控，需要一些流量数值等等还需要一些图表，那么或许它还没有那么强大。</p>
-<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>当前这个监控还没有通知模块，也就是说，也只能大屏盯着看，emmm…，这个还是有点小鸡肋的，因为确实不可能一直盯着看。当然已经有人提 issue 了，但是官方的 roadmap 里面还没有这个计划，于是我自己先加了一个钉钉的监控意思一下，这样至少能保证出现问题的时候有个反应提醒。比较隔壁的 grafana 做了那么久 alert 模块应该能直接抄过来吧。</p>
-<p><img src="http://blog.linkinstars.com//blog/dingding.png" alt="dingding"></p>
-<blockquote>
-<p>地址：<a href="https://github.com/LinkinStars/monitoror/tree/add-notification">https://github.com/LinkinStars/monitoror/tree/add-notification</a></p>
-</blockquote>
-<p>可以直接拿下来编译使用，注意需要配置：.env 文件</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="attr">MO_CONFIG</span>=<span class="string">&quot;./config.json&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 钉钉的 webhook 地址</span></span><br><span class="line"><span class="attr">MO_MONITORABLE_DINGDING_WEBHOOK</span>=<span class="string">&quot;https://oapi.dingtalk.com/robot/send?access_token=xxxxx&quot;</span></span><br><span class="line"><span class="comment"># 钉钉的 secret 如果不配置 secret 使用 monitoror 关键字应该也可以</span></span><br><span class="line"><span class="attr">MO_MONITORABLE_DINGDING_SECRET</span>=<span class="string">&quot;SECxxxxxx&quot;</span></span><br></pre></td></tr></table></figure>
-<p>当前通知规则：</p>
-<p>最大连续出错通知 3 次，超过这个次数不会继续通知，当服务恢复后计数清零，再次出现异常时会重新通知，同样是 3 次；（这个是临时设置的规则，等全部写完之后会抽离为配置或者调整为更加合适的规则）</p>
-]]></content>
-      <categories>
-        <category>monitoror</category>
-      </categories>
-      <tags>
-        <tag>monitoror</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>openfaas/faas 环境搭建和开发使用</title>
-    <url>/2020/10/19/golang/open-source-component/openfaas/</url>
-    <content><![CDATA[<p>serverless 大环境下出现了 faas，即 function as  a service，函数即服务；其意思也非常好理解，就是能将一个函数作为一个服务进行使用，用户只需要编写一个函数功能即可，不需要额外去关心别的东西。<a href="https://github.com/openfaas/faas">https://github.com/openfaas/faas</a> 是其中的一种实现方式。</p>
-<span id="more"></span>
-<h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><p>以下环境在 mac 上进行搭建：</p>
-<p>首先需要准备 docker 和 kubernetes 的环境，先做 k8s 的环境直接能通过 docker 桌面进行配置，已经算是很方便了。</p>
-<p><img src="http://blog.linkinstars.com//blog/image-20201019193844247.png" alt="image-20201019193844247"></p>
-<h2 id="安装步骤"><a href="#安装步骤" class="headerlink" title="安装步骤"></a>安装步骤</h2><h3 id="openfaas-cli"><a href="#openfaas-cli" class="headerlink" title="openfaas-cli"></a>openfaas-cli</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">curl -sL https://cli.openfaas.com | sh</span><br></pre></td></tr></table></figure>
-<h3 id="namespace"><a href="#namespace" class="headerlink" title="namespace"></a>namespace</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/openfaas/faas-netes</span><br><span class="line"><span class="built_in">cd</span> faas-netes</span><br><span class="line">kubectl apply -f namespaces.yml</span><br></pre></td></tr></table></figure>
-<h3 id="password"><a href="#password" class="headerlink" title="password"></a>password</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ cat passwd.sh</span><br><span class="line">    <span class="comment"># PASSWORD=$(head -c 12 /dev/urandom | sha1sum |cut -d&#x27; &#x27; -f1)</span></span><br><span class="line">    PASSWORD=admin123</span><br><span class="line">    <span class="built_in">echo</span> <span class="variable">$PASSWORD</span> &gt; passwd</span><br><span class="line">    kubectl -n openfaas create secret generic basic-auth \</span><br><span class="line">    --from-literal=basic-auth-user=admin \</span><br><span class="line">    --from-literal=basic-auth-password=<span class="string">&quot;<span class="variable">$PASSWORD</span>&quot;</span></span><br><span class="line">$ sh ./passwd.sh</span><br></pre></td></tr></table></figure>
-<h3 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ kubectl apply -f ./yaml</span><br><span class="line">$ kubectl get pods -n openfaas --watch </span><br><span class="line"></span><br><span class="line">➜  ~ kubectl get pods -n openfaas</span><br><span class="line">NAME                                 READY   STATUS    RESTARTS   AGE</span><br><span class="line">alertmanager-7dd959fd86-stslk        1/1     Running   0          3h30m</span><br><span class="line">basic-auth-plugin-85649fd6fc-4xlph   1/1     Running   0          3h30m</span><br><span class="line">faas-idler-f4597f655-6c4nb           1/1     Running   2          3h30m</span><br><span class="line">gateway-7c579bc859-cpm6g             2/2     Running   1          3h30m</span><br><span class="line">nats-8455bfbb58-gq2vh                1/1     Running   0          3h30m</span><br><span class="line">prometheus-86f7fdf9b5-jtb6q          1/1     Running   0          3h30m</span><br><span class="line">queue-worker-c6d788779-xl6d2         1/1     Running   0          3h30m</span><br><span class="line"></span><br><span class="line"><span class="comment"># 当全部启动时则正常部署成功</span></span><br></pre></td></tr></table></figure>
-<h3 id="访问"><a href="#访问" class="headerlink" title="访问"></a>访问</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">http://127.0.0.1:31112</span><br><span class="line">admin/admin123</span><br></pre></td></tr></table></figure>
-<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>openfaas 默认带有一些可以部署的 function</p>
-<h3 id="nodeinfo"><a href="#nodeinfo" class="headerlink" title="nodeinfo"></a>nodeinfo</h3><p><img src="http://blog.linkinstars.com//blog/image-20201019194703907.png" alt="image-20201019194703907"></p>
-<p><img src="http://blog.linkinstars.com//blog/image-20201019194738010.png" alt="image-20201019194738010"></p>
-<p>点击 deploy 之后等待状态 ready 之后就可以进行使用了，点击 invoke 进行调用，这个 function 是用来获取主机信息的。</p>
-<h3 id="ocr"><a href="#ocr" class="headerlink" title="ocr"></a>ocr</h3><p><img src="http://blog.linkinstars.com//blog/image-20201019194944708.png" alt="image-20201019194944708"></p>
-<p>这个 function 是用来做图像识别的</p>
-<p>还有其他很多自带的 function 都可以试试，这里不再列举了</p>
-<h3 id="qrcode"><a href="#qrcode" class="headerlink" title="qrcode"></a>qrcode</h3><p>其实很多 function 的实现是非常简单的，如这个生成二维码的 function，使用 go 实现，代码如下</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;encoding/binary&quot;</span></span><br><span class="line">	<span class="string">&quot;io/ioutil&quot;</span></span><br><span class="line">	<span class="string">&quot;log&quot;</span></span><br><span class="line">	<span class="string">&quot;os&quot;</span></span><br><span class="line"></span><br><span class="line">	qrcode <span class="string">&quot;github.com/skip2/go-qrcode&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	input, err := ioutil.ReadAll(os.Stdin)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">&quot;Unable to read standard input: %s&quot;</span>, err.Error())</span><br><span class="line">	&#125;</span><br><span class="line">	png, err := qrcode.Encode(<span class="keyword">string</span>(input), qrcode.Medium, <span class="number">256</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">&quot;Unable to read standard input: %s&quot;</span>, err.Error())</span><br><span class="line">	&#125;</span><br><span class="line">	binary.Write(os.Stdout, binary.LittleEndian, png)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>其实就是调用了一个三方的库，在 main 函数中从 std 读如参数，然后将结果输出到 stdout 中就可以了，就其实和我们普通写的函数一模一样。</p>
-<h2 id="实现function"><a href="#实现function" class="headerlink" title="实现function"></a>实现function</h2><p>那么如何自己实现一个 function 并注册使用呢？其实也很简单，现在 faas-cli 工具已经提供了相关的功能，这里说明使用 golang 来时进实现的方式，其他语言也是类似的。</p>
-<h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><p>创建一个空目录，在空目录下使用  faas-cli 命令进行初始化</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">faas-cli new hellofaas --lang go</span><br></pre></td></tr></table></figure>
-<p>这样你就能得到一个基础的功能目录</p>
-<p>hellofaas 文件夹中包含一个 go 文件，这个文件就是你需要自己实现的 function，里面是一个 http 请求的 handle，接受一个参数，返回一个字符串，函数中你可以实现你自己的逻辑功能。</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> function</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// Handle a serverless request</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Handle</span><span class="params">(req []<span class="keyword">byte</span>)</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> fmt.Sprintf(<span class="string">&quot;Hello, Go. You said: %s&quot;</span>, <span class="keyword">string</span>(req))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="配置镜像参数"><a href="#配置镜像参数" class="headerlink" title="配置镜像参数"></a>配置镜像参数</h3><p>hellofaas.yml 文件是用来部署和上传镜像的</p>
-<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="number">1.0</span></span><br><span class="line"><span class="attr">provider:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">openfaas</span></span><br><span class="line">  <span class="attr">gateway:</span> <span class="string">http://127.0.0.1:31112</span></span><br><span class="line"><span class="attr">functions:</span></span><br><span class="line">  <span class="attr">hellofaas:</span></span><br><span class="line">    <span class="attr">lang:</span> <span class="string">go</span></span><br><span class="line">    <span class="attr">handler:</span> <span class="string">./hellofaas</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">linkinstar/hellofaas:latest</span> </span><br></pre></td></tr></table></figure>
-<p>其中需要修改的是 gateway 为你自己的 faas 部署地址</p>
-<p>然后就是 images 是你 docker hub 的地址，如果需要推送到私有仓库需要你手动进行登录操作</p>
-<h3 id="构建、推送、部署"><a href="#构建、推送、部署" class="headerlink" title="构建、推送、部署"></a>构建、推送、部署</h3><p>剩下就很简单了，三个命令，构建时间可能会长一些，拉取镜像比较缓慢</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">faas-cli build -f hellofaas.yml</span><br><span class="line">faas-cli push -f hellofaas.yml</span><br><span class="line">faas-cli deploy -f hello.yml --gateway http://127.0.0.1:31112</span><br></pre></td></tr></table></figure>
-<p>如果没有问题，那么在页面上你就可以看到你自己的 function 了</p>
-<p><img src="http://blog.linkinstars.com//blog/image-20201019204020609.png" alt="image-20201019204020609"></p>
-<p>当然你也可以这样调用：</p>
-<p><code>echo test | faas-cli invoke hellofaas --gateway http://127.0.0.1:31112</code></p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>其实对于 faas 的使用还算简单，并没有想象中的那么复杂，它的实现方式也比较符合我的想法，作为一个镜像进行打包进行输出进行使用，而且支持各种语言进行实现，也不失为一种比较好的实现策略吧。</p>
-<p>我觉得更多的是 function 的这样的思想，让我们要意识到，什么样类型的功能能被抽离为一个 function ，并且这个的 function 是否应该有业务属性，以及它作为一个 service 的定义是什么，这我觉得是我们应该考虑的。因为它很轻，轻的东西就容易多，多的东西就不好管控，所以控制方面也应该做考虑。</p>
-<p>总之要认清它的目标和使用场景还是一个比较难得事情。</p>
-<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="https://www.lanqiao.cn/library/kubernetes-handbook/usecases/openfaas-quick-start/">https://www.lanqiao.cn/library/kubernetes-handbook/usecases/openfaas-quick-start/</a></p>
-<p><a href="https://cloud.tencent.com/developer/article/1681551">https://cloud.tencent.com/developer/article/1681551</a></p>
-<p><a href="http://www.liangxiaolei.fun/2020/06/11/k8s%E7%AC%94%E8%AE%B0-serverless-openfaas%E4%BD%93%E9%AA%8C/">http://www.liangxiaolei.fun/2020/06/11/k8s%E7%AC%94%E8%AE%B0-serverless-openfaas%E4%BD%93%E9%AA%8C/</a></p>
-<p><a href="https://linux.cn/article-9078-1.html">https://linux.cn/article-9078-1.html</a></p>
-]]></content>
-      <categories>
-        <category>云原生</category>
-      </categories>
-      <tags>
-        <tag>faas</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>快速上手terraform —— 阿里云OSS和ECS的创建</title>
-    <url>/2019/11/10/golang/open-source-component/terraform-aliyun-oss-ecs-test/</url>
-    <content><![CDATA[<p>最近在研究terraform，采了一圈坑，记录一下。</p>
-<p>什么是terraform？terraform 通过代码配置实现物理机等一些资源的分配。简单说就是，写一个配置文件，启动，就能帮你购买一台云的机器，或者说申请到oss的资源，或者是别的什么。具体功能见官网。<br><span id="more"></span></p>
-<p><a href="https://www.terraform.io/docs/index.html">https://www.terraform.io/docs/index.html</a></p>
-<p>名词解释：provider你可以把它看做各个厂商对terraform提供的插件，terraform可以调用这些插件从而实现对资源的操作管理。<br>terraform流程：init -&gt; plan -&gt; apply -&gt; destroy<br>对应为：初始化，计划验证，实际应用，销毁</p>
-<h2 id="最小demo"><a href="#最小demo" class="headerlink" title="最小demo"></a>最小demo</h2><p>我将用一个最小的demo来演示它怎么干活的：通过terraform来创建一个阿里云的oss<br>（以下没有利益相关）只是因为阿里云我有账号而已，其他供应商也有。</p>
-<p>我的本地环境：macOS</p>
-<h3 id="步骤1-下载相关资源"><a href="#步骤1-下载相关资源" class="headerlink" title="步骤1 下载相关资源"></a>步骤1 下载相关资源</h3><p>下载对应的客户端：<a href="https://www.terraform.io/downloads.html">https://www.terraform.io/downloads.html</a><br>下载解压后得到：terraform的客户端，将它复制到 <code>/usr/local/bin</code> 目录下<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">$ terraform -version</span><br><span class="line">Terraform v0.12.13</span><br></pre></td></tr></table></figure><br>验证一下，输出版本正常的话就好了</p>
-<p>下载阿里云对应provider：<a href="https://releases.hashicorp.com/terraform-provider-alicloud/1.60.0/">https://releases.hashicorp.com/terraform-provider-alicloud/1.60.0/</a><br>我下载的版本为：terraform-provider-alicloud_1.60.0_darwin_amd64.zip</p>
-<p>放置到一个你喜欢的目录下，我这边为<code>/Users/LinkinStar/Documents/tf-plugin</code></p>
-<h3 id="步骤2-申请阿里云相关资源"><a href="#步骤2-申请阿里云相关资源" class="headerlink" title="步骤2 申请阿里云相关资源"></a>步骤2 申请阿里云相关资源</h3><p>创建你的阿里云账号，这个不多说了。然后需要创建一个ram用户<br><a href="https://ram.console.aliyun.com/">https://ram.console.aliyun.com/</a><br>用户管理 -&gt; 新建用户 -&gt; 保存好AccessKey和Secret</p>
-<p>注意！这里还需要对用户进行授权，点击授权给到相关权限就行，我给了全部，方便测试</p>
-<h3 id="步骤3-编写文件"><a href="#步骤3-编写文件" class="headerlink" title="步骤3 编写文件"></a>步骤3 编写文件</h3><p>随便创建一个工作目录，然后创建一个tf文件main.tf<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># Configure the Alicloud Provider</span><br><span class="line">provider &quot;alicloud&quot; &#123;</span><br><span class="line">  access_key = &quot;LTAIaskjfhadsklfhklasdjfhdsakjlfhdask&quot;</span><br><span class="line">  secret_key = &quot;6GPashfjksladfhdjskafhdsklajfdhaljfhajfl&quot;</span><br><span class="line">  region     = &quot;cn-beijing&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">resource &quot;alicloud_oss_bucket&quot; &quot;bucket-acl&quot; &#123;</span><br><span class="line">  bucket = &quot;bucket-123456654321-acl&quot;</span><br><span class="line">  acl    = &quot;private&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>其中 access_key 和 secret_key 为你刚才申请ram的信息<br>bucket 的名称你随便取一个</p>
-<h3 id="步骤4-运行命令"><a href="#步骤4-运行命令" class="headerlink" title="步骤4 运行命令"></a>步骤4 运行命令</h3><h4 id="init"><a href="#init" class="headerlink" title="init"></a>init</h4><p>以下命令均在tf文件当前目录下运行<br><figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">terraform init -plugin-dir=/Users/LinkinStar/Documents/tf-plugin</span><br></pre></td></tr></table></figure><br>注意后面的目录是我们刚才下载的provider的目录<br>出现 Terraform has been successfully initialized! 为成功</p>
-<h4 id="plan"><a href="#plan" class="headerlink" title="plan"></a>plan</h4><p>然后使用命令 <code>terraform plan</code> 出现以下信息<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">  # alicloud_oss_bucket.bucket-acl will be created</span><br><span class="line">  + resource &quot;alicloud_oss_bucket&quot; &quot;bucket-acl&quot; &#123;</span><br><span class="line">      + acl               = &quot;private&quot;</span><br><span class="line">      + bucket            = &quot;bucket-123456654321-acl&quot;</span><br><span class="line">      + creation_date     = (known after apply)</span><br><span class="line">      + extranet_endpoint = (known after apply)</span><br><span class="line">      + force_destroy     = false</span><br><span class="line">      + id                = (known after apply)</span><br><span class="line">      + intranet_endpoint = (known after apply)</span><br><span class="line">      + location          = (known after apply)</span><br><span class="line">      + owner             = (known after apply)</span><br><span class="line">      + storage_class     = &quot;Standard&quot;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">Plan: 1 to add, 0 to change, 0 to destroy.</span><br></pre></td></tr></table></figure></p>
-<h4 id="apply"><a href="#apply" class="headerlink" title="apply"></a>apply</h4><p>运行命令 <code>terraform apply</code> 过程中需要输出yes确认<br>出现以下信息就证明成功了：<br><code>Apply complete! Resources: 1 added, 0 changed, 0 destroyed.</code></p>
-<p>你可以到：<a href="https://oss.console.aliyun.com/overview">https://oss.console.aliyun.com/overview</a><br>查看OSS是否已经被创建</p>
-<h4 id="destroy"><a href="#destroy" class="headerlink" title="destroy"></a>destroy</h4><p>最后运行命令 <code>terraform destroy</code> 过程中需要输出yes确认<br>刚才创建的OSS资源就会被销毁，你可以再在网上刷新一下查看</p>
-<p>以上就是通过terraform进行的资源操作，同样的，你可以修改tf文件进行更多资源的操作</p>
-<h2 id="对ECS进行操作"><a href="#对ECS进行操作" class="headerlink" title="对ECS进行操作"></a>对ECS进行操作</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># Configure the Alicloud Provider</span><br><span class="line">provider &quot;alicloud&quot; &#123;</span><br><span class="line">  access_key = &quot;LTAIaskjfhadsklfhklasdjfhdsakjlfhdask&quot;</span><br><span class="line">  secret_key = &quot;6GPashfjksladfhdjskafhdsklajfdhaljfhajfl&quot;</span><br><span class="line">  region     = &quot;cn-hangzhou&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"># Create a new ECS instance for a VPC</span><br><span class="line">resource &quot;alicloud_security_group&quot; &quot;group&quot; &#123;</span><br><span class="line">  name        = &quot;tf_test_foo&quot;</span><br><span class="line">  description = &quot;foo&quot;</span><br><span class="line">  vpc_id      = &quot;$&#123;alicloud_vpc.vpc.id&#125;&quot;</span><br><span class="line">&#125;</span><br><span class="line">resource &quot;alicloud_vpc&quot; &quot;vpc&quot; &#123;</span><br><span class="line">  name       = &quot;tf_test_foo&quot;</span><br><span class="line">  cidr_block = &quot;172.16.0.0/12&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">resource &quot;alicloud_vswitch&quot; &quot;vswitch&quot; &#123;</span><br><span class="line">  vpc_id            = &quot;$&#123;alicloud_vpc.vpc.id&#125;&quot;</span><br><span class="line">  cidr_block        = &quot;172.16.0.0/21&quot;</span><br><span class="line">  availability_zone = &quot;cn-hangzhou-i&quot;</span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line">resource &quot;alicloud_instance&quot; &quot;instance&quot; &#123;</span><br><span class="line">  availability_zone = &quot;cn-hangzhou-i&quot;</span><br><span class="line">  security_groups   = &quot;$&#123;alicloud_security_group.group.*.id&#125;&quot;</span><br><span class="line">  instance_type              = &quot;ecs.t6-c2m1.large&quot;</span><br><span class="line">  system_disk_category       = &quot;cloud_efficiency&quot;</span><br><span class="line">  image_id                   = &quot;ubuntu_18_04_64_20G_alibase_20190624.vhd&quot;</span><br><span class="line">  instance_name              = &quot;test_foo&quot;</span><br><span class="line">  vswitch_id                 = &quot;$&#123;alicloud_vswitch.vswitch.id&#125;&quot;</span><br><span class="line">  </span><br><span class="line">  internet_max_bandwidth_out = 0</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><img src="http://blog.linkinstars.com/mweb/15733034184247.jpg" alt></p>
-<p>需要注意的是你的账户余额必须&gt;100块，否则会提示余额不足，我这边tf里面写的是非常便宜几分钱一个小时的机器，所以问题不大，你要是害怕你可以不测（再说一遍本文没有利益相关）</p>
-<h2 id="相关资源总结"><a href="#相关资源总结" class="headerlink" title="相关资源总结"></a>相关资源总结</h2><p>provider下载地址：<a href="https://releases.hashicorp.com/">https://releases.hashicorp.com/</a><br>provider相关文档：<a href="https://www.terraform.io/docs/providers/index.html">https://www.terraform.io/docs/providers/index.html</a></p>
-<h2 id="坑点"><a href="#坑点" class="headerlink" title="坑点"></a>坑点</h2><ul>
-<li>国内的墙导致直接执行init是不可以的，它会去官方拉取provider但是会报错，必须手动下载provider并指定-plugin-dir，呼吸不到外面的新鲜空气有点难受。</li>
-<li>terraform的文档都是英文的并且provider给到的参数选项不全，不知道该填什么。</li>
-<li>阿里云创建的ram用户默认没有权限。</li>
-<li>阿里云需要100块？！我充10块钱不行吗？我又花不了那么多，弄得我晚饭都吃不起了。</li>
-<li>阿里云很多地区是没有便宜的机器卖的，一直提示我机器没有，很难受。</li>
-</ul>
-<p>PS: 以上TF文件均用来测试，所以一些变量没有做抽离，实际使用一些变量如key等会抽离成别的文件统一管理，别被我带跑偏了。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>总的来说使用tf对于资源的申请还是非常方便的，一个文件就可以搞定，可以做到随时使用随时销毁，同时也支持多次apply对资源进行更新和操作。它不仅可以对服务器进行操作，还有很多公有云的资源如dns等进行操作，并且现在provider支持的厂商很多。</p>
-<p>原理相关的博客后续有机会补充，希望不会鸽。</p>
-]]></content>
-      <categories>
-        <category>terraform</category>
-      </categories>
-      <tags>
-        <tag>terraform</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Weave Scope 监控 k8s 集群</title>
-    <url>/2021/01/12/golang/open-source-component/weave-scope/</url>
-    <content><![CDATA[<p>之前一直在寻找一个 k8s 监控的工具，因为一直使用的是本地的 lens 的客户端，虽然使用上已经非常方便了，但是其实对于资源消耗的监控少了一点，有些资源消耗并不是能容易看到，并且服务间依赖是没有办法表现出来的，后来发现了 Weave Scope 满足了我的需求。</p>
-<span id="more"></span>
-<h2 id="链接"><a href="#链接" class="headerlink" title="链接"></a>链接</h2><p><a href="https://github.com/weaveworks/scope">https://github.com/weaveworks/scope</a></p>
-<h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><ul>
-<li>资源监控：能实时反映整个集群中的资源状况 cpu 内存 使用情况 并且支持各种角度</li>
-<li>服务间依赖：能通过图形展现出服务之间访问的依赖关系</li>
-<li>容器交互：实时查看日志和描述信息</li>
-<li>支持插件：可以通过插件扩展</li>
-<li>部署方便：一个命令即可部署完成</li>
-</ul>
-<h2 id="监控页面"><a href="#监控页面" class="headerlink" title="监控页面"></a>监控页面</h2><h3 id="资源监控"><a href="#资源监控" class="headerlink" title="资源监控"></a>资源监控</h3><p><img src="http://blog.linkinstars.com//blog/weavescope-hosts-memory-stat.png" alt="weavescope-hosts-memory-stat"></p>
-<p>可以清楚的看到每个 node 的资源使用情况</p>
-<h3 id="服务间依赖"><a href="#服务间依赖" class="headerlink" title="服务间依赖"></a>服务间依赖</h3><p><img src="http://blog.linkinstars.com//blog/weavescope-service-dependcy.png" alt="weavescope-service-dependcy"></p>
-<p>因为内部服务与服务之间通过 rpc 进行交互，从这里可以很容易看出，某个服务被别的五个服务所依赖调用</p>
-<h3 id="容器交互"><a href="#容器交互" class="headerlink" title="容器交互"></a>容器交互</h3><p><img src="http://blog.linkinstars.com//blog/weacescope-pod-interaction.png" alt="weacescope-pod-interaction"></p>
-<p>可以看到占用的 cpu 和内存的情况，然后占用的端口等，还有日志信息</p>
-<h2 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h2><p>支持直接部署在 k8s 集群中，不需要额外的任何配置</p>
-<p><a href="https://www.weave.works/docs/scope/latest/installing/#k8s">https://www.weave.works/docs/scope/latest/installing/#k8s</a></p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 下面一个命令就能部署完成了</span></span><br><span class="line">kubectl apply -f <span class="string">&quot;https://cloud.weave.works/k8s/scope.yaml?k8s-version=<span class="subst">$(kubectl version | base64 | tr -d &#x27;\n&#x27;)</span>&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 通过下面的命令临时暴露端口转发到本地进行访问</span></span><br><span class="line">kubectl port-forward -n weave <span class="string">&quot;<span class="subst">$(kubectl get -n weave pod --selector=weave-scope-component=app -o jsonpath=&#x27;&#123;.items..metadata.name&#125;&#x27;)</span>&quot;</span> 4040</span><br></pre></td></tr></table></figure>
-<p>访问本地： <a href="http://localhost:4040">http://localhost:4040</a></p>
-<h2 id="插件"><a href="#插件" class="headerlink" title="插件"></a>插件</h2><p><a href="https://github.com/weaveworks-plugins/">https://github.com/weaveworks-plugins/</a></p>
-<p>比如有一个 http 流量统计的插件：<a href="https://github.com/weaveworks-plugins/scope-http-statistics">https://github.com/weaveworks-plugins/scope-http-statistics</a></p>
-<p>不过现在还并不是很多，但是基本功能其实已经足够了</p>
-<h2 id="鉴权"><a href="#鉴权" class="headerlink" title="鉴权"></a>鉴权</h2><p><a href="https://www.weave.works/docs/scope/latest/faq/">https://www.weave.works/docs/scope/latest/faq/</a></p>
-<p>支持最简单的一个 http 鉴权，如果有需要可以设置对应参数</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>如果你需要一个资源监控的工具，并且觉得上面的信息就是你需要的，可以尝试使用下，目前是我比较推荐的一个集群监控。</p>
-<p>当然它也有个我认为的小不足：其实服务复杂的时候，服务间的依赖也会非常复杂，而且页面不支持拖动，就有的时候有点“难看”，如果拓扑中的节点支持拖动其实就蛮不错的，个人想法。</p>
-<p>相关链接：<a href="https://www.cnblogs.com/linuxk/p/10560022.html">https://www.cnblogs.com/linuxk/p/10560022.html</a></p>
-]]></content>
-      <categories>
-        <category>Weave-Scope</category>
-      </categories>
-      <tags>
-        <tag>Weave-Scope</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Golang之channel</title>
     <url>/2019/08/05/golang/source-code/channel-source-code/</url>
     <content><![CDATA[<p>go中的一个精髓就是就是channel，那么你有没有想过，它究竟是怎么实现的呢？我之前就怀疑过，是不是就是通过一个数组保存了一下传入的数据，然后在接收方读一读就完事了，那么阻塞又是怎么实现的呢？close的时候需要注意些什么呢？</p>
@@ -3369,6 +2718,657 @@
       </categories>
       <tags>
         <tag>GopherChina</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>下一个 nginx？caddy 自动 https 真香</title>
+    <url>/2020/11/14/open-source-component/caddy/</url>
+    <content><![CDATA[<p>我们通常在部署 web 服务的时候往往会选择 nginx 作为最前面的一个狠角色，它的性能和能力大家也是有目共睹的，反向代理负载均衡等等。而作为后起之秀 caddy 却不被人所熟知，不过渐渐的也开始展露头角。<br>今天我就来介绍这个 caddy ，为什么我会称它有可能成为下一个 nginx。</p>
+<span id="more"></span>
+<p>我先列举几个痛点你看下：</p>
+<ol>
+<li>nginx 的配置文件你是否感觉有时候有点臃肿</li>
+<li>https 需要购买或者申请证书，然后配置是否觉得麻烦？</li>
+<li>linux 下安装 nginx 需要部分依赖</li>
+</ol>
+<p>而 caddy 确实给我了一种眼前一亮的感觉。</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>官网：<a href="https://caddyserver.com/">https://caddyserver.com/</a></p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p><a href="https://caddyserver.com/docs/download">https://caddyserver.com/docs/download</a><br>安装很简单，直接下载对应的二进制文件即可，或者按照对应到操作系统去安装也可以。没有其他依赖。</p>
+<h3 id="使用-1"><a href="#使用-1" class="headerlink" title="使用"></a>使用</h3><p><a href="https://caddyserver.com/docs/getting-started">https://caddyserver.com/docs/getting-started</a><br>一个命令就可以启动，caddy，默认会去当前目录下寻找 <code>Caddyfile</code> 配置文件，也可以通过 –config 去指定文件位置</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">caddy start</span><br><span class="line">caddy stop</span><br><span class="line">caddy reload</span><br></pre></td></tr></table></figure>
+<h3 id="反向代理"><a href="#反向代理" class="headerlink" title="反向代理"></a>反向代理</h3><p><a href="https://caddyserver.com/docs/caddyfile/directives/reverse_proxy">https://caddyserver.com/docs/caddyfile/directives/reverse_proxy</a></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">https://www.xxxx.com &#123;</span><br><span class="line">  reverse_proxy /api/user* &#123;</span><br><span class="line">    to 192.168.1.101:9000</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="静态文件"><a href="#静态文件" class="headerlink" title="静态文件"></a>静态文件</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">https://www.xxxx.com &#123;</span><br><span class="line">  root * /home/linkinstar/www</span><br><span class="line">  file_server</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="外网服务使用-https"><a href="#外网服务使用-https" class="headerlink" title="外网服务使用 https"></a>外网服务使用 https</h2><p><a href="https://caddyserver.com/docs/quick-starts/https">https://caddyserver.com/docs/quick-starts/https</a></p>
+<p><a href="https://caddyserver.com/docs/automatic-https">https://caddyserver.com/docs/automatic-https</a></p>
+<p>caddy 最让我惊讶的是自动的 https 功能，只要你有一个可以正常访问的域名，将域名指向你外网服务器对应的 ip，然后向上面一样配置好 Caddyfile，只要域名一致，https 就完成了，不需要你额外申请证书，不需要做其他任何的操作，真的很棒👍，可谓是懒人必备</p>
+<p>原理是，它会去 <a href="https://letsencrypt.org/">https://letsencrypt.org/</a> 调用对应的接口去申请证书，这是一个免费证书的申请网站，</p>
+<h2 id="本地使用-https-证书"><a href="#本地使用-https-证书" class="headerlink" title="本地使用 https 证书"></a>本地使用 https 证书</h2><p>当我们的一些内网服务器需要使用 https 证书的时候，怎么办呢？因为内网的服务器没有公网 IP，caddy 去 letsencrypt 申请证书的时候无法验证，所以需要曲线救国。前提你需要一个域名。<a href="https://zhuanlan.zhihu.com/p/63412372">https://zhuanlan.zhihu.com/p/63412372</a></p>
+<h3 id="申请证书"><a href="#申请证书" class="headerlink" title="申请证书"></a>申请证书</h3><p>wget <a href="https://dl.eff.org/certbot-auto">https://dl.eff.org/certbot-auto</a><br>chmod a+x certbot-auto</p>
+<p>certbot-auto –manual –preferred-challenges dns certonly</p>
+<p>接下来根据提示依次输入域名,和一些提示，一般输入y表示同意即可，知道让你去添加一条 txt 解析记录并验证的时候</p>
+<h3 id="将证书输出验证内容进行-dns-解析配置"><a href="#将证书输出验证内容进行-dns-解析配置" class="headerlink" title="将证书输出验证内容进行 dns 解析配置"></a>将证书输出验证内容进行 dns 解析配置</h3><p><img src="http://blog.linkinstars.com//blog/image-20210510233258107.png" alt="image-20210510233258107"></p>
+<p>配置完成之后会在 /etc/letsencrypt/live/xxx.com 目录下生成对应的公钥私钥</p>
+<h3 id="配置Caddyfile"><a href="#配置Caddyfile" class="headerlink" title="配置Caddyfile"></a>配置Caddyfile</h3><figure class="highlight json"><table><tr><td class="code"><pre><span class="line">xxx.com:<span class="number">443</span> &#123;</span><br><span class="line">  tls /etc/letsencrypt/live/xxx.com/cert.pem /etc/letsencrypt/live/xxx.com/privkey.pem</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="性能比较"><a href="#性能比较" class="headerlink" title="性能比较"></a>性能比较</h2><p><a href="https://caddy.community/t/siege-benchmarks-nginx-vs-caddy-identical-systems/2962">https://caddy.community/t/siege-benchmarks-nginx-vs-caddy-identical-systems/2962</a></p>
+<p>从性能上来说，确实 nginx 要更胜一筹，而且官方也承认（毕竟 nginx 的设计就是干这个的）</p>
+<p>不过从比较的数据上来说，能让普通用户使用很满意了，并没有一定需要追求极致的性能体验，毕竟免费的 https 已经有点香了</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ol>
+<li>caddy 发挥了 go 传统的优势安装没有依赖，使用方便</li>
+<li>自动化的 https 证书的申请，很让人舒服</li>
+<li>配置项更加清晰和简单，一目了然</li>
+</ol>
+<h3 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h3><ol>
+<li>性能比 nginx 略逊一筹</li>
+<li>重启的时候 https 会重新申请，会有短暂的停顿</li>
+<li>使用案例少了一些</li>
+</ol>
+<p>总的来说，如果你正需要一个免费方便的 https 的网关，那就试试 caddy 吧，一定不会让你失望的，而 caddy 也慢慢在发展，虽然从设计角度讲模型可能不如 nginx，但是从使用角度讲，可能我后续更偏爱 caddy 一些</p>
+<h2 id="参考博客"><a href="#参考博客" class="headerlink" title="参考博客"></a>参考博客</h2><p><a href="https://segmentfault.com/a/1190000022733237">https://segmentfault.com/a/1190000022733237</a></p>
+]]></content>
+      <categories>
+        <category>caddy</category>
+      </categories>
+      <tags>
+        <tag>caddy</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>浅入深出ETCD之【简介与命令行使用】</title>
+    <url>/2019/06/10/open-source-component/etcd-brief/</url>
+    <content><![CDATA[<p>你知道etcd吗？随着k8s的使用广泛之后，etcd被非常多的人所知道，同时又因为它可靠的分布式特性被很多人喜欢。所以，我准备有几篇博文来记录一下，从基本使用到线上部署再到原理分析，做一个系列。那么，今天先来说说它的简介与命令行的使用。</p>
+<span id="more"></span>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><h3 id="ETCD是什么"><a href="#ETCD是什么" class="headerlink" title="ETCD是什么"></a>ETCD是什么</h3><p>我个人总结为下面用几个要点：</p>
+<ul>
+<li>高可用K-V存储，就类似于redis一样的键值对存储。</li>
+<li>允许应用实时监听存储中的K-V变化。</li>
+<li>能够容忍单点故障，能够应对网络分区。</li>
+<li>etcd利用raft在集群中同步K-V信息，raft是强一致的集群日志同步算法。</li>
+</ul>
+<p>总结：etcd是一个分布式高可用k-v存储，通过复制达到每个节点存储的信息一致，从而保证高可用。</p>
+<h3 id="数据复制"><a href="#数据复制" class="headerlink" title="数据复制"></a>数据复制</h3><p>这里简单说一下复制的具体流程：</p>
+<p><img src="http://blog.linkinstars.com/mweb/15601472125417.jpg" alt></p>
+<p>（client为我们的客户端，用来发出存储请求，leader和follower都是etcd的节点）<br>就如图上所看到的，我叫它两段式提交：</p>
+<ol>
+<li>客户端请求leader发送存储的数据，然后leader节点要将信息通过日志复制给大多数的follower节点，如上图所示，只需要复制给两个（加上它自己是三个）那么就是大多数节点。</li>
+<li>leader当复制完成之后才会本地提交，然后返回给客户端成功，（如果没有或者不能复制给大多数节点，那么则存储失败）此时再同时其他follower去他们自己本地提交。<br>是不是有一种分布式事务的感觉？分布式的解决通常都是这种感觉。</li>
+</ol>
+<p>我们也可以看到，etcd通过先将数据存放在大多数节点上面从而保证数据不会出错并且效率较高，最终所有节点数据还是会同步一致的。</p>
+<ul>
+<li>官方给出写入的性能：1000/s</li>
+</ul>
+<p>PS:这里因为是简介，所以就简单提一下，有关如何选举出leader还有raft协议的一些具体细节，以及当出现网络分区或者节点异常问题的恢复会在之后的博客中给出。</p>
+<h3 id="存储结构"><a href="#存储结构" class="headerlink" title="存储结构"></a>存储结构</h3><p>底层存储key是有序排列的<br>‘key’ -&gt; ‘value’</p>
+<p>aaa/bbb -&gt; 111<br>aaa/bbc -&gt; 3333<br>bbb/aaa -&gt; 1321<br>ccc -&gt; 24<br>就是按照key的顺序依次排列，相同前缀的key会被放在一起，这样到存储结构，当查询时<strong>可以通过key的前缀将一系列的value都取出来</strong></p>
+<h3 id="watch机制和lease租约"><a href="#watch机制和lease租约" class="headerlink" title="watch机制和lease租约"></a>watch机制和lease租约</h3><p>etcd有一个很棒的机制要单独提一句，就是watch，它允许你去监控一个key的变化。当你监控了之后，这个key的添加修改删除都会被监控到。<br>lease租约，这个机制和redis中的key过期机制一样，可以申请一个租约，这个租约有一个时间限制，比如60秒，你可以将这个租约设置到一个key上，那么这个key过60秒就会被自动删除。当然也可以进行续租。</p>
+<p>具体使用情况，可以从后面的命令行操作中看到。</p>
+<h3 id="还有一些小点"><a href="#还有一些小点" class="headerlink" title="还有一些小点"></a>还有一些小点</h3><ul>
+<li>etcd使用grpc，所以网络性能会高</li>
+<li>部署节点数量要求是2N+1个</li>
+<li>选举leader需要半数以上的节点参与</li>
+<li>etcd是支持事务操作的，可以if第一次a提交正常，then提交b，else不提交b</li>
+</ul>
+<h2 id="本地单节点部署"><a href="#本地单节点部署" class="headerlink" title="本地单节点部署"></a>本地单节点部署</h2><p>我们一开始学习和测试的时候只需要在本地部署一个单节点就可以了，单节点的部署比较方便这边简单说明一下。<br>首先下载对应的版本：<a href="https://github.com/etcd-io/etcd/releases">https://github.com/etcd-io/etcd/releases</a><br>我这边使用的mac对应的darwin-amd64的版本，其他版本应该类似。<br>下载解压之后有两个文件比较重要：</p>
+<ul>
+<li>etcd 这个是节点</li>
+<li>etcdctl 这个是客户端<br>进入所在目录使用命令进行启动和使用</li>
+</ul>
+<p>使用节点命令<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜  ./etcd</span><br></pre></td></tr></table></figure></p>
+<p>使用客户端命令<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ ./etcdctl</span><br><span class="line">NAME:</span><br><span class="line">   etcdctl - A simple <span class="built_in">command</span> line client <span class="keyword">for</span> etcd.</span><br><span class="line"></span><br><span class="line">WARNING:</span><br><span class="line">   Environment variable ETCDCTL_API is not <span class="built_in">set</span>; defaults to etcdctl v2.</span><br><span class="line">   Set environment variable ETCDCTL_API=3 to use v3 API or ETCDCTL_API=2 to use v2 API.</span><br></pre></td></tr></table></figure></p>
+<p>之后会出现上述类似警告，告诉你，默认使用的是v2版本的API，你需要设置环境变量ETCDCTL_API=3就能使用v3版本的API了，这里我们使用命令export ETCDCTL_API=3</p>
+<p>或者你可以手动修改环境变量添加export ETCDCTL_API=3就可以了，当不出现警告的时候证明环境变量设置正确。</p>
+<h2 id="简单命令行操作"><a href="#简单命令行操作" class="headerlink" title="简单命令行操作"></a>简单命令行操作</h2><p>下面介绍几个最基本的etcd的操作，其实非常简单。主要与redis不同的是拥有独特的watch机制，这个机制非常棒。</p>
+<h3 id="put"><a href="#put" class="headerlink" title="put"></a>put</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ ./etcdctl put /aaa/a 1</span><br><span class="line">OK</span><br><span class="line">➜ ./etcdctl put /aaa/b 2</span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
+<h3 id="get"><a href="#get" class="headerlink" title="get"></a>get</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ ./etcdctl get /aaa/a</span><br><span class="line">/aaa/a</span><br><span class="line">1</span><br><span class="line">➜ ./etcdctl get --prefix /aaa</span><br><span class="line">/aaa/a</span><br><span class="line">1</span><br><span class="line">/aaa/b</span><br><span class="line">2</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>–prefix意思是取出所有前缀为/aaa的key</p>
+</blockquote>
+<h3 id="watch"><a href="#watch" class="headerlink" title="watch"></a>watch</h3><p>新开一个窗口使用命令watch进行监听<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ ./etcdctl watch /aaa/a</span><br></pre></td></tr></table></figure></p>
+<p>然后对/aaa/a这个key的操作全部都会被监听到<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ ./etcdctl put /aaa/a 123</span><br><span class="line">OK</span><br><span class="line">➜ ./etcdctl del /aaa/a</span><br><span class="line">1</span><br></pre></td></tr></table></figure><br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">➜ ./etcdctl watch /aaa/a</span><br><span class="line">PUT</span><br><span class="line">/aaa/a</span><br><span class="line">123</span><br><span class="line">DELETE</span><br><span class="line">/aaa/a</span><br></pre></td></tr></table></figure></p>
+<h3 id="lease"><a href="#lease" class="headerlink" title="lease"></a>lease</h3><p>创建一个60s的租约<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ ./etcdctl lease grant 60</span><br><span class="line">lease 694d6b2b7d7e6a0c granted with TTL(60s)</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ ./etcdctl put /aaa/a 123 --lease=694d6b2b7d7e6a0c</span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
+<p>put的时候使用租约注意，这里需要输入上面租约的16进制标识符<br>然后监听的地方会发现，60秒后，/aaa/a这个key被自动删除了</p>
+<p>当然你可以使用keep-alive进行续租，如：<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ ./etcdctl lease keep-alive 694d6b2ac4a35625</span><br></pre></td></tr></table></figure></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>以上简单说明了etcd的一些基本信息，单节点部署，以及一些基本用法，从上述信息我们总结可知：</p>
+<ol>
+<li>etcd是分布式的，能保证在单点故障下也能正常使用</li>
+<li>分布式也会导致问题，etcd写入性能相较redis肯定有所不及</li>
+<li>etcd独特的watch机制可以用于很多场景，如配置更新分发等</li>
+</ol>
+<p>那这里就说这么多，看完你就应该大致知道etcd是个啥玩意了，从现在看来你可能还没有感觉它有什么厉害的地方，后面我们结合实际的场景使用就能更加明白了。</p>
+]]></content>
+      <categories>
+        <category>etcd</category>
+      </categories>
+      <tags>
+        <tag>etcd</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>细说docker - 容器技术</title>
+    <url>/2020/01/04/open-source-component/docker-dis/</url>
+    <content><![CDATA[<p>docker对于现在的我们来说，已经是一个非常熟悉的东西了，docker无论是在部署打包，自动化，等方方面面都起着重要的作用，但是你是否有疑问，docker究竟是如何帮我们创建一个个隔离的环境的呢？今天我们就来看看，仔细说说docker</p>
+<p>PS: 以下的讨论都限定在linux环境下，在windows和macos下容器技术实现不相同，不在讨论范围内。</p>
+<span id="more"></span>
+<h2 id="大方向"><a href="#大方向" class="headerlink" title="大方向"></a>大方向</h2><p>为什么先要提到这个词呢？因为所有在操作系统上运行的程序都叫做进程。docker也不例外，从大的方向来讲，<strong>docker就是帮你创建了一个进程而已</strong>。而不一样的是，docker通过限制了各种环境，就像给这个进程画了一个圈，所以在这个进程本身看来，它自己好像被隔离了一般。</p>
+<ul>
+<li>docker容器技术的核心，就是通过约束和修改进程的动态表现，从而为其创造出一个“边界”</li>
+</ul>
+<h2 id="限制条件"><a href="#限制条件" class="headerlink" title="限制条件"></a>限制条件</h2><p>那么我们有了大方向，那么来细细看看，首先的第一个问题就来了，docker是通过什么方法对这个进程进行限制的呢？</p>
+<h3 id="Namespace"><a href="#Namespace" class="headerlink" title="Namespace"></a>Namespace</h3><p>命名空间，没错就是它，是它限制了docker容器的环境。其实这是linux的一个功能而已，只不过没人想到docker会那它来做这个事情。下面看个例子，一下是我在一个nginx容器中利用ps命令查看的进程样子<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/ # ps -ef</span><br><span class="line">PID   USER     COMMAND</span><br><span class="line">    1 root     sh /start.sh</span><br><span class="line">    8 root     nginx: master process /usr/sbin/nginx</span><br><span class="line">    9 nobody   nginx: worker process</span><br><span class="line">   18 root     /bin/sh</span><br><span class="line">   25 root     ps -ef</span><br></pre></td></tr></table></figure></p>
+<p>我们可以看到，PID是从1开始的，当前宿主机肯定也有PID为1的进程，这说明容器中所有的进程看起来好像和宿主机隔离了。其实这就是利用了 CLONE_NEWPID</p>
+<p>我们知道，在linux下可以利用<br><code>clone(main_function, stack_size, SIGCHLD, NULL);</code><br>方法创建进程，如果同时你再参数中设定参数CLONE_NEWPID<br><code>clone(main_function, stack_size, CLONE_NEWPID | SIGCHLD, NULL);</code> </p>
+<p>那么新创建的进程就会在一个新的空间下，在这个空间中它自己的pid就是1；而其实在主机本身看来这个进程的pid还是一个别的数字。<br>由于新的进程在它自己的空间中认为自己是1号进程，所以看起来好像就和主机本身进程隔离的一样， 而其实只是它看不到别人罢了。这就是Namespace的作用。</p>
+<p>同样的 CLONE_NEWCGROUP、CLONE_NEWIPC、CLONE_NEWNET、CLONE_NEWNS、CLONE_NEWPID、CLONE_NEWUSER 和 CLONE_NEWUTS，通过这些选项我们就能创建出一些隔离于宿主机的网络，挂载点等等，从而实现了环境上的限制。</p>
+<h3 id="CGroups"><a href="#CGroups" class="headerlink" title="CGroups"></a>CGroups</h3><p>当我们利用Namespace搞了一个相对隔离的环境，但是有些东西Namespace没有办法搞，比如CPU和内存。</p>
+<p>我们知道如果使用vm等一些虚拟化软件进行虚拟机的创建你是可以给虚拟机设定cpu使用的核心数还有内存的使用量，来保证虚拟机不会超过使用的量而导致别的虚拟机无法使用。</p>
+<p>而在docker容器中好像我们看似没有什么限制条件来约束一个容器的cpu和内存，如果没有约束那么很容易出现的问题就是，一个容器的运行吃掉了全部的cpu资源或者是一个容易的内存泄漏导致吃掉了整个服务器的内存资源，这是我们不希望看到的。</p>
+<p>于是CGroups技术就是干这个事情的。CGroups其实叫做Linux Control Group，就是用来限制一个进程的使用个资源上限的，包括 CPU、内存、磁盘、网络带宽等等。</p>
+<p>我们可以进入<code>/sys/fs/cgroup</code>这个目录下就能看到CGroups所有的限制都在里面了。</p>
+<p>每一个 CGroup 下面都有一个 tasks 文件，其中存储着属于当前控制组的所有进程的 pid，作为负责 cpu 的子系统，cpu.cfs_quota_us 文件中的内容能够对 CPU 的使用作出限制，如果当前文件的内容为 50000，那么当前控制组中的全部进程的 CPU 占用率不能超过 50%。</p>
+<p>这里对于CGroups就不细说了，只要知道它能帮助我们限制这些就足够了。</p>
+<h3 id="chroot"><a href="#chroot" class="headerlink" title="chroot"></a>chroot</h3><p>在namespace和cgroup的隔离之后，docker还有一个步骤需要做的是，如何去隔离文件系统。</p>
+<p>因为即使开启了Mount Namespace 但是容器进程也能看到宿主机的文件系统，因为Mount Namespace修改的是容器进程对文件系统挂载点的认知，但是如果没有执行mount命令，那么当前还是使用的宿主机的文件系统，但这肯定不是我们想要的。</p>
+<p>而在linux下有一个命令很好的解决了这个问题，那就是chroot。这个命令是 change root directory 的缩写，意思就是切换当前系统的root目录。我们知道在linux系统中根路径就是“/”，使用这个命令就可以切换我们的根路径变成别的路径。</p>
+<p>docker就是使用chroot来实现说让docker容器所有在的目录的根目录进行修改，从而在容器角度看来是看不到宿主机的目录，因为它会认为自己这里就是根目录了。</p>
+<p>对于chroot详细的介绍这里就不展开了，感兴趣可以查看：<a href="https://www.ibm.com/developerworks/cn/linux/l-cn-chroot/index.html">https://www.ibm.com/developerworks/cn/linux/l-cn-chroot/index.html</a></p>
+<h2 id="镜像"><a href="#镜像" class="headerlink" title="镜像"></a>镜像</h2><p>从上面我们已经可以知道，docker通过 namespace、cgroup、chroot 技术帮我们创建了一个拥有限制条件和隔离环境的进程，从而实现了一个容器，但是还有一个重要的技术在docker中也是至关重要的，那就是镜像。<br>在使用docker的时候，最方便的莫过于你可以通过docker build命令进行镜像的制作，然后将镜像推送到远端的仓库中去，任何机器只需要连接仓库拉取镜像就可以构建出一模一样的容器，那么镜像里面究竟放了什么东西呢？</p>
+<h3 id="镜像的本质"><a href="#镜像的本质" class="headerlink" title="镜像的本质"></a>镜像的本质</h3><p>其实 docker 镜像本身就是一个压缩包，它将我们制作好的文件系统打包好了。<br>我们可以用 <code>docker export</code> 对镜像文件进行导出。我们会发现其实镜像中的目录结构和linux一样，其实就是一个文件系统。</p>
+<h3 id="镜像分层技术"><a href="#镜像分层技术" class="headerlink" title="镜像分层技术"></a>镜像分层技术</h3><p>但是如果仅仅是做一个简单的文件打包的工作，那么你就太小看docker镜像本身了。</p>
+<p>那说到实现，首先要说说 UnionFS（Union File System）它的功能非常简单，就是将多个不同位置的目录联合挂载到同一个目录下，并且如果目录下具有相同的文件会被合并。就是这个功能让docker实现了镜像这个东西。</p>
+<p>当前我们在制作镜像的时候，在 docker-file 中每一条 docker 指令都会构建一个 lay，每个 lay 其实都是对已有的文件系统做一个操作，最终docker会把所有的 lay 通过 UnionFS 挂载到同一个目录下面，从而就实现了镜像分层后最终还是一个完整的文件系统的操作。<br><img src="http://blog.linkinstars.com/mweb/15781264508223.jpg" alt="-w834"></p>
+<p>需要注意的是，当前我们在使用镜像的时候，我们在 run 一个 docker 之后里面的一些应用往往会对新创建的文件系统做出修改，如：创建日志文件。但是当我们删除这个容器的时候会发现，其实这个些创建的文件是不会被写入到镜像中去的。<br>这是因为，docker中的层是不一样的，有只读层，可读写层，init层。当镜像被 docker run 命令创建时就会在镜像的最上层添加一个可读写层，也就是容器层，所有对于运行时容器的修改其实都是对这个容器读写层的修改。容器和镜像的区别就在于，所有的镜像都是只读层的，而每一个容器其实等于镜像加上一个可读写的层。<br><img src="http://blog.linkinstars.com/mweb/15781265788714.jpg" alt="-w1660"><br>这是我通过 dive 工具查看java这个docker镜像所示的东西，可以清楚的看到它的分层情况，是通过一层层叠加而来，而右边就是它的文件系统里面的样子了。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Docker 使用namespace、cgroups、chroot画了一个圈，圈出了一个近乎独立的环境，而其本质还是一个进程。使用UnionFS来实现了镜像分层的整合，从而让docker镜像实现了分层构建。<br>总的来说，其实docker看起来非常厉害，启动一个容器飞快比传统的虚拟机好用了太多，在不知道实现原理的情况下，感觉很神奇。但是了解之后你会发现，其实docker运用的技术并不复杂，它只是将一些已有的技术做了一个整合，这些技术也并非docker去创造的，namespace、cgroups都是linux提供的功能罢了。但是在docker出现以前，谁能想到这些东西组合在一起就能碰撞出不一样的火花呢？</p>
+]]></content>
+      <categories>
+        <category>docker</category>
+      </categories>
+      <tags>
+        <tag>docker</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>快速上手 dubbo-go</title>
+    <url>/2020/06/20/open-source-component/dubbo-go/</url>
+    <content><![CDATA[<p>每次技术调研总会发现自己学不动了怎么办？用已有的知识来拓展要学习的新知识就好了~ by LinkinStar<br>最近需要调研使用 dubbo，之前完全是 0 基础，对于 dubbo 只存在于听说，今天上手实战一把，告诉你如何快速用 go 上手 dubbo<br>PS：以下的学习方式适用于很多新技术  </p>
+<span id="more"></span>
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p><strong>首先学习一个技术首先要看看它的整体架构和基本概念</strong>，每个技术都有着自己的名词解释和实现方式，如果文档齐全就简单很多。</p>
+<p><a href="http://dubbo.apache.org/zh-cn/docs/user/preface/background.html">http://dubbo.apache.org/zh-cn/docs/user/preface/background.html</a></p>
+<p>大致浏览了背景、需求、架构之后基本上有一个大致概念</p>
+<p><img src="http://blog.linkinstars.com//blog/1240-20200719222110766.png" alt="image.png"></p>
+<p>其实整体架构和很多微服务的架构都是类似的，就是有一个注册中心管理所有的服务列表，服务提供方先向注册中心注册，而消费方向注册中心请求服务列表，通过服务列表调用最终的服务。总的来说 dubbo 将整个过程封装在了里面，而作为使用者的我们来说更加关心业务实现，它帮我们做好了治理的工作。</p>
+<p>然后我抓住了几个我想要知道的重点：</p>
+<ul>
+<li>注册中心可替换，官方推荐的是 zk</li>
+<li>如果有变更，注册中心将基于长连接推送变更数据给消费者，注册中心，服务提供者，服务消费者三者之间均为长连接</li>
+<li>基于软负载均衡算法，选一台提供者进行调用，如果调用失败，再选另一台调用</li>
+<li>消费者在本地缓存了提供者列表</li>
+</ul>
+<h2 id="实际上手"><a href="#实际上手" class="headerlink" title="实际上手"></a>实际上手</h2><p>官网文档中也给出如果使用 golang 开发，那么有 <a href="https://github.com/apache/dubbo-go">https://github.com/apache/dubbo-go</a> 可以用，那么废话不多说，上手实践一把先。因为你看再多，都比不上实践一把来学的快。</p>
+<h3 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h3><p>大多数教程就会跟你说，一个 helloWorld 需要 zookeeper 环境，但是不告诉你如何搭建，因为这对于他们来说太简单了，而我不一样，我是 0 基础，那如何快速搭建一个需要调研项目的环境呢？最好的方式就是 docker。</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&#x27;3&#x27;</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">zookeeper:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">zookeeper</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">2181</span><span class="string">:2181</span></span><br><span class="line">  <span class="attr">admin:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">apache/dubbo-admin</span></span><br><span class="line">    <span class="attr">depends_on:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">zookeeper</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">8080</span><span class="string">:8080</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">admin.registry.address=zookeeper://zookeeper:2181</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">admin.config-center=zookeeper://zookeeper:2181</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">admin.metadata-report.address=zookeeper://zookeeper:2181</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&#x27;3&#x27;</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">zookeeper:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">zookeeper</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">2181</span><span class="string">:2181</span></span><br><span class="line">  <span class="attr">admin:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">chenchuxin/dubbo-admin</span></span><br><span class="line">    <span class="attr">depends_on:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">zookeeper</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">8080</span><span class="string">:8080</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">dubbo.registry.address=zookeeper://zookeeper:2181</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">dubbo.admin.root.password=root</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">dubbo.admin.guest.password=guest</span></span><br></pre></td></tr></table></figure>
+<p>上面两个 docker-compose 文件一个是官方提供的管理工具，一个包含的是个人修改之后的管理工具，记住这里有个用户名密码是 root-root，看你喜欢</p>
+<p>废话不多说，直接创建 docker-compose.yaml 然后 <code>docker-compose up</code> 你就得到了一个环境，棒👍</p>
+<h3 id="样例下载"><a href="#样例下载" class="headerlink" title="样例下载"></a>样例下载</h3><p>有的技术会给出官方的实验样例，dubbo-go 也不例外</p>
+<p><a href="https://github.com/apache/dubbo-samples">https://github.com/apache/dubbo-samples</a></p>
+<p>里面包含了 go 和 java 的样例，有了它你就能快速上手了，把它下载到本地</p>
+<h3 id="样例运行"><a href="#样例运行" class="headerlink" title="样例运行"></a>样例运行</h3><p>首先要做的第一步就是把 helloworld 给跑起来，进入 golang 目录，里面有个 README.md 看一下。然后开搞。</p>
+<p>打开一个终端运行服务方</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> ARCH=mac</span><br><span class="line"><span class="built_in">export</span> ENV=dev</span><br><span class="line"><span class="built_in">cd</span> helloworld/dubbo/go-server</span><br><span class="line">sh ./assembly/<span class="variable">$ARCH</span>/<span class="variable">$ENV</span>.sh</span><br><span class="line"><span class="built_in">cd</span> ./target/linux/user_info_server-0.3.1-20190517-0930-release</span><br><span class="line">sh ./bin/load.sh start</span><br></pre></td></tr></table></figure>
+<p>打开另一个终端运行客户端</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> ARCH=mac</span><br><span class="line"><span class="built_in">export</span> ENV=dev</span><br><span class="line"><span class="built_in">cd</span> helloworld/dubbo/go-client</span><br><span class="line">sh ./assembly/<span class="variable">$ARCH</span>/<span class="variable">$ENV</span>.sh</span><br><span class="line"><span class="built_in">cd</span> ./target/linux/user_info_client-0.3.1-20190517-0921-release</span><br><span class="line">sh ./bin/load_user_info_client.sh start</span><br></pre></td></tr></table></figure>
+<p>启动过程中会出现一些警告，问题不大，如果成功，那么客户端会有一个调用服务端的请求，并在控制台中以白色底色进行打印</p>
+<p><img src="http://blog.linkinstars.com//blog/1240-20200719222118263.png" alt="image.png"></p>
+<p>java 的服务也有相对应的启动方式，按照 README 中所说明的也可以进行注册和调用，并且 java 和 go 之间是可以互相调用的</p>
+<h3 id="查看服务"><a href="#查看服务" class="headerlink" title="查看服务"></a>查看服务</h3><p>因为我们部署的时候有一个 dubbo-admin 用于管理 zk 上注册的服务，我们可以访问本地的 8080 端口看到对应的服务情况</p>
+<p><img src="http://blog.linkinstars.com//blog/1240-20200719222122876.png" alt="image.png"></p>
+<p>至此你应该已经对于整体的链路调用有一个大致的认识，结合之前官网文档的中的架构图，应该也清晰了。</p>
+<h2 id="如何使用"><a href="#如何使用" class="headerlink" title="如何使用"></a>如何使用</h2><p>那么现在你已经运行起来了，那么势必就要来看看具体是如何进行使用的了。</p>
+<h3 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h3><p>服务端，也就是服务提供者；</p>
+<p>位置在：<code>dubbo-samples/golang/helloworld/dubbo/go-server/app</code></p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 将服务进行注册</span></span><br><span class="line">config.SetProviderService(<span class="built_in">new</span>(UserProvider))</span><br><span class="line"><span class="comment">// 注册对象的hessian序列化</span></span><br><span class="line">hessian.RegisterPOJO(&amp;User&#123;&#125;)</span><br></pre></td></tr></table></figure>
+<p>是不是看起来其实很简单，其实重点就是上面两句代码了</p>
+<p>对于服务本身来说</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> UserProvider <span class="keyword">struct</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(u *UserProvider)</span> <span class="title">GetUser</span><span class="params">(ctx context.Context, req []<span class="keyword">interface</span>&#123;&#125;)</span> <span class="params">(*User, error)</span></span> &#123;</span><br><span class="line">	<span class="built_in">println</span>(<span class="string">&quot;req:%#v&quot;</span>, req)</span><br><span class="line">	rsp := User&#123;<span class="string">&quot;A001&quot;</span>, <span class="string">&quot;Alex Stocks&quot;</span>, <span class="number">18</span>, time.Now()&#125;</span><br><span class="line">	<span class="built_in">println</span>(<span class="string">&quot;rsp:%#v&quot;</span>, rsp)</span><br><span class="line">	<span class="keyword">return</span> &amp;rsp, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(u *UserProvider)</span> <span class="title">Reference</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="string">&quot;UserProvider&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其实就是需要实现下面那个接口就可以了</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// rpc service interface</span></span><br><span class="line"><span class="keyword">type</span> RPCService <span class="keyword">interface</span> &#123;</span><br><span class="line">	Reference() <span class="keyword">string</span> <span class="comment">// rpc service id or reference id</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中有一步骤不要忘记了是config.Load()，会加载配置文件的相关配置，不然你以为注册中心的地址等等是在哪里配置的呢？</p>
+<h3 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h3><p>看了服务端，其实客户端也就很简单了</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line">config.SetConsumerService(userProvider)</span><br><span class="line">hessian.RegisterPOJO(&amp;User&#123;&#125;)</span><br></pre></td></tr></table></figure>
+<p>其实也是差不多的，也需要注册一个消费服务，并将序列化方式给注册上去</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line">user := &amp;User&#123;&#125;</span><br><span class="line">err := userProvider.GetUser(context.TODO(), []<span class="keyword">interface</span>&#123;&#125;&#123;<span class="string">&quot;A001&quot;</span>&#125;, user)</span><br></pre></td></tr></table></figure>
+<p>使用也就很简单了，同样的也需要实现 Reference 接口</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> UserProvider <span class="keyword">struct</span> &#123;</span><br><span class="line">	GetUser <span class="function"><span class="keyword">func</span><span class="params">(ctx context.Context, req []<span class="keyword">interface</span>&#123;&#125;, rsp *User)</span> <span class="title">error</span></span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(u *UserProvider)</span> <span class="title">Reference</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="string">&quot;UserProvider&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="回头想想"><a href="#回头想想" class="headerlink" title="回头想想"></a>回头想想</h3><p>当我们看完了代码的上的使用，再回头想想 dubbo 的作用，你就会发现其实 dubbo 帮你做的事情真的屏蔽了很多。</p>
+<ul>
+<li>你不需要关心服务是怎么注册的</li>
+<li>你不需要关心服务是怎么获取的</li>
+<li>你不需要关系服务是怎么调用的</li>
+<li>甚至序列化的过程都是基本透明的</li>
+</ul>
+<p>想对比来说，如果让你自己去是实现微服务，那是不是说，你需要实现服务的拉取，服务的负载均衡，服务的发现，序列化…..</p>
+<p>这下你应该明白了 dubbo 是做什么的也就明白了它为什么会出现了</p>
+<h2 id="其他能力"><a href="#其他能力" class="headerlink" title="其他能力"></a>其他能力</h2><p>当你学习了一个技术的基本使用之后，要学习其他的能力，以便在使用的过程中不会出现自己重复造轮子或者说有轮子没用到的情况，<a href="https://github.com/apache/dubbo-samples">https://github.com/apache/dubbo-samples</a> 不止有 helloworld 还要很多别的案例供你参考，你可以继续看看并进行试验。</p>
+<h3 id="支持扩展"><a href="#支持扩展" class="headerlink" title="支持扩展"></a>支持扩展</h3><p><a href="https://github.com/apache/dubbo-go">https://github.com/apache/dubbo-go</a></p>
+<p>在 Feature list 中列举了 dubbo-go 所支持的相关功能，比如序列化，比如注册中心，在比如过滤器。</p>
+<p>也就是说，在使用 dubbo-go 的时候相关功能都是插件化的，想用什么就看你自己了，比如注册中心我想用 etcd，比如调用的协议我想换成 grpc 都可以。</p>
+<h2 id="相关问题"><a href="#相关问题" class="headerlink" title="相关问题"></a>相关问题</h2><p><strong>对于一个技术调研，那么肯定会有相关问题等着你去发现去考虑。</strong></p>
+<p>下面是我能想到的一些问题：</p>
+<ul>
+<li>当前 dubbo-go 的版本最高在 1.4，所对应的 dubbo 版本应该是 2.6.x，如果调用更高版本的服务是否会有问题</li>
+<li>java 和 go 之间互相调用，各种类型转换之间是否存在问题，是否容易出现无法正确反序列化的问题</li>
+<li>….</li>
+</ul>
+<h2 id="后续学习"><a href="#后续学习" class="headerlink" title="后续学习"></a>后续学习</h2><p>那么上面只是说能让你上手 dubbo-go，但是实际使用可能存在距离。为什么这么说呢？如果你在不动里面任何的原理情况下，那么如果遇到问题，你很可能就束手无策了。比如如果线上服务无法正常发现，你应该如何排查？调用过程中出现问题如何定位？</p>
+<p>所以后续你需要做的是：</p>
+<ul>
+<li>看看整体设计架构和思路，明白整条链路调用过程和规则</li>
+<li>学习它的接口设计，为什么别人设计的接口能兼容那么多的注册中心？如果让你来设计你怎么设计呢？</li>
+<li>性能也很重要，网上说性能很不错，为什么呢？什么地方做了优化，负载均衡的算法是怎么样的，你能自定义吗？</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>总的来说，对于 dubbo-go 整体的使用上还是非常好上手的，自己想了一下，如果当前项目想要接入的话，主要是服务的暴露、序列化方式、鉴权调整等存在开发工作。</p>
+<p>上面砖头也抛的差不多了，对于你快速上手应该没有问题了，剩下的就要靠你自己了。</p>
+]]></content>
+      <categories>
+        <category>dubbo-go</category>
+      </categories>
+      <tags>
+        <tag>dubbo-go</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>浅入深出ETCD之【集群部署与golang客户端使用】</title>
+    <url>/2019/06/14/open-source-component/etcd-cluster-client/</url>
+    <content><![CDATA[<p>之前说了etcd的简介，命令行使用，一些基本原理。这次来说说现实一点的集群部署和golang版本的客户端使用。因为在实际使用过程中，etcd的节点肯定是需要2N+1个进行部署的，所以有必要说明一下集群的部署。</p>
+<span id="more"></span>
+<h2 id="集群部署"><a href="#集群部署" class="headerlink" title="集群部署"></a>集群部署</h2><p>网上有很多集群部署的教程，有的很复杂，其实对于我们实际使用来说，其实配置并不复杂，下面举例一种最简单的集群配置。（简单到你想不到~）</p>
+<h3 id="下载"><a href="#下载" class="headerlink" title="下载"></a>下载</h3><p><a href="https://github.com/etcd-io/etcd/releases">https://github.com/etcd-io/etcd/releases</a><br>还是在github上面找到需要下载的版本<br>我使用的是etcd-v3.3.13-linux-amd64.tar.gz<br>使用wget下载到linux你喜欢的目录，或者本地下载完成之后上传均可。</p>
+<h3 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h3><p>首先我找了三台机器，对应ip为<br>192.168.4.224<br>192.168.4.225<br>192.168.4.226<br><strong>PS：提醒一下记得开发对应防火墙的端口</strong></p>
+<p>然后将下载的文件解压，之后进入解压后的目录，分别使用下面的命令启动。(注意下面的命令对应的是三台不同的机器，你需要修改对应为你自己的ip)</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ ./etcd --name infra0 --initial-advertise-peer-urls http://192.168.4.224:2380 \</span><br><span class="line">--listen-peer-urls http://192.168.4.224:2380 \</span><br><span class="line">--listen-client-urls http://192.168.4.224:2379,http://127.0.0.1:2379 \</span><br><span class="line">--advertise-client-urls http://192.168.4.224:2379 \</span><br><span class="line">--initial-cluster-token etcd-cluster-1 \</span><br><span class="line">--initial-cluster infra0=http://192.168.4.224:2380,infra1=http://192.168.4.225:2380,infra2=http://192.168.4.226:2380 \</span><br><span class="line">--initial-cluster-state new</span><br><span class="line"></span><br><span class="line">$ ./etcd --name infra1 --initial-advertise-peer-urls http://192.168.4.225:2380 \</span><br><span class="line">--listen-peer-urls http://192.168.4.225:2380 \</span><br><span class="line">--listen-client-urls http://192.168.4.225:2379,http://127.0.0.1:2379 \</span><br><span class="line">--advertise-client-urls http://192.168.4.225:2379 \</span><br><span class="line">--initial-cluster-token etcd-cluster-1 \</span><br><span class="line">--initial-cluster infra0=http://192.168.4.224:2380,infra1=http://192.168.4.225:2380,infra2=http://192.168.4.226:2380 \</span><br><span class="line">--initial-cluster-state new</span><br><span class="line"></span><br><span class="line">$ ./etcd --name infra2 --initial-advertise-peer-urls http://192.168.4.226:2380 \</span><br><span class="line">--listen-peer-urls http://192.168.4.226:2380 \</span><br><span class="line">--listen-client-urls http://192.168.4.226:2379,http://127.0.0.1:2379 \</span><br><span class="line">--advertise-client-urls http://192.168.4.226:2379 \</span><br><span class="line">--initial-cluster-token etcd-cluster-1 \</span><br><span class="line">--initial-cluster infra0=http://192.168.4.224:2380,infra1=http://192.168.4.225:2380,infra2=http://192.168.4.226:2380 \</span><br><span class="line">--initial-cluster-state new</span><br></pre></td></tr></table></figure>
+<p>至此，三个节点的集群部署完成。😂😂😂没错就是这么easy，没有网上说的那么复杂。</p>
+<h3 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h3><p>如果你嫌弃每次使用这么长的命令进行启动，你可以将它写为配置文件：<br><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 当前节点名称</span></span><br><span class="line"><span class="attr">name:</span> <span class="string">infra1</span></span><br><span class="line"><span class="comment"># etcd数据保存目录</span></span><br><span class="line"><span class="attr">data-dir:</span> <span class="string">/usr/local/etcd</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 供外部客户端使用的url</span></span><br><span class="line"><span class="attr">listen-client-urls:</span> <span class="string">http://192.168.4.225:2379,http://127.0.0.1:2379</span></span><br><span class="line"><span class="comment"># 广播给外部客户端使用的url</span></span><br><span class="line"><span class="attr">advertise-client-urls:</span> <span class="string">http://192.168.4.225:2379</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 集群内部通信使用的URL</span></span><br><span class="line"><span class="attr">listen-peer-urls:</span> <span class="string">http://192.168.4.225:2380</span></span><br><span class="line"><span class="comment"># 广播给集群内其他成员访问的URL</span></span><br><span class="line"><span class="attr">initial-advertise-peer-urls:</span> <span class="string">http://192.168.4.225:2380</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 集群的名称</span></span><br><span class="line"><span class="attr">initial-cluster-token:</span> <span class="string">etcd-cluster-1</span></span><br><span class="line"><span class="comment"># 初始集群成员列表</span></span><br><span class="line"><span class="attr">initial-cluster:</span> <span class="string">infra0=http://192.168.4.224:2380,infra1=http://192.168.4.225:2380,infra2=http://192.168.4.226:2380</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#初始集群状态</span></span><br><span class="line"><span class="attr">initial-cluster-state:</span> <span class="string">new</span></span><br></pre></td></tr></table></figure></p>
+<p>然后指定配置文件的路径进行启动就可以了<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">./etcd --config-file=conf.yml</span><br></pre></td></tr></table></figure></p>
+<h2 id="其他部署策略"><a href="#其他部署策略" class="headerlink" title="其他部署策略"></a>其他部署策略</h2><p>以上的部署一方面，我个人部署时使用的最简单方式，更简单的可能是使用yum进行etcd的下载。<br>当然上述方式也存在一些问题，现在的etcd相当于裸奔的情况：</p>
+<ul>
+<li>没有鉴权就想到于任何人知道ip和端口就可以连接上你的etcd，所以当前可能只适用于内网使用，服务通过内网ip进行访问（这个可以通过添加权限和用户来完成）</li>
+<li>当前通信是没有加密的</li>
+<li>当前etcd是利用静态ip来进行配置的，我认为这也是实际中用到最普通的情况，但是etcd还提供发现机制来进行部署和配置，更加灵活</li>
+</ul>
+<p>等等，这些部署策略更多针对于线上，因为官方写的非常详细了，我感觉再写也就班门弄斧了。<br><a href="https://doczhcn.gitbook.io/etcd/index/index-1/clustering">https://doczhcn.gitbook.io/etcd/index/index-1/clustering</a></p>
+<h2 id="Golang客户端使用"><a href="#Golang客户端使用" class="headerlink" title="Golang客户端使用"></a>Golang客户端使用</h2><p>这里来实际用代码操作一下etcd，还是和之前使用命令行一样，get/put/del/watch/lease用一下这些操作，其他操作请查看doc<br><a href="https://godoc.org/github.com/coreos/etcd/clientv3">https://godoc.org/github.com/coreos/etcd/clientv3</a></p>
+<h3 id="客户端下载"><a href="#客户端下载" class="headerlink" title="客户端下载"></a>客户端下载</h3><p>这里不建议使用go get进行下载，真的太慢了，可以直接从github上面下载之后放到对应目录快一些。<a href="https://github.com/etcd-io/etcd">https://github.com/etcd-io/etcd</a><br>下载解压之后放到gopath下对应：go/src/go.etcd.io/etcd</p>
+<h3 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h3><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">&quot;context&quot;</span></span><br><span class="line">    <span class="string">&quot;fmt&quot;</span></span><br><span class="line">    <span class="string">&quot;go.etcd.io/etcd/clientv3&quot;</span></span><br><span class="line">    <span class="string">&quot;go.etcd.io/etcd/mvcc/mvccpb&quot;</span></span><br><span class="line">    <span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="comment">// 配置客户端连接</span></span><br><span class="line">    client, err := clientv3.New(clientv3.Config&#123;</span><br><span class="line">        <span class="comment">// Endpoints:   []string&#123;&quot;127.0.0.1:2379&quot;&#125;,</span></span><br><span class="line">        Endpoints:   []<span class="keyword">string</span>&#123;<span class="string">&quot;192.168.4.224:2379&quot;</span>, <span class="string">&quot;192.168.4.225:2379&quot;</span>, <span class="string">&quot;192.168.4.226:2379&quot;</span>&#125;,</span><br><span class="line">        DialTimeout: <span class="number">5</span> * time.Second,</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="built_in">panic</span>(err)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">defer</span> client.Close()</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 启动watch监听</span></span><br><span class="line">    watch := client.Watch(context.TODO(), <span class="string">&quot;aaa&quot;</span>)</span><br><span class="line">    <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">for</span> &#123;</span><br><span class="line">            watchResponse := &lt;- watch</span><br><span class="line">            <span class="keyword">for</span> _, ev := <span class="keyword">range</span> watchResponse.Events &#123;</span><br><span class="line">                <span class="keyword">switch</span> ev.Type &#123;</span><br><span class="line">                <span class="keyword">case</span> mvccpb.DELETE:</span><br><span class="line">                    fmt.Printf(<span class="string">&quot;监听到del：%s\n&quot;</span>, ev.Kv.Key)</span><br><span class="line">                <span class="keyword">case</span> mvccpb.PUT:</span><br><span class="line">                    fmt.Printf(<span class="string">&quot;监听到put：%s, %s\n&quot;</span>, ev.Kv.Key, ev.Kv.Value)</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;()</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 新增</span></span><br><span class="line">    putResponse, err := client.Put(context.TODO(), <span class="string">&quot;aaa&quot;</span>, <span class="string">&quot;xxx&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        fmt.Println(err)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">    fmt.Println(putResponse.Header.String())</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 查询</span></span><br><span class="line">    getResponse, err := client.Get(context.TODO(), <span class="string">&quot;aaa&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        fmt.Println(err)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">    fmt.Println(getResponse.Kvs)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 删除</span></span><br><span class="line">    deleteResponse, err := client.Delete(context.TODO(), <span class="string">&quot;aaa&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        fmt.Println(err)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">    fmt.Println(deleteResponse.Header.String())</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 申请租约</span></span><br><span class="line">    grantResponse, err := client.Grant(context.TODO(), <span class="number">10</span>)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        fmt.Println(err)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 使用租约</span></span><br><span class="line">    response, err := client.Put(context.TODO(), <span class="string">&quot;aaa&quot;</span>, <span class="string">&quot;xxx&quot;</span>, clientv3.WithLease(grantResponse.ID))</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        fmt.Println(err)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">    fmt.Println(response.Header.String())</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 等待租约自动过期</span></span><br><span class="line">    time.Sleep(time.Second * <span class="number">20</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>大致能得到以下输出</p>
+<blockquote>
+<p>监听到put：aaa, xxx<br>cluster_id:14841639068965178418 member_id:10276657743932975437 revision:53 raft_term:4<br>[key:”aaa” create_revision:53 mod_revision:53 version:1 value:”xxx” ]<br>监听到del：aaa<br>cluster_id:14841639068965178418 member_id:10276657743932975437 revision:54 raft_term:4<br>监听到put：aaa, xxx<br>cluster_id:14841639068965178418 member_id:10276657743932975437 revision:55 raft_term:4<br>监听到del：aaa</p>
+</blockquote>
+<p>其实使用起来还是非常简单，我就不过多赘述了。</p>
+]]></content>
+      <categories>
+        <category>etcd</category>
+      </categories>
+      <tags>
+        <tag>etcd</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>浅入深出ETCD之【raft原理】</title>
+    <url>/2019/06/12/open-source-component/etcd-raft/</url>
+    <content><![CDATA[<p>这次我们来说说，有关于etcd原理的一些事情。之前我们已经了解到了etcd是一个分布式的k-v存储，那么它究竟是如何保证数据是如何复制到每个节点上面去的呢？又是如何保证在网络分区的情况下能正常工作下去？raft协议到底是什么？带着这些问题我们继续往下看。</p>
+<span id="more"></span>
+<h2 id="raft选举策略"><a href="#raft选举策略" class="headerlink" title="raft选举策略"></a>raft选举策略</h2><p>我们知道etcd使用raft协议来保证整个分布式的节点网络能正常的运转并且能正确的将数据复制到每个节点上面去。那么什么是raft协议嘞？</p>
+<p>首先我们有这样一个背景：raft是想维护整一个网络，其中有一个领导人，这个领导人负责将收到的信息同步给网络中的其他所有节点，从而保证整个网络数据一致。</p>
+<p>如果你有一定的英文基础，我建议直接查看下面这个网站，它用动画非常清楚的描述了raft选举的整个过程：<a href="http://thesecretlivesofdata.com/raft/">http://thesecretlivesofdata.com/raft/</a></p>
+<p>这个其实已经说明的超级棒了，如果你还看不懂，我下面会用最简单的几个要点来进行最简单的说明。</p>
+<h3 id="大多数理论"><a href="#大多数理论" class="headerlink" title="大多数理论"></a>大多数理论</h3><p>首先说明一个理论，叫做大多数理论，很简单，举个栗子：</p>
+<ul>
+<li>有10个人，如果你将苹果给其中的6个人（大多数），那么你随机选择5个人，一定有一个人会有苹果。</li>
+</ul>
+<p>在etcd中的应用：</p>
+<ul>
+<li>选举中只要有大多数（超过半数的人给你投票）你肯定就是票数最多的了，不可能有人比你更多。</li>
+<li>只需要将日志复制给大多数的节点，那么只要有一半的节点正常工作就能保证数据最新</li>
+</ul>
+<h3 id="选举状态"><a href="#选举状态" class="headerlink" title="选举状态"></a>选举状态</h3><p>下面是一些选举过程中节点的状态<br>leader 表示选举最终产生的领导人<br>candidate 候选状态，表示当前正在参与选举<br>follower 表示选举最终自己不是领导人，那自己就是从属节点</p>
+<h3 id="选举过程与要点"><a href="#选举过程与要点" class="headerlink" title="选举过程与要点"></a>选举过程与要点</h3><p><img src="http://blog.linkinstars.com/mweb/15603076610892.jpg" alt></p>
+<ol>
+<li>所有节点一开始都是follower状态</li>
+<li>当节点处于follower状态时，每个节点随机经过一段时间，<strong>如果没有收到leader的消息就会进入candidate状态</strong>（证明当前没有leader节点需要重新进行选举），如果收到信息就会继续保持follower状态</li>
+<li>当节点处于candidate就会要求别人给自己投票，<strong>收到大多数的节点的投票那就转变为leader状态</strong>，否则要么是别的节点成为了leader，要么就是因为特殊情况导致这次选举失败重新进行选举</li>
+<li>每次选举举办的时候有一个term，在每一个term中，<strong>每个节点只能投票一次</strong></li>
+<li>投票的时候必须投给当前数据至少和自己一样的节点，并且term大的优先</li>
+</ol>
+<h2 id="日志复制规则"><a href="#日志复制规则" class="headerlink" title="日志复制规则"></a>日志复制规则</h2><p>etcd是通过日志复制来实现数据同步的<br><img src="http://blog.linkinstars.com/mweb/15603077783791.jpg" alt><br>这个图网上也很多，说明的是日志复制的规则<br>每个节点都有一份自己的日志，有的节点多，有的节点少，日志最多的肯定是leader。<br>上图还有几个要点，我看别人没提到，我就提一下：</p>
+<ol>
+<li>颜色代表term</li>
+<li>第四行表示的这个节点，第一term下复制了两个日志就异常挂掉了</li>
+<li>最终只有第三行这个follower和第一行的leader保持了同步</li>
+</ol>
+<h2 id="异常情况"><a href="#异常情况" class="headerlink" title="异常情况"></a>异常情况</h2><p>raft之所以厉害因为即使出现一些特殊情况，整个网络在一定的时间之后也能自动恢复并正常工作。</p>
+<h3 id="一个节点的异常"><a href="#一个节点的异常" class="headerlink" title="一个节点的异常"></a>一个节点的异常</h3><p>首先最常见的情况就是一个节点出现异常，有可能是这个节点的服务器挂了，或者别的什么原因。</p>
+<ul>
+<li>如果出现问题的这个节点是follower，那么没有关系，整个网络依旧能正常运行，当这个节点再次加入网络的时候也只需要同步后面的数据即可。</li>
+<li>如果出现问题的是leader，有一点麻烦，因为网络中没有leader节点了，那么就会重新进行选举，重新找一个leader，当这个异常节点恢复之后发现当前网络中有leader了，而且term还比自己大，那么自己就退位称为follower。</li>
+</ul>
+<h3 id="网络分区"><a href="#网络分区" class="headerlink" title="网络分区"></a>网络分区</h3><p>还有一种异常情况是由于网络导致的，网络出现异常，导致节点之间的通信存在异常，一部分节点与另一部分之间没有办法访问了。如下图所示：<br><img src="http://blog.linkinstars.com/mweb/15603110122471.jpg" alt></p>
+<p>上面三个follower没有办法与下面的节点进行通信。</p>
+<ul>
+<li>当客户端再次请求leader发送数据的时候，leader发现没有办法将数据同步给给大多数节点，它只能给自己和旁边的一个，此时leader没有办法给客户端反馈。</li>
+<li>上面三个节点由于收不到leader的消息，那么会认为网络中没有leader存在，会重新进行选举操作，因为当前上面有三个节点存在（只要有超过半数的节点参与选举就行），所以可以重新选举成功，选出新的leader告诉客户端，客户端就会重新发送数据到新的leader。</li>
+<li>当网络恢复之后又会找到最新的leader从而将数据同步至最新的状态。</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>总的来说，只要整个网络中存在大多数节点正常运行，那么etcd就是可用的，并且能够保证数据正确。当网络恢复之后也能将数据调整到最新的状态。<br>raft强大的地方在于它能自动的进行状态的变化，自动进行选举，并且选举遵循一定的策略，进而保证整个网络的正常运转。同时保证数据的一致性。<br>了解etcd的这个原理有助于我们后续的使用以及源码的阅读。</p>
+]]></content>
+      <categories>
+        <category>etcd</category>
+      </categories>
+      <tags>
+        <tag>etcd</tag>
+        <tag>raft</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>大话图解gin源码</title>
+    <url>/2019/08/20/open-source-component/gin/</url>
+    <content><![CDATA[<p>最近在网上搜了一下，对于gin框架用的人还是比较多的，我自己之前也在使用，但是对于源码解析这块，我没有看到自己想看到的那种从框架入手的解析图，所以嘿嘿嘿，我的机会就来了，今天就带来最完整的gin源码图解。希望通过这篇博客你也能自己学会拆轮子。</p>
+<p>PS：本文建立在你已经能熟练使用gin的基础之上，如果还没用过可以去官网看一下：<br><a href="https://gin-gonic.com/zh-cn/docs/">https://gin-gonic.com/zh-cn/docs/</a><br>然后gin是对golang的http包的封装，所以最好对http包也要有了解。</p>
+<span id="more"></span>
+<h2 id="整体分析逻辑"><a href="#整体分析逻辑" class="headerlink" title="整体分析逻辑"></a>整体分析逻辑</h2><p>先来说明一下我整体拆解的逻辑，对于一个框架，我喜欢从下面几个方面去入手拆解：</p>
+<ol>
+<li>启动方式</li>
+<li>如何使用</li>
+<li>实现与特点<br>针对于gin，我也将从这几个方面去入手，就会得到下面几个问题，带着问题看源码是必备条件。<br>首先启动的时候gin做了些什么？<br>gin封装了什么然后怎么去实现的？<br>gin整体结构是怎么样的，有哪些结构？<br>…</li>
+</ol>
+<p>然后使用一个比较小的demo，然后先从方法入手，进源码看。<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    router := gin.Default()</span><br><span class="line">    </span><br><span class="line">    router.Use(gin.Recovery())</span><br><span class="line">    </span><br><span class="line">    router.GET(<span class="string">&quot;/test&quot;</span>, <span class="function"><span class="keyword">func</span><span class="params">(context *gin.Context)</span></span> &#123;</span><br><span class="line">        context.JSON(http.StatusOK, gin.H&#123;</span><br><span class="line">            <span class="string">&quot;code&quot;</span> : <span class="number">1</span>,</span><br><span class="line">            <span class="string">&quot;message&quot;</span> : <span class="string">&quot;xxx&quot;</span>,</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> err := router.Run(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="built_in">panic</span>(err)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="整体结构认识"><a href="#整体结构认识" class="headerlink" title="整体结构认识"></a>整体结构认识</h2><p><img src="http://blog.linkinstars.com/mweb/15662772307077.jpg" alt><br>Engine是一个总的引擎，保存了各个组件的信息<br>RouterGroup是一个路由组，保存了路由信息<br>trees是一棵树，保存了url与handle的映射关系<br>engine中的pool用于复用Context<br>Context用于request中传递值</p>
+<p>这样你就对gin的整个结构有了大致的认识，当然有一些细节字段我这里就不展开了。</p>
+<h2 id="每个方法分析"><a href="#每个方法分析" class="headerlink" title="每个方法分析"></a>每个方法分析</h2><h3 id="gin-Default"><a href="#gin-Default" class="headerlink" title="gin.Default()"></a>gin.Default()</h3><p><img src="http://blog.linkinstars.com/mweb/15662774362702.jpg" alt><br>调用过程大概是这样，这是一个gin的初始化方法，目的是为了创建整个引擎，并初始化相关参数。初始化RouterGroup、pool等</p>
+<h3 id="router-Use"><a href="#router-Use" class="headerlink" title="router.Use()"></a>router.Use()</h3><p><img src="http://blog.linkinstars.com/mweb/15662775073706.jpg" alt><br>这个是一个使用中间件的方法，当然中间件也有别的方法，这边使用use举例，其实就是将请求过程中需要调用的中间件放入到HandlersChain，这个是一个数组<br>PS：你不知道中间件？那你用一下就知道了，我们很多时候再请求前后需要加入通用方法如鉴权等，就会用到它</p>
+<h3 id="router-GET"><a href="#router-GET" class="headerlink" title="router.GET"></a>router.GET</h3><p><img src="http://blog.linkinstars.com/mweb/15662776382936.jpg" alt><br>这个就是构建url和具体处理请求的handle的关系了，其实目标很明确，就是要将这组关系存入到最终的trees中去，这里先这样，后面会有详细解释。</p>
+<h3 id="router-Run"><a href="#router-Run" class="headerlink" title="router.Run()"></a>router.Run()</h3><p><img src="http://blog.linkinstars.com/mweb/15662777270926.jpg" alt><br>这个就非常简单了，就是调用golang中http包下的方法监听服务端口而已，没啥好说的，启动了嘛。</p>
+<h3 id="func-engine-Engine-ServeHTTP"><a href="#func-engine-Engine-ServeHTTP" class="headerlink" title="func (engine *Engine) ServeHTTP"></a>func (engine *Engine) ServeHTTP</h3><p>你以为这就完了？？？上面只是启动的时候，那么请求过来的时候怎么办呢？<br>我们知道如果要接收请求，那么就需要实现下面这个接口<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> Handler <span class="keyword">interface</span> &#123;</span><br><span class="line">	ServeHTTP(ResponseWriter, *Request)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>接口中ServeHTTP就是用来处理请求的，所有请求都会经过这个方法去处理。<br>那么gin是怎么实现这个方法的呢？<br><img src="http://blog.linkinstars.com/mweb/15662778798063.jpg" alt><br>这个就是调用过程，总的来说就是根据请求的url和method找到对应的handle去处理，还记得之前那棵树吗？对，就是去里面找。同时利用context进行参数传递，最后注意很隐秘的用c.Next进行递归的调用（我已开始都没找到）为啥要递归？因为有中间件鸭！handle是一个链式过程而非只有一个handle</p>
+<p>至此所有gin的框架里面的内容应该都包括了，包括整个实现过程，其实并不复杂，你可以根据上面的过程在源码中找到对应的地方详细查看。</p>
+<h2 id="好在哪里？"><a href="#好在哪里？" class="headerlink" title="好在哪里？"></a>好在哪里？</h2><p>我们看源码肯定不能看完，哦，知道怎么实现就完事了，我们最终的目的是要学习其中的优点，那么这个框架有哪些好的地方呢？我个人总结了以下三点供你参考。</p>
+<h3 id="context"><a href="#context" class="headerlink" title="context"></a>context</h3><p>使用context包含了Request，Writer等信息，用它来传递参数，也算是利用golang的一个特性去做的，我没想到。</p>
+<h3 id="sync-pool"><a href="#sync-pool" class="headerlink" title="sync.pool"></a>sync.pool</h3><p>利用pool来重复利用对象，因为请求很多，所以会产生很多数量的context，利用sync.pool进行复用，从而减少内存的分配也提高了效率，值得学习。</p>
+<h3 id="trees"><a href="#trees" class="headerlink" title="trees"></a>trees</h3><p>用什么数据结构存放的url和handle的映射关系呢？<br>我一开始想到的就是map，直接弄个hashmap存一下不就好了嘛，没想到gin用了一颗树来进行存放，内部实现很复杂，这里不做展开，据说是radix tree，我就是把它理解成字典树，从而提高存储和查询，棒。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>其实gin框架本身实现好像并不是很复杂，很适合新手进行学习，其中也有一些设计思想可以借鉴。</p>
+]]></content>
+      <categories>
+        <category>gin</category>
+      </categories>
+      <tags>
+        <tag>gin</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>轻量级 k8s 应用日志收集方案 loki</title>
+    <url>/2021/04/20/open-source-component/loki/</url>
+    <content><![CDATA[<p>微服务早已是一个过时的热词，同时，容器 和 k8s 的出现让它更一步成为了一种时尚。同样会带来很多附赠的问题，<strong>日志收集</strong>就是其中一个比较重要的问题。当应用容器化之后，需要查看日志，如果还需要登录服务器，找到对应目录，然后 tail 查看，成本太高了，极大的影响效率。当前其实日志收集方案很多，在实践了多个方案之后，我终于能在今天写出我个人认为我最喜欢的一个方案了 <strong>loki</strong></p>
+<span id="more"></span>
+<h2 id="我的需求"><a href="#我的需求" class="headerlink" title="我的需求"></a>我的需求</h2><p>技术上没有银弹，需要根据实际需求来选择方案，那么我的需求是这样的，你可以做个比较：</p>
+<ol>
+<li>当前所有的应用是部署在 k8s 中的，需要收集所有的应用的日志到一个地方做展示</li>
+<li>部署最好要轻量，对于性能要求并不高（当前日志量并不大）</li>
+<li>日志展示方式友好，能支持基本的时间查询，或者是定位到某个关键字</li>
+</ol>
+<h2 id="可选方案"><a href="#可选方案" class="headerlink" title="可选方案"></a>可选方案</h2><p>从之前的公司包括个人的一些项目上都尝试过很多不同的组合和方案，列举出三个最具有可比性的方案：（以下为个人使用案例，并不能代表所有大众观点，图片来源本地测试服，线上日志不允许公开，但同样禁止转载~）</p>
+<h3 id="ELK"><a href="#ELK" class="headerlink" title="ELK"></a>ELK</h3><p><img src="http://blog.linkinstars.com//blog/elk.png" alt="ELK"></p>
+<p>这似乎是业界最成熟的日志收集方案之一了，因为无论你问哪个有点经验的程序员，提到日志收集，必然会给到这个，我当然不是说这个方案不行，因为我知道很多公司都采用了这个方案，并且稳定运行着，所以这个方案我也尝试去使用过，带来的问题有下面几个：</p>
+<ol>
+<li>部署并不容易，当前现在已经好很多了，当年确实手工部署比较困难，会有很多意外</li>
+<li>占用资源过多，特别是 logstash，懂得都懂</li>
+<li>ES 使用比较困难，上手成本比较高，因为并不是所有的开发对于 ES 的使用都是熟练的，包括我自己都是需要查看文档之后才能回忆起来很多操作</li>
+</ol>
+<p>当然后面改进了：变成了 EFK</p>
+<p>其中的 F 可以是 filebeat、fluentd、fluent-bit 这样日志采集的部分可以占用更少的资源，使用上会更加轻量一些，所以，其实现在 EFK 算是一个通用的商业日志收集的解决方案了。我觉得如果是一个中型或者大型的项目可以使用这样成熟的解决方案，没有问题。</p>
+<h3 id="FIC"><a href="#FIC" class="headerlink" title="FIC"></a>FIC</h3><p>FIC 可能小众一些，但是这是我第二个使用上来说对于我来说使用下来感觉不错的方案：fluentbit + influxdb + chronograf</p>
+<p>其实我蛮喜欢 influxdb 这家公司出品的东西的，使用感觉还不错，因为 influxdb 作为一个时序数据库来说其实非常轻量了，部署也很方便，配置上面也比较简单，主要还是日志收集上面的配置，并且 influxdb 的使用比起 es 来说理解起来更加的简单一点，更容易上手</p>
+<p><img src="http://blog.linkinstars.com//blog/chronograf.png" alt="chronograf"></p>
+<p>部署方式：<a href="https://www.jianshu.com/p/c5faf3c10bce">https://www.jianshu.com/p/c5faf3c10bce</a></p>
+<p>在使用的 FIC 的时候，我发现它对于单体应用还是相当友好的，搭建使用都非常舒服，并且 chronograf 的页面比 kibana 个人认为要舒服很多，简洁。当然也有它自己的问题：</p>
+<ol>
+<li>influxdb 还是比较吃内存的</li>
+<li>日志量大的时候 chronograf 明显第一次进去会卡，不知道现在优化没有，然后如果当入库数据异常的时候其实页面会报错的：之前我提过 issue 应该已经修复</li>
+<li>日志关键字搜索的时候会卡，准确的说比较慢</li>
+<li>其实 fluentbit 对于多行日志的处理很鸡肋，因为每家每户的日志格式其实不太一样，公司内部日志格式都不一样，我还尝试重新自己造过轮子，发送到 influxdb ，后面才发现 filebeat 也能满足要求。</li>
+<li>tag 会爆炸，塞日志的时候，如果日志量巨大，因为会根据日志级别打 tag 建立索引，而 influxdb 是有默认限制的，所以当时也踩了坑，调整了配置后得以解决</li>
+</ol>
+<p>但是 其实 FIC 对于系统日志也就是 syslog 的监控还是有着自己独特的一面，有机会你可以尝试一下，还是相当不错的，这个方案我也使用了一段时间了。</p>
+<h3 id="Loki"><a href="#Loki" class="headerlink" title="Loki"></a>Loki</h3><p>这是我当前使用过一段时间之后，最终认可的一个方案：<a href="https://github.com/grafana/loki">https://github.com/grafana/loki</a></p>
+<p>其实在使用 FIC 的时候我就犹豫过当时要不要使用 loki 犹豫当时的公司内部没有大力推 k8s ，多数都是 docker-compose 的使用，更多的是小单体居多的。而当时 loki 也是没有很多的实际使用经验，不敢往上推，怕出问题。但是后面有了机会实践之后就真香了。</p>
+<p>其实 loki 包含三个组件：</p>
+<ol>
+<li><strong>Promtail</strong>:日志收集工具</li>
+<li><strong>Loki</strong>:日志聚合系统</li>
+<li><strong>Grafana</strong>:可视化工具</li>
+</ol>
+<p>grafana 其实很熟悉了，很多监控展示都用到它了，用起来也相当的舒服，有很多的展示方式，当时在比较的时候，当初 grafana 还只有表格展示模式，所以就比较尴尬，后面出现了 log 模式就很舒服了。</p>
+<p><img src="http://blog.linkinstars.com//blog/grafana.png" alt="grafana"></p>
+<p>我觉得 loki 让我舒服在下面几个点：</p>
+<ol>
+<li>k8s 内部署非常方便，几乎是一个 helm 就能部署好了，不需要额外的配置，默认的配置已经足够日常的使用了</li>
+<li>能筛选到某应用，甚至到某个 pod 的日志，查问题的时候非常方便</li>
+<li>支持关键字搜索，我甚至不需要调整原有的日志格式，就能有很好的支持，如果调整输出日志的格式为官方推荐的 logfmt 的话可能更加靠谱</li>
+<li>日志数据本身会被压缩，使用成本低</li>
+<li>几乎没有入侵：我没有调整日志格式，不需要建立特定的 sidecar 去监控日志也就不需要改动原有的 deployment 的 yaml 配置，就是使用 loki 不需要我改动什么就能用起来</li>
+</ol>
+<p>但是毕竟没有 ES 那么多建立的索引，当日志量大的时候搜索没有那么快，但是也足够满足我的要求了，足够用了。（当然如果调整loki一些参数如缓存等可以大大加快查询速度，个人没有调整，已经足够使用）</p>
+<p>虽然网上见到有吐槽过性能的，但是目前个人使用下来暂时没有遇到瓶颈。后面还会持续关注@TODO。</p>
+<p><strong>PS: 需要注意的是，你的应用日志需要输出到 stdout 中</strong> 这里有关 k8s 日志收集方案不做过多讨论，因为网上的方案大多三种，一种 stdout，一种挂 sidecar，一种用 DaemonSet 各有各的说法。</p>
+<h2 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h2><p>官方已经给出了很多部署的方案，其中我选择的是 helm，非常轻松：<a href="https://grafana.com/docs/loki/latest/installation/helm/">https://grafana.com/docs/loki/latest/installation/helm/</a></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 添加 repo 并更新</span></span><br><span class="line">helm repo add grafana https://grafana.github.io/helm-charts</span><br><span class="line">helm repo update</span><br><span class="line"></span><br><span class="line"><span class="comment"># 注意这里后面是 -stack 的是默认打包好在一起的，没stack的是默认只有 loki 的，自定义安装请参考官网给出的命令</span></span><br><span class="line">helm upgrade --install loki --namespace=loki grafana/loki-stack</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装 grafana</span></span><br><span class="line">helm install loki-grafana --namespace=&lt;YOUR-NAMESPACE&gt; grafana/grafana</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看 grafana 的密码</span></span><br><span class="line">kubectl get secret --namespace &lt;YOUR-NAMESPACE&gt; loki-grafana -o jsonpath=<span class="string">&quot;&#123;.data.admin-password&#125;&quot;</span> | base64 --decode ; <span class="built_in">echo</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 临时暴露 端口 进行访问测试</span></span><br><span class="line">kubectl port-forward --namespace &lt;YOUR-NAMESPACE&gt; service/loki-grafana 3000:80</span><br></pre></td></tr></table></figure>
+<p>然后设置对应的 service 暴露出你需要使用的端口即可，其实非常容易操作。</p>
+<p>使用 admin 和上面查看的  grafana 的密码即可进入，然后添加数据源选择 loki</p>
+<p><img src="http://blog.linkinstars.com//blog/loki-data-sources.png" alt="loki-data-sources"></p>
+<p>注意这里的地址输入 <a href="http://loki:3100">http://loki:3100</a> 即可，没有什么其他需要配置的。我真的觉得 so easy</p>
+<p>如果没有意外，就可以使用 grafana 的 explorer 进行日志查看的了，前提是运行一段时间，让你的输出一些日志。</p>
+<h3 id="关键字检索"><a href="#关键字检索" class="headerlink" title="关键字检索"></a>关键字检索</h3><p>其实我一开始还担心没办法进行日志关键字检索，找了半天，才发现很简单，只需要在最上面的输入框中写入 <code>&#123;job=&quot;mysql&quot;&#125; |= &quot;error&quot;</code> 其中的 error 就是你要找的关键字，就可以了，还有一些正则表达式这里就不多介绍了，explorer 打开的一开始有提示的。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>其他使用细节因为涉及具体生产使用，不方便截图，我将一些必要的的链接参考扔在下面，应该足够你使用了。</p>
+<p>总的来说，我要的 loki 都有，并且部署方便，想要替换也很方便，直接删掉就好了，然后满足我日志查看的全部需求，而且占用资源情况也没有其他几个那么高，完美~ 后悔没有早点用上它。不过后面也会持续追踪使用情况，后面会再出一个有关使用过程中的坑点的博客。</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p>部署相关：<a href="https://blog.cong.moe/post/2020-07-27-use_loki_as_k8s_log_collector/">https://blog.cong.moe/post/2020-07-27-use_loki_as_k8s_log_collector/</a></p>
+<p><a href="https://bbs.huaweicloud.com/blogs/200177">https://bbs.huaweicloud.com/blogs/200177</a></p>
+<p><a href="https://www.qikqiak.com/post/use-loki-monitor-alert/">https://www.qikqiak.com/post/use-loki-monitor-alert/</a></p>
+<p><a href="https://www.qikqiak.com/post/grafana-loki-usage/">https://www.qikqiak.com/post/grafana-loki-usage/</a></p>
+<p>官方最佳实践：<a href="https://grafana.com/docs/loki/latest/best-practices/current-best-practices/">https://grafana.com/docs/loki/latest/best-practices/current-best-practices/</a></p>
+<p>通过设定annotations只收集固定 pod 的日志：<a href="https://blog.csdn.net/kozazyh/article/details/102881301">https://blog.csdn.net/kozazyh/article/details/102881301</a> （个人认为没有必要，这样对于 k8s 的 yaml 文件有入侵）</p>
+<p>如何设置只收集固定 namespace 的日志：<a href="https://www.giantswarm.io/blog/grafana-logging-using-loki">https://www.giantswarm.io/blog/grafana-logging-using-loki</a></p>
+]]></content>
+      <categories>
+        <category>loki</category>
+      </categories>
+      <tags>
+        <tag>loki</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>monitoror/monitoror 最轻量的监控大屏</title>
+    <url>/2021/04/12/open-source-component/monitoror/</url>
+    <content><![CDATA[<p>一提到监控大屏，那第一想法就是 grafana 对吧，各种样式图形都非常好看，而且支持各种数据源。而今天要分享的是一个更加轻量的监控大屏 monitoror/monitoror</p>
+<p>有了它能帮你快读构建一个的对于网站或者应用的监控页面，特别是在小应用数量多的时候非常简单易用，作为一个大屏展示时它我觉得它足够简洁</p>
+<span id="more"></span>
+<p align="center"><br>    <img src="https://github.com/monitoror/monitoror/raw/develop/.assets/monitoror-mockup.svg" alt width="70%"> <br><br></p>
+
+<h2 id="demo-amp-repo"><a href="#demo-amp-repo" class="headerlink" title="demo &amp; repo"></a>demo &amp; repo</h2><p><a href="https://demo.monitoror.com/">https://demo.monitoror.com/</a></p>
+<p><a href="https://github.com/monitoror/monitoror">https://github.com/monitoror/monitoror</a></p>
+<h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><ul>
+<li>部署轻量</li>
+<li>配置简单</li>
+<li>大屏简洁</li>
+</ul>
+<h2 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h2><h3 id="二进制部署"><a href="#二进制部署" class="headerlink" title="二进制部署"></a>二进制部署</h3><p><a href="https://monitoror.com/documentation/get-started/">https://monitoror.com/documentation/get-started/</a></p>
+<p>非常简单，只需要将二进制文件下载，然后按照要求配置对应的配置文件，就可以了</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">chmod +x monitoror</span><br><span class="line">./monitoror</span><br></pre></td></tr></table></figure>
+<p>配置文件.env</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">MO_CONFIG=&quot;./config.json&quot;</span><br></pre></td></tr></table></figure>
+<p>配置文件config.json</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;version&quot;</span>: <span class="string">&quot;2.0&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;columns&quot;</span>: <span class="number">2</span>,</span><br><span class="line">  <span class="attr">&quot;tiles&quot;</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;PORT&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;label&quot;</span>: <span class="string">&quot;Welcome config example&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;params&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;hostname&quot;</span>: <span class="string">&quot;127.0.0.1&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;port&quot;</span>: <span class="number">8080</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;HTTP-RAW&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;label&quot;</span>: <span class="string">&quot;Monitoror stars&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;params&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;url&quot;</span>: <span class="string">&quot;https://github.com/monitoror/monitoror&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;regex&quot;</span>: <span class="string">&quot;(\\d+) users starred&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="k8s-部署"><a href="#k8s-部署" class="headerlink" title="k8s 部署"></a>k8s 部署</h3><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">monitoror</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">monitoror</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">monitoror</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">monitoror</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">monitoror</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">monitoror</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">monitoror/monitoror:latest</span></span><br><span class="line">        <span class="attr">env:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">MO_CONFIG</span></span><br><span class="line">          <span class="attr">value:</span> <span class="string">&quot;/conf/monitoror.json&quot;</span></span><br><span class="line">        <span class="attr">volumeMounts:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">config-volume</span></span><br><span class="line">          <span class="attr">mountPath:</span> <span class="string">&quot;/conf&quot;</span></span><br><span class="line">        <span class="attr">ports:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">web</span></span><br><span class="line">          <span class="attr">containerPort:</span> <span class="number">32000</span></span><br><span class="line">        <span class="attr">resources:</span></span><br><span class="line">          <span class="attr">limits:</span></span><br><span class="line">            <span class="attr">cpu:</span> <span class="string">100m</span></span><br><span class="line">            <span class="attr">memory:</span> <span class="string">200Mi</span></span><br><span class="line">      <span class="attr">volumes:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">config-volume</span></span><br><span class="line">          <span class="attr">configMap:</span></span><br><span class="line">            <span class="attr">name:</span> <span class="string">monitoror-config</span></span><br><span class="line">            <span class="attr">items:</span> </span><br><span class="line">            <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">monitoror.json</span></span><br><span class="line">              <span class="attr">path:</span> <span class="string">monitoror.json</span></span><br></pre></td></tr></table></figure>
+<p>其中需要注意的就是配置文件 configmap 挂载的位置</p>
+<p>还有环境变量 MO_CONFIG 需要指定对应的配置文件路径</p>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><p><a href="https://monitoror.com/documentation/#configuration">https://monitoror.com/documentation/#configuration</a></p>
+<p>monitoror 的配置很简单</p>
+<h3 id="监控端口"><a href="#监控端口" class="headerlink" title="监控端口"></a>监控端口</h3><p>只需要填入对应的地址和端口即可</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;PORT&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;label&quot;</span>: <span class="string">&quot;Welcome config example&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;params&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;hostname&quot;</span>: <span class="string">&quot;127.0.0.1&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;port&quot;</span>: <span class="number">8080</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="监控HTTP"><a href="#监控HTTP" class="headerlink" title="监控HTTP"></a>监控HTTP</h3><p>只需要填入对应的地址，然后还可以做简单的处理，还有可能监控对应的 http code 状态码</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;HTTP-RAW&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;label&quot;</span>: <span class="string">&quot;Monitoror stars&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;params&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;url&quot;</span>: <span class="string">&quot;https://github.com/monitoror/monitoror&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;regex&quot;</span>: <span class="string">&quot;(\\d+) users starred&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="多平台"><a href="#多平台" class="headerlink" title="多平台"></a>多平台</h2><p><a href="https://monitoror.com/guides/">https://monitoror.com/guides/</a></p>
+<p>甚至可以将这个安装到树莓派上去，这个就很有意思了，因为轻量的关系，这个作为一个监控随便插到哪里，还蛮有意思的</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>如果你需要最快速的搭建一个可用的监控大屏，或许这就是一个不错的选择；当然如果你需要更多的数据监控，需要一些流量数值等等还需要一些图表，那么或许它还没有那么强大。</p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>当前这个监控还没有通知模块，也就是说，也只能大屏盯着看，emmm…，这个还是有点小鸡肋的，因为确实不可能一直盯着看。当然已经有人提 issue 了，但是官方的 roadmap 里面还没有这个计划，于是我自己先加了一个钉钉的监控意思一下，这样至少能保证出现问题的时候有个反应提醒。比较隔壁的 grafana 做了那么久 alert 模块应该能直接抄过来吧。</p>
+<p><img src="http://blog.linkinstars.com//blog/dingding.png" alt="dingding"></p>
+<blockquote>
+<p>地址：<a href="https://github.com/LinkinStars/monitoror/tree/add-notification">https://github.com/LinkinStars/monitoror/tree/add-notification</a></p>
+</blockquote>
+<p>可以直接拿下来编译使用，注意需要配置：.env 文件</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="attr">MO_CONFIG</span>=<span class="string">&quot;./config.json&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 钉钉的 webhook 地址</span></span><br><span class="line"><span class="attr">MO_MONITORABLE_DINGDING_WEBHOOK</span>=<span class="string">&quot;https://oapi.dingtalk.com/robot/send?access_token=xxxxx&quot;</span></span><br><span class="line"><span class="comment"># 钉钉的 secret 如果不配置 secret 使用 monitoror 关键字应该也可以</span></span><br><span class="line"><span class="attr">MO_MONITORABLE_DINGDING_SECRET</span>=<span class="string">&quot;SECxxxxxx&quot;</span></span><br></pre></td></tr></table></figure>
+<p>当前通知规则：</p>
+<p>最大连续出错通知 3 次，超过这个次数不会继续通知，当服务恢复后计数清零，再次出现异常时会重新通知，同样是 3 次；（这个是临时设置的规则，等全部写完之后会抽离为配置或者调整为更加合适的规则）</p>
+]]></content>
+      <categories>
+        <category>monitoror</category>
+      </categories>
+      <tags>
+        <tag>monitoror</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>openfaas/faas 环境搭建和开发使用</title>
+    <url>/2020/10/19/open-source-component/openfaas/</url>
+    <content><![CDATA[<p>serverless 大环境下出现了 faas，即 function as  a service，函数即服务；其意思也非常好理解，就是能将一个函数作为一个服务进行使用，用户只需要编写一个函数功能即可，不需要额外去关心别的东西。<a href="https://github.com/openfaas/faas">https://github.com/openfaas/faas</a> 是其中的一种实现方式。</p>
+<span id="more"></span>
+<h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><p>以下环境在 mac 上进行搭建：</p>
+<p>首先需要准备 docker 和 kubernetes 的环境，先做 k8s 的环境直接能通过 docker 桌面进行配置，已经算是很方便了。</p>
+<p><img src="http://blog.linkinstars.com//blog/image-20201019193844247.png" alt="image-20201019193844247"></p>
+<h2 id="安装步骤"><a href="#安装步骤" class="headerlink" title="安装步骤"></a>安装步骤</h2><h3 id="openfaas-cli"><a href="#openfaas-cli" class="headerlink" title="openfaas-cli"></a>openfaas-cli</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">curl -sL https://cli.openfaas.com | sh</span><br></pre></td></tr></table></figure>
+<h3 id="namespace"><a href="#namespace" class="headerlink" title="namespace"></a>namespace</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/openfaas/faas-netes</span><br><span class="line"><span class="built_in">cd</span> faas-netes</span><br><span class="line">kubectl apply -f namespaces.yml</span><br></pre></td></tr></table></figure>
+<h3 id="password"><a href="#password" class="headerlink" title="password"></a>password</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ cat passwd.sh</span><br><span class="line">    <span class="comment"># PASSWORD=$(head -c 12 /dev/urandom | sha1sum |cut -d&#x27; &#x27; -f1)</span></span><br><span class="line">    PASSWORD=admin123</span><br><span class="line">    <span class="built_in">echo</span> <span class="variable">$PASSWORD</span> &gt; passwd</span><br><span class="line">    kubectl -n openfaas create secret generic basic-auth \</span><br><span class="line">    --from-literal=basic-auth-user=admin \</span><br><span class="line">    --from-literal=basic-auth-password=<span class="string">&quot;<span class="variable">$PASSWORD</span>&quot;</span></span><br><span class="line">$ sh ./passwd.sh</span><br></pre></td></tr></table></figure>
+<h3 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ kubectl apply -f ./yaml</span><br><span class="line">$ kubectl get pods -n openfaas --watch </span><br><span class="line"></span><br><span class="line">➜  ~ kubectl get pods -n openfaas</span><br><span class="line">NAME                                 READY   STATUS    RESTARTS   AGE</span><br><span class="line">alertmanager-7dd959fd86-stslk        1/1     Running   0          3h30m</span><br><span class="line">basic-auth-plugin-85649fd6fc-4xlph   1/1     Running   0          3h30m</span><br><span class="line">faas-idler-f4597f655-6c4nb           1/1     Running   2          3h30m</span><br><span class="line">gateway-7c579bc859-cpm6g             2/2     Running   1          3h30m</span><br><span class="line">nats-8455bfbb58-gq2vh                1/1     Running   0          3h30m</span><br><span class="line">prometheus-86f7fdf9b5-jtb6q          1/1     Running   0          3h30m</span><br><span class="line">queue-worker-c6d788779-xl6d2         1/1     Running   0          3h30m</span><br><span class="line"></span><br><span class="line"><span class="comment"># 当全部启动时则正常部署成功</span></span><br></pre></td></tr></table></figure>
+<h3 id="访问"><a href="#访问" class="headerlink" title="访问"></a>访问</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">http://127.0.0.1:31112</span><br><span class="line">admin/admin123</span><br></pre></td></tr></table></figure>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>openfaas 默认带有一些可以部署的 function</p>
+<h3 id="nodeinfo"><a href="#nodeinfo" class="headerlink" title="nodeinfo"></a>nodeinfo</h3><p><img src="http://blog.linkinstars.com//blog/image-20201019194703907.png" alt="image-20201019194703907"></p>
+<p><img src="http://blog.linkinstars.com//blog/image-20201019194738010.png" alt="image-20201019194738010"></p>
+<p>点击 deploy 之后等待状态 ready 之后就可以进行使用了，点击 invoke 进行调用，这个 function 是用来获取主机信息的。</p>
+<h3 id="ocr"><a href="#ocr" class="headerlink" title="ocr"></a>ocr</h3><p><img src="http://blog.linkinstars.com//blog/image-20201019194944708.png" alt="image-20201019194944708"></p>
+<p>这个 function 是用来做图像识别的</p>
+<p>还有其他很多自带的 function 都可以试试，这里不再列举了</p>
+<h3 id="qrcode"><a href="#qrcode" class="headerlink" title="qrcode"></a>qrcode</h3><p>其实很多 function 的实现是非常简单的，如这个生成二维码的 function，使用 go 实现，代码如下</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;encoding/binary&quot;</span></span><br><span class="line">	<span class="string">&quot;io/ioutil&quot;</span></span><br><span class="line">	<span class="string">&quot;log&quot;</span></span><br><span class="line">	<span class="string">&quot;os&quot;</span></span><br><span class="line"></span><br><span class="line">	qrcode <span class="string">&quot;github.com/skip2/go-qrcode&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	input, err := ioutil.ReadAll(os.Stdin)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">&quot;Unable to read standard input: %s&quot;</span>, err.Error())</span><br><span class="line">	&#125;</span><br><span class="line">	png, err := qrcode.Encode(<span class="keyword">string</span>(input), qrcode.Medium, <span class="number">256</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">&quot;Unable to read standard input: %s&quot;</span>, err.Error())</span><br><span class="line">	&#125;</span><br><span class="line">	binary.Write(os.Stdout, binary.LittleEndian, png)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其实就是调用了一个三方的库，在 main 函数中从 std 读如参数，然后将结果输出到 stdout 中就可以了，就其实和我们普通写的函数一模一样。</p>
+<h2 id="实现function"><a href="#实现function" class="headerlink" title="实现function"></a>实现function</h2><p>那么如何自己实现一个 function 并注册使用呢？其实也很简单，现在 faas-cli 工具已经提供了相关的功能，这里说明使用 golang 来时进实现的方式，其他语言也是类似的。</p>
+<h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><p>创建一个空目录，在空目录下使用  faas-cli 命令进行初始化</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">faas-cli new hellofaas --lang go</span><br></pre></td></tr></table></figure>
+<p>这样你就能得到一个基础的功能目录</p>
+<p>hellofaas 文件夹中包含一个 go 文件，这个文件就是你需要自己实现的 function，里面是一个 http 请求的 handle，接受一个参数，返回一个字符串，函数中你可以实现你自己的逻辑功能。</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> function</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// Handle a serverless request</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Handle</span><span class="params">(req []<span class="keyword">byte</span>)</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> fmt.Sprintf(<span class="string">&quot;Hello, Go. You said: %s&quot;</span>, <span class="keyword">string</span>(req))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="配置镜像参数"><a href="#配置镜像参数" class="headerlink" title="配置镜像参数"></a>配置镜像参数</h3><p>hellofaas.yml 文件是用来部署和上传镜像的</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="number">1.0</span></span><br><span class="line"><span class="attr">provider:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">openfaas</span></span><br><span class="line">  <span class="attr">gateway:</span> <span class="string">http://127.0.0.1:31112</span></span><br><span class="line"><span class="attr">functions:</span></span><br><span class="line">  <span class="attr">hellofaas:</span></span><br><span class="line">    <span class="attr">lang:</span> <span class="string">go</span></span><br><span class="line">    <span class="attr">handler:</span> <span class="string">./hellofaas</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">linkinstar/hellofaas:latest</span> </span><br></pre></td></tr></table></figure>
+<p>其中需要修改的是 gateway 为你自己的 faas 部署地址</p>
+<p>然后就是 images 是你 docker hub 的地址，如果需要推送到私有仓库需要你手动进行登录操作</p>
+<h3 id="构建、推送、部署"><a href="#构建、推送、部署" class="headerlink" title="构建、推送、部署"></a>构建、推送、部署</h3><p>剩下就很简单了，三个命令，构建时间可能会长一些，拉取镜像比较缓慢</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">faas-cli build -f hellofaas.yml</span><br><span class="line">faas-cli push -f hellofaas.yml</span><br><span class="line">faas-cli deploy -f hello.yml --gateway http://127.0.0.1:31112</span><br></pre></td></tr></table></figure>
+<p>如果没有问题，那么在页面上你就可以看到你自己的 function 了</p>
+<p><img src="http://blog.linkinstars.com//blog/image-20201019204020609.png" alt="image-20201019204020609"></p>
+<p>当然你也可以这样调用：</p>
+<p><code>echo test | faas-cli invoke hellofaas --gateway http://127.0.0.1:31112</code></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>其实对于 faas 的使用还算简单，并没有想象中的那么复杂，它的实现方式也比较符合我的想法，作为一个镜像进行打包进行输出进行使用，而且支持各种语言进行实现，也不失为一种比较好的实现策略吧。</p>
+<p>我觉得更多的是 function 的这样的思想，让我们要意识到，什么样类型的功能能被抽离为一个 function ，并且这个的 function 是否应该有业务属性，以及它作为一个 service 的定义是什么，这我觉得是我们应该考虑的。因为它很轻，轻的东西就容易多，多的东西就不好管控，所以控制方面也应该做考虑。</p>
+<p>总之要认清它的目标和使用场景还是一个比较难得事情。</p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="https://www.lanqiao.cn/library/kubernetes-handbook/usecases/openfaas-quick-start/">https://www.lanqiao.cn/library/kubernetes-handbook/usecases/openfaas-quick-start/</a></p>
+<p><a href="https://cloud.tencent.com/developer/article/1681551">https://cloud.tencent.com/developer/article/1681551</a></p>
+<p><a href="http://www.liangxiaolei.fun/2020/06/11/k8s%E7%AC%94%E8%AE%B0-serverless-openfaas%E4%BD%93%E9%AA%8C/">http://www.liangxiaolei.fun/2020/06/11/k8s%E7%AC%94%E8%AE%B0-serverless-openfaas%E4%BD%93%E9%AA%8C/</a></p>
+<p><a href="https://linux.cn/article-9078-1.html">https://linux.cn/article-9078-1.html</a></p>
+]]></content>
+      <categories>
+        <category>云原生</category>
+      </categories>
+      <tags>
+        <tag>faas</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>快速上手terraform —— 阿里云OSS和ECS的创建</title>
+    <url>/2019/11/10/open-source-component/terraform-aliyun-oss-ecs-test/</url>
+    <content><![CDATA[<p>最近在研究terraform，采了一圈坑，记录一下。</p>
+<p>什么是terraform？terraform 通过代码配置实现物理机等一些资源的分配。简单说就是，写一个配置文件，启动，就能帮你购买一台云的机器，或者说申请到oss的资源，或者是别的什么。具体功能见官网。<br><span id="more"></span></p>
+<p><a href="https://www.terraform.io/docs/index.html">https://www.terraform.io/docs/index.html</a></p>
+<p>名词解释：provider你可以把它看做各个厂商对terraform提供的插件，terraform可以调用这些插件从而实现对资源的操作管理。<br>terraform流程：init -&gt; plan -&gt; apply -&gt; destroy<br>对应为：初始化，计划验证，实际应用，销毁</p>
+<h2 id="最小demo"><a href="#最小demo" class="headerlink" title="最小demo"></a>最小demo</h2><p>我将用一个最小的demo来演示它怎么干活的：通过terraform来创建一个阿里云的oss<br>（以下没有利益相关）只是因为阿里云我有账号而已，其他供应商也有。</p>
+<p>我的本地环境：macOS</p>
+<h3 id="步骤1-下载相关资源"><a href="#步骤1-下载相关资源" class="headerlink" title="步骤1 下载相关资源"></a>步骤1 下载相关资源</h3><p>下载对应的客户端：<a href="https://www.terraform.io/downloads.html">https://www.terraform.io/downloads.html</a><br>下载解压后得到：terraform的客户端，将它复制到 <code>/usr/local/bin</code> 目录下<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">$ terraform -version</span><br><span class="line">Terraform v0.12.13</span><br></pre></td></tr></table></figure><br>验证一下，输出版本正常的话就好了</p>
+<p>下载阿里云对应provider：<a href="https://releases.hashicorp.com/terraform-provider-alicloud/1.60.0/">https://releases.hashicorp.com/terraform-provider-alicloud/1.60.0/</a><br>我下载的版本为：terraform-provider-alicloud_1.60.0_darwin_amd64.zip</p>
+<p>放置到一个你喜欢的目录下，我这边为<code>/Users/LinkinStar/Documents/tf-plugin</code></p>
+<h3 id="步骤2-申请阿里云相关资源"><a href="#步骤2-申请阿里云相关资源" class="headerlink" title="步骤2 申请阿里云相关资源"></a>步骤2 申请阿里云相关资源</h3><p>创建你的阿里云账号，这个不多说了。然后需要创建一个ram用户<br><a href="https://ram.console.aliyun.com/">https://ram.console.aliyun.com/</a><br>用户管理 -&gt; 新建用户 -&gt; 保存好AccessKey和Secret</p>
+<p>注意！这里还需要对用户进行授权，点击授权给到相关权限就行，我给了全部，方便测试</p>
+<h3 id="步骤3-编写文件"><a href="#步骤3-编写文件" class="headerlink" title="步骤3 编写文件"></a>步骤3 编写文件</h3><p>随便创建一个工作目录，然后创建一个tf文件main.tf<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># Configure the Alicloud Provider</span><br><span class="line">provider &quot;alicloud&quot; &#123;</span><br><span class="line">  access_key = &quot;LTAIaskjfhadsklfhklasdjfhdsakjlfhdask&quot;</span><br><span class="line">  secret_key = &quot;6GPashfjksladfhdjskafhdsklajfdhaljfhajfl&quot;</span><br><span class="line">  region     = &quot;cn-beijing&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">resource &quot;alicloud_oss_bucket&quot; &quot;bucket-acl&quot; &#123;</span><br><span class="line">  bucket = &quot;bucket-123456654321-acl&quot;</span><br><span class="line">  acl    = &quot;private&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>其中 access_key 和 secret_key 为你刚才申请ram的信息<br>bucket 的名称你随便取一个</p>
+<h3 id="步骤4-运行命令"><a href="#步骤4-运行命令" class="headerlink" title="步骤4 运行命令"></a>步骤4 运行命令</h3><h4 id="init"><a href="#init" class="headerlink" title="init"></a>init</h4><p>以下命令均在tf文件当前目录下运行<br><figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">terraform init -plugin-dir=/Users/LinkinStar/Documents/tf-plugin</span><br></pre></td></tr></table></figure><br>注意后面的目录是我们刚才下载的provider的目录<br>出现 Terraform has been successfully initialized! 为成功</p>
+<h4 id="plan"><a href="#plan" class="headerlink" title="plan"></a>plan</h4><p>然后使用命令 <code>terraform plan</code> 出现以下信息<br><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">  # alicloud_oss_bucket.bucket-acl will be created</span><br><span class="line">  + resource &quot;alicloud_oss_bucket&quot; &quot;bucket-acl&quot; &#123;</span><br><span class="line">      + acl               = &quot;private&quot;</span><br><span class="line">      + bucket            = &quot;bucket-123456654321-acl&quot;</span><br><span class="line">      + creation_date     = (known after apply)</span><br><span class="line">      + extranet_endpoint = (known after apply)</span><br><span class="line">      + force_destroy     = false</span><br><span class="line">      + id                = (known after apply)</span><br><span class="line">      + intranet_endpoint = (known after apply)</span><br><span class="line">      + location          = (known after apply)</span><br><span class="line">      + owner             = (known after apply)</span><br><span class="line">      + storage_class     = &quot;Standard&quot;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">Plan: 1 to add, 0 to change, 0 to destroy.</span><br></pre></td></tr></table></figure></p>
+<h4 id="apply"><a href="#apply" class="headerlink" title="apply"></a>apply</h4><p>运行命令 <code>terraform apply</code> 过程中需要输出yes确认<br>出现以下信息就证明成功了：<br><code>Apply complete! Resources: 1 added, 0 changed, 0 destroyed.</code></p>
+<p>你可以到：<a href="https://oss.console.aliyun.com/overview">https://oss.console.aliyun.com/overview</a><br>查看OSS是否已经被创建</p>
+<h4 id="destroy"><a href="#destroy" class="headerlink" title="destroy"></a>destroy</h4><p>最后运行命令 <code>terraform destroy</code> 过程中需要输出yes确认<br>刚才创建的OSS资源就会被销毁，你可以再在网上刷新一下查看</p>
+<p>以上就是通过terraform进行的资源操作，同样的，你可以修改tf文件进行更多资源的操作</p>
+<h2 id="对ECS进行操作"><a href="#对ECS进行操作" class="headerlink" title="对ECS进行操作"></a>对ECS进行操作</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># Configure the Alicloud Provider</span><br><span class="line">provider &quot;alicloud&quot; &#123;</span><br><span class="line">  access_key = &quot;LTAIaskjfhadsklfhklasdjfhdsakjlfhdask&quot;</span><br><span class="line">  secret_key = &quot;6GPashfjksladfhdjskafhdsklajfdhaljfhajfl&quot;</span><br><span class="line">  region     = &quot;cn-hangzhou&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"># Create a new ECS instance for a VPC</span><br><span class="line">resource &quot;alicloud_security_group&quot; &quot;group&quot; &#123;</span><br><span class="line">  name        = &quot;tf_test_foo&quot;</span><br><span class="line">  description = &quot;foo&quot;</span><br><span class="line">  vpc_id      = &quot;$&#123;alicloud_vpc.vpc.id&#125;&quot;</span><br><span class="line">&#125;</span><br><span class="line">resource &quot;alicloud_vpc&quot; &quot;vpc&quot; &#123;</span><br><span class="line">  name       = &quot;tf_test_foo&quot;</span><br><span class="line">  cidr_block = &quot;172.16.0.0/12&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">resource &quot;alicloud_vswitch&quot; &quot;vswitch&quot; &#123;</span><br><span class="line">  vpc_id            = &quot;$&#123;alicloud_vpc.vpc.id&#125;&quot;</span><br><span class="line">  cidr_block        = &quot;172.16.0.0/21&quot;</span><br><span class="line">  availability_zone = &quot;cn-hangzhou-i&quot;</span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line">resource &quot;alicloud_instance&quot; &quot;instance&quot; &#123;</span><br><span class="line">  availability_zone = &quot;cn-hangzhou-i&quot;</span><br><span class="line">  security_groups   = &quot;$&#123;alicloud_security_group.group.*.id&#125;&quot;</span><br><span class="line">  instance_type              = &quot;ecs.t6-c2m1.large&quot;</span><br><span class="line">  system_disk_category       = &quot;cloud_efficiency&quot;</span><br><span class="line">  image_id                   = &quot;ubuntu_18_04_64_20G_alibase_20190624.vhd&quot;</span><br><span class="line">  instance_name              = &quot;test_foo&quot;</span><br><span class="line">  vswitch_id                 = &quot;$&#123;alicloud_vswitch.vswitch.id&#125;&quot;</span><br><span class="line">  </span><br><span class="line">  internet_max_bandwidth_out = 0</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="http://blog.linkinstars.com/mweb/15733034184247.jpg" alt></p>
+<p>需要注意的是你的账户余额必须&gt;100块，否则会提示余额不足，我这边tf里面写的是非常便宜几分钱一个小时的机器，所以问题不大，你要是害怕你可以不测（再说一遍本文没有利益相关）</p>
+<h2 id="相关资源总结"><a href="#相关资源总结" class="headerlink" title="相关资源总结"></a>相关资源总结</h2><p>provider下载地址：<a href="https://releases.hashicorp.com/">https://releases.hashicorp.com/</a><br>provider相关文档：<a href="https://www.terraform.io/docs/providers/index.html">https://www.terraform.io/docs/providers/index.html</a></p>
+<h2 id="坑点"><a href="#坑点" class="headerlink" title="坑点"></a>坑点</h2><ul>
+<li>国内的墙导致直接执行init是不可以的，它会去官方拉取provider但是会报错，必须手动下载provider并指定-plugin-dir，呼吸不到外面的新鲜空气有点难受。</li>
+<li>terraform的文档都是英文的并且provider给到的参数选项不全，不知道该填什么。</li>
+<li>阿里云创建的ram用户默认没有权限。</li>
+<li>阿里云需要100块？！我充10块钱不行吗？我又花不了那么多，弄得我晚饭都吃不起了。</li>
+<li>阿里云很多地区是没有便宜的机器卖的，一直提示我机器没有，很难受。</li>
+</ul>
+<p>PS: 以上TF文件均用来测试，所以一些变量没有做抽离，实际使用一些变量如key等会抽离成别的文件统一管理，别被我带跑偏了。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>总的来说使用tf对于资源的申请还是非常方便的，一个文件就可以搞定，可以做到随时使用随时销毁，同时也支持多次apply对资源进行更新和操作。它不仅可以对服务器进行操作，还有很多公有云的资源如dns等进行操作，并且现在provider支持的厂商很多。</p>
+<p>原理相关的博客后续有机会补充，希望不会鸽。</p>
+]]></content>
+      <categories>
+        <category>terraform</category>
+      </categories>
+      <tags>
+        <tag>terraform</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Weave Scope 监控 k8s 集群</title>
+    <url>/2021/01/12/open-source-component/weave-scope/</url>
+    <content><![CDATA[<p>之前一直在寻找一个 k8s 监控的工具，因为一直使用的是本地的 lens 的客户端，虽然使用上已经非常方便了，但是其实对于资源消耗的监控少了一点，有些资源消耗并不是能容易看到，并且服务间依赖是没有办法表现出来的，后来发现了 Weave Scope 满足了我的需求。</p>
+<span id="more"></span>
+<h2 id="链接"><a href="#链接" class="headerlink" title="链接"></a>链接</h2><p><a href="https://github.com/weaveworks/scope">https://github.com/weaveworks/scope</a></p>
+<h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><ul>
+<li>资源监控：能实时反映整个集群中的资源状况 cpu 内存 使用情况 并且支持各种角度</li>
+<li>服务间依赖：能通过图形展现出服务之间访问的依赖关系</li>
+<li>容器交互：实时查看日志和描述信息</li>
+<li>支持插件：可以通过插件扩展</li>
+<li>部署方便：一个命令即可部署完成</li>
+</ul>
+<h2 id="监控页面"><a href="#监控页面" class="headerlink" title="监控页面"></a>监控页面</h2><h3 id="资源监控"><a href="#资源监控" class="headerlink" title="资源监控"></a>资源监控</h3><p><img src="http://blog.linkinstars.com//blog/weavescope-hosts-memory-stat.png" alt="weavescope-hosts-memory-stat"></p>
+<p>可以清楚的看到每个 node 的资源使用情况</p>
+<h3 id="服务间依赖"><a href="#服务间依赖" class="headerlink" title="服务间依赖"></a>服务间依赖</h3><p><img src="http://blog.linkinstars.com//blog/weavescope-service-dependcy.png" alt="weavescope-service-dependcy"></p>
+<p>因为内部服务与服务之间通过 rpc 进行交互，从这里可以很容易看出，某个服务被别的五个服务所依赖调用</p>
+<h3 id="容器交互"><a href="#容器交互" class="headerlink" title="容器交互"></a>容器交互</h3><p><img src="http://blog.linkinstars.com//blog/weacescope-pod-interaction.png" alt="weacescope-pod-interaction"></p>
+<p>可以看到占用的 cpu 和内存的情况，然后占用的端口等，还有日志信息</p>
+<h2 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h2><p>支持直接部署在 k8s 集群中，不需要额外的任何配置</p>
+<p><a href="https://www.weave.works/docs/scope/latest/installing/#k8s">https://www.weave.works/docs/scope/latest/installing/#k8s</a></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 下面一个命令就能部署完成了</span></span><br><span class="line">kubectl apply -f <span class="string">&quot;https://cloud.weave.works/k8s/scope.yaml?k8s-version=<span class="subst">$(kubectl version | base64 | tr -d &#x27;\n&#x27;)</span>&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 通过下面的命令临时暴露端口转发到本地进行访问</span></span><br><span class="line">kubectl port-forward -n weave <span class="string">&quot;<span class="subst">$(kubectl get -n weave pod --selector=weave-scope-component=app -o jsonpath=&#x27;&#123;.items..metadata.name&#125;&#x27;)</span>&quot;</span> 4040</span><br></pre></td></tr></table></figure>
+<p>访问本地： <a href="http://localhost:4040">http://localhost:4040</a></p>
+<h2 id="插件"><a href="#插件" class="headerlink" title="插件"></a>插件</h2><p><a href="https://github.com/weaveworks-plugins/">https://github.com/weaveworks-plugins/</a></p>
+<p>比如有一个 http 流量统计的插件：<a href="https://github.com/weaveworks-plugins/scope-http-statistics">https://github.com/weaveworks-plugins/scope-http-statistics</a></p>
+<p>不过现在还并不是很多，但是基本功能其实已经足够了</p>
+<h2 id="鉴权"><a href="#鉴权" class="headerlink" title="鉴权"></a>鉴权</h2><p><a href="https://www.weave.works/docs/scope/latest/faq/">https://www.weave.works/docs/scope/latest/faq/</a></p>
+<p>支持最简单的一个 http 鉴权，如果有需要可以设置对应参数</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>如果你需要一个资源监控的工具，并且觉得上面的信息就是你需要的，可以尝试使用下，目前是我比较推荐的一个集群监控。</p>
+<p>当然它也有个我认为的小不足：其实服务复杂的时候，服务间的依赖也会非常复杂，而且页面不支持拖动，就有的时候有点“难看”，如果拓扑中的节点支持拖动其实就蛮不错的，个人想法。</p>
+<p>相关链接：<a href="https://www.cnblogs.com/linuxk/p/10560022.html">https://www.cnblogs.com/linuxk/p/10560022.html</a></p>
+]]></content>
+      <categories>
+        <category>Weave-Scope</category>
+      </categories>
+      <tags>
+        <tag>Weave-Scope</tag>
       </tags>
   </entry>
 </search>
