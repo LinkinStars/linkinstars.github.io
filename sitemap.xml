@@ -1,0 +1,855 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2021/04/20/open-source-component/loki/</loc>
+    
+    <lastmod>2021-05-15</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2020/06/14/linux/memory/</loc>
+    
+    <lastmod>2021-05-15</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2021/03/12/k8s/k8s-oom-evicted/</loc>
+    
+    <lastmod>2021-05-10</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2021/02/02/k8s/k8s-configmap-etc-dir-accident/</loc>
+    
+    <lastmod>2021-05-10</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2021/01/23/k8s/k8s-tips/</loc>
+    
+    <lastmod>2021-05-10</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2020/11/23/other/gopher-china2020/</loc>
+    
+    <lastmod>2021-05-10</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2020/11/14/open-source-component/caddy/</loc>
+    
+    <lastmod>2021-05-10</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2021/04/12/open-source-component/monitoror/</loc>
+    
+    <lastmod>2021-05-10</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2021/01/12/open-source-component/weave-scope/</loc>
+    
+    <lastmod>2021-05-10</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2020/10/19/open-source-component/openfaas/</loc>
+    
+    <lastmod>2021-05-10</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2020/07/18/golang/basic/mutex-use-point-or-not/</loc>
+    
+    <lastmod>2021-05-10</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2020/06/20/open-source-component/dubbo-go/</loc>
+    
+    <lastmod>2020-07-19</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2020/07/04/linux/network/</loc>
+    
+    <lastmod>2020-07-19</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2020/07/11/linux/linux-monitor/</loc>
+    
+    <lastmod>2020-07-19</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2020/06/27/linux/io/</loc>
+    
+    <lastmod>2020-07-19</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2020/06/06/linux/cpu/</loc>
+    
+    <lastmod>2020-06-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2020/06/13/golang/basic/vars/</loc>
+    
+    <lastmod>2020-06-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2019/07/04/golang/basic/gc-go-on/</loc>
+    
+    <lastmod>2020-06-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2020/05/09/python/basic/basic-grammar/</loc>
+    
+    <lastmod>2020-05-25</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2020/04/25/network/nat/</loc>
+    
+    <lastmod>2020-05-25</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2020/04/18/golang/basic/gobuild-x/</loc>
+    
+    <lastmod>2020-05-25</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2020/04/11/network/tcp/</loc>
+    
+    <lastmod>2020-05-25</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2020/03/01/k8s/k8s-dis-deployment/</loc>
+    
+    <lastmod>2020-03-15</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2020/03/15/golang/source-code/sync-waitgroup-source-code/</loc>
+    
+    <lastmod>2020-03-15</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2020/03/14/network/udp/</loc>
+    
+    <lastmod>2020-03-15</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2020/03/08/golang/architecture/distribute-lock/</loc>
+    
+    <lastmod>2020-03-08</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2020/01/11/k8s/k8s-dis-pod/</loc>
+    
+    <lastmod>2020-01-12</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2019/11/23/k8s/k8s-minikube-started/</loc>
+    
+    <lastmod>2020-01-12</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2020/01/04/open-source-component/docker-dis/</loc>
+    
+    <lastmod>2020-01-04</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2019/12/12/golang/basic/gc-easy-dis/</loc>
+    
+    <lastmod>2019-12-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2019/11/10/open-source-component/terraform-aliyun-oss-ecs-test/</loc>
+    
+    <lastmod>2019-11-09</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2019/11/02/golang/basic/go-memory/</loc>
+    
+    <lastmod>2019-11-09</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2019/11/09/golang/source-code/sync-pool-source-code/</loc>
+    
+    <lastmod>2019-11-09</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2019/07/15/middleware/mysql/mysql-knowledge-point/</loc>
+    
+    <lastmod>2019-08-26</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2019/08/10/golang/source-code/interface-source-code/</loc>
+    
+    <lastmod>2019-08-26</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2019/07/20/middleware/redis/redis-knowledge-point/</loc>
+    
+    <lastmod>2019-08-26</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2019/08/05/golang/source-code/channel-source-code/</loc>
+    
+    <lastmod>2019-08-26</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2019/08/15/golang/basic/goroutine-dis/</loc>
+    
+    <lastmod>2019-08-26</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2019/08/20/open-source-component/gin/</loc>
+    
+    <lastmod>2019-08-26</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2019/07/02/golang/basic/defer-dis/</loc>
+    
+    <lastmod>2019-08-16</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2019/06/18/golang/source-code/slice-source-code-review/</loc>
+    
+    <lastmod>2019-08-15</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2019/06/20/golang/source-code/strings-go-source-code/</loc>
+    
+    <lastmod>2019-08-13</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2019/06/27/golang/source-code/context-code-view/</loc>
+    
+    <lastmod>2019-06-27</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2019/06/25/golang/source-code/reflect-code-view/</loc>
+    
+    <lastmod>2019-06-27</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2019/06/14/open-source-component/etcd-cluster-client/</loc>
+    
+    <lastmod>2019-06-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2019/06/12/open-source-component/etcd-raft/</loc>
+    
+    <lastmod>2019-06-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2019/06/10/open-source-component/etcd-brief/</loc>
+    
+    <lastmod>2019-06-10</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2019/06/06/golang/source-code/point-unsafe/</loc>
+    
+    <lastmod>2019-06-10</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2019/06/03/golang/source-code/graphic-golang-map/</loc>
+    
+    <lastmod>2019-06-10</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/2019/06/01/golang/source-code/rwmutex-mutex-source-code-review/</loc>
+    
+    <lastmod>2019-06-10</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/index.html</loc>
+    
+    <lastmod>2019-05-26</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/categories/index.html</loc>
+    
+    <lastmod>2019-05-26</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/about/index.html</loc>
+    
+    <lastmod>2019-05-26</lastmod>
+    
+  </url>
+  
+
+  <url>
+    <loc>https://www.linkinstar.wiki/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/k8s-accident/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/kubernetes/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/cpu/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/k8s-tips/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/io/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/monitor/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/memory/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/network/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/nat/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/UDP/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/TCP/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/caddy/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/docker/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/dubbo-go/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/etcd/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/loki/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/raft/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/monitoror/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/faas/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/terraform/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/gin/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/Weave-Scope/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/distributed-lock/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/gc/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/defer/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/goroutine/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/%E5%86%85%E5%AD%98/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/Mutex/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/channel/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/context/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/hashmap/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/unsafe/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/gobuild/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/vars/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/RWMutex/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/interface/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/slice/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/sync-WaitGroup/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/strings/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/sync-Pool/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/basic/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/mysql/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/redis/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/reflect/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/tags/GopherChina/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/categories/accident/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/categories/kubernetes/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/categories/linux/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/categories/tips/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/categories/network/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/categories/caddy/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/categories/docker/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/categories/dubbo-go/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/categories/etcd/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/categories/loki/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/categories/monitoror/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/categories/terraform/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/categories/gin/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/categories/Weave-Scope/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/categories/architecture/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/categories/golang%E5%9F%BA%E7%A1%80/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/categories/golang%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/categories/python/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/categories/mysql/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/categories/redis/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://www.linkinstar.wiki/categories/GopherChina/</loc>
+    <lastmod>2021-05-17</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+</urlset>

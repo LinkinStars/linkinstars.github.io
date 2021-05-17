@@ -1,0 +1,12 @@
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css">#site-title {
+  color: white;
+}
+
+body,
+html{
+  cursor: url('https://cdn.jsdelivr.net/npm/akilar-candyassets/cur/arrow.cur'),auto !important;
+}
+a,
+img {
+    cursor: url(https://cdn.jsdelivr.net/gh/sviptzk/HexoStaticFile@latest/Hexo/img/pointer.cur), default
+}
