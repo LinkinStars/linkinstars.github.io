@@ -1,0 +1,286 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Golang 之 WaitGroup 源码解析 | LinkinStar's Blog</title><meta name="keywords" content="sync.WaitGroup"><meta name="author" content="LinkinStar"><meta name="copyright" content="LinkinStar"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="如果我们有一个大的任务要做，我们会尝试将这个任务分解，分解完成之后并发交由 goroutine 去做，并且我需要当全部的任务完成之后再进行下面的步骤，在 sync 包下，就有这样一个东西适合上述情况，WaitGroup，今天我们来看看具体它是怎么实现的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Golang 之 WaitGroup 源码解析">
+<meta property="og:url" content="https://www.linkinstar.wiki/post/a0cda732.html">
+<meta property="og:site_name" content="LinkinStar&#39;s Blog">
+<meta property="og:description" content="如果我们有一个大的任务要做，我们会尝试将这个任务分解，分解完成之后并发交由 goroutine 去做，并且我需要当全部的任务完成之后再进行下面的步骤，在 sync 包下，就有这样一个东西适合上述情况，WaitGroup，今天我们来看看具体它是怎么实现的。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg">
+<meta property="article:published_time" content="2020-03-14T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-05-19T15:51:06.163Z">
+<meta property="article:author" content="LinkinStar">
+<meta property="article:tag" content="sync.WaitGroup">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg"><link rel="shortcut icon" href="/images/favicon-32x32.png"><link rel="canonical" href="https://www.linkinstar.wiki/post/a0cda732"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Golang 之 WaitGroup 源码解析',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-05-19 23:51:06'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const fontSizeVal = saveToLocal.get('global-font-size')
+    if (fontSizeVal !== undefined) {
+      document.documentElement.style.setProperty('--global-font-size', fontSizeVal + 'px')
+    }
+    })(window)</script><link rel="stylesheet" href="/css/background.css"><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="LinkinStar's Blog" type="application/atom+xml">
+</head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/LLX.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">50</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">45</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">22</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa-fw fa fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa-fw fa fa-list-ul"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa-fw fa fa-universal-access"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="/comments/"><i class="fa-fw fa-fw fas fa-comment-dots"></i><span> 留言</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fa-fw fab fa-modx"></i><span> 兴趣</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/books/"><i class="fa-fw fa-fw fa fa-book"></i><span> 读书</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fa-fw fa fa-film"></i><span> 电影</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">LinkinStar's Blog</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa-fw fa fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa-fw fa fa-list-ul"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa-fw fa fa-universal-access"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="/comments/"><i class="fa-fw fa-fw fas fa-comment-dots"></i><span> 留言</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fa-fw fab fa-modx"></i><span> 兴趣</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/books/"><i class="fa-fw fa-fw fa fa-book"></i><span> 读书</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fa-fw fa fa-film"></i><span> 电影</span></a></li></ul></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Golang 之 WaitGroup 源码解析</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2020-03-14T16:00:00.000Z" title="undefined 2020-03-15 00:00:00">2020-03-15</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/golang%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">golang源码解析</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">2.2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>8分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Golang 之 WaitGroup 源码解析"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><p>如果我们有一个大的任务要做，我们会尝试将这个任务分解，分解完成之后并发交由 goroutine 去做，并且我需要当全部的任务完成之后再进行下面的步骤，在 sync 包下，就有这样一个东西适合上述情况，WaitGroup，今天我们来看看具体它是怎么实现的。</p>
+<span id="more"></span>
+<p>PS：在下面我统一用 wg 来简称 WaitGroup</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>它的使用非常简单，如下:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span> <span class="params">()</span></span> &#123;</span><br><span class="line">    wg := sync.WaitGroup &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line">        wg.Add (<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">go</span> <span class="function"><span class="keyword">func</span> <span class="params">(job <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">            <span class="keyword">defer</span> wg.Done ()</span><br><span class="line">            <span class="comment">//do something</span></span><br><span class="line">            fmt.Printf (<span class="string">&quot;job % d done\n&quot;</span>, job)</span><br><span class="line">        &#125;(i)</span><br><span class="line">    &#125;</span><br><span class="line">    wg.Wait ()</span><br><span class="line">    fmt.Println (<span class="string">&quot;all done&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">job <span class="number">9</span> done</span><br><span class="line">job <span class="number">1</span> done</span><br><span class="line">job <span class="number">0</span> done</span><br><span class="line">job <span class="number">8</span> done</span><br><span class="line">job <span class="number">7</span> done</span><br><span class="line">job <span class="number">3</span> done</span><br><span class="line">job <span class="number">6</span> done</span><br><span class="line">job <span class="number">2</span> done</span><br><span class="line">job <span class="number">4</span> done</span><br><span class="line">job <span class="number">5</span> done</span><br><span class="line">all done</span><br></pre></td></tr></table></figure>
+<p>我们可以看到，使用非常简单，每次有一个任务就使用 Add 方法加一个，每次做完任务就使用 Done 方法告诉它已经完成了，而 Wait 就是等着所有的任务完成。</p>
+<h2 id="思考问题"><a href="#思考问题" class="headerlink" title="思考问题"></a>思考问题</h2><p>在看 wg 的实现之前，首先来问几个问题，来考考自己。</p>
+<ol>
+<li>Wait 方法能否被多次调用，比如再开一个 goroutine 去 wait</li>
+<li>Wait 方法调用后是否还能再继续调用 Add 添加任务</li>
+<li>每次只能 Done 一个任务，能否一次性 Done 多个任务呢</li>
+<li>wg 能否被拷贝或作为参数传递</li>
+<li>如果让你自己实现一个，你会如何实现</li>
+</ol>
+<p>前几个问题，如果你都能很清楚的回答，那么你对 wg 的了解可以说已经非常熟悉了。首选我来说一下对于最后的一个问题的回答，因为在看源码之前我都会想想如果是我，我会如何去实现，那么我想的也很简单。</p>
+<ul>
+<li>使用一个变量进行计数</li>
+<li>每次任务数量变更时使用 atom 原子操作 + 1 或者 - 1</li>
+<li>-1 时判断任务数量是否已经为 0</li>
+<li>如果为 0 向一个 channel 里面发送消息</li>
+<li>所有 wait 的地方监听 channel 的消息，收到消息则证明任务全部完成</li>
+</ul>
+<h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><h3 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> WaitGroup <span class="keyword">struct</span> &#123;</span><br><span class="line">	noCopy noCopy</span><br><span class="line">	<span class="comment">// 64-bit value: high 32 bits are counter, low 32 bits are waiter count.</span></span><br><span class="line">	<span class="comment">// 64-bit atomic operations require 64-bit alignment, but 32-bit</span></span><br><span class="line">	<span class="comment">//compilers do not ensure it. So we allocate 12 bytes and then use</span></span><br><span class="line">	<span class="comment">//the aligned 8 bytes in them as state, and the other 4 as storage</span></span><br><span class="line">	<span class="comment">//for the sema.</span></span><br><span class="line">	state1 [<span class="number">3</span>] <span class="keyword">uint32</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>结构非常简单，就只有两个熟悉，一个 <code>noCopy</code> 还有一个 <code>state1</code>（我也很好奇为什么要用 1 来结尾命名，大佬的想法总是很奇妙）</p>
+<p>noCopy： sync 包下的一个特殊标记吧，vet 检查，如果有拷贝的变量则会报错</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span> <span class="params">()</span></span> &#123;</span><br><span class="line">    wg := sync.WaitGroup &#123;&#125;</span><br><span class="line">    w := wg</span><br><span class="line">    fmt.Println (w, wg)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>你 run 肯定没问题的，但是如果你使用 go vet 做个检查就有警告了</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">➜  <span class="keyword">go</span> vet main.<span class="keyword">go</span></span><br><span class="line"># command-line-arguments</span><br><span class="line">./main.<span class="keyword">go</span>:<span class="number">10</span>:<span class="number">10</span>: assignment copies lock value to w: sync.WaitGroup contains sync.noCopy</span><br><span class="line">./main.<span class="keyword">go</span>:<span class="number">11</span>:<span class="number">17</span>: call of fmt.Println copies lock value: sync.WaitGroup contains sync.noCopy</span><br><span class="line">./main.<span class="keyword">go</span>:<span class="number">11</span>:<span class="number">20</span>: call of fmt.Println copies lock value: sync.WaitGroup contains sync.noCopy</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>state1：是用来存放任务计数器和等待者计数器的（我一看到这个结构就明白肯定后面又是位操作这样的高端操作了）</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>state [0]</th>
+<th>state [1]</th>
+<th>state [2]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>64 位</td>
+<td>waiter</td>
+<td>counter</td>
+<td>sema</td>
+</tr>
+<tr>
+<td>32 位</td>
+<td>sema</td>
+<td>waiter</td>
+<td>counter</td>
+</tr>
+</tbody>
+</table>
+<p>其中 waiter 是等待者计数，counter 是任务计数，sema 是信号量</p>
+<p>奇怪的是在 64 位还 32 位操作系统上是不一样的，具体原因以及对于它操作请继续看下去</p>
+<h3 id="state"><a href="#state" class="headerlink" title="state"></a>state</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//state returns pointers to the state and sema fields stored within wg.state1.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(wg *WaitGroup)</span> <span class="title">state</span> <span class="params">()</span> <span class="params">(statep *<span class="keyword">uint64</span>, semap *<span class="keyword">uint32</span>)</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> <span class="keyword">uintptr</span> (unsafe.Pointer (&amp;wg.state1))%<span class="number">8</span> == <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> (*<span class="keyword">uint64</span>)(unsafe.Pointer (&amp;wg.state1)), &amp;wg.state1 [<span class="number">2</span>]</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> (*<span class="keyword">uint64</span>)(unsafe.Pointer (&amp;wg.state1 [<span class="number">1</span>])), &amp;wg.state1 [<span class="number">0</span>]</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个方法是一个内部方法，就是将 state1 中存储的状态取出来，返回值 statep 就是计数器的状态，semap 是信号量</p>
+<h3 id="Done"><a href="#Done" class="headerlink" title="Done"></a>Done</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(wg *WaitGroup)</span> <span class="title">Done</span> <span class="params">()</span></span> &#123;</span><br><span class="line">	wg.Add (<span class="number">-1</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>没想到吧～居然 Done 就是调用 Add 并传递一个 - 1</p>
+<p>所以其实我们完全可以再外部调用 Add 传递一个 - 3 一次性结束 3 个任务</p>
+<h3 id="Add"><a href="#Add" class="headerlink" title="Add"></a>Add</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(wg *WaitGroup)</span> <span class="title">Add</span> <span class="params">(delta <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	<span class="comment">// 首先获取状态值</span></span><br><span class="line">	statep, semap := wg.state ()</span><br><span class="line">	<span class="comment">// 对于 statep 中 counter + delta</span></span><br><span class="line">	state := atomic.AddUint64 (statep, <span class="keyword">uint64</span> (delta)&lt;&lt;<span class="number">32</span>)</span><br><span class="line">	<span class="comment">// 获取任务计数器的值</span></span><br><span class="line">	v := <span class="keyword">int32</span> (state &gt;&gt; <span class="number">32</span>)</span><br><span class="line">	<span class="comment">// 获取等待者计数器的值</span></span><br><span class="line">	w := <span class="keyword">uint32</span> (state)</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 任务计数器不能为负数</span></span><br><span class="line">	<span class="keyword">if</span> v &lt; <span class="number">0</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span> (<span class="string">&quot;sync: negative WaitGroup counter&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 已经有人在等待，但是还在添加任务</span></span><br><span class="line">	<span class="keyword">if</span> w != <span class="number">0</span> &amp;&amp; delta &gt; <span class="number">0</span> &amp;&amp; v == <span class="keyword">int32</span> (delta) &#123;</span><br><span class="line">		<span class="built_in">panic</span> (<span class="string">&quot;sync: WaitGroup misuse: Add called concurrently with Wait&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 没有等待者或者任务还有没做完的</span></span><br><span class="line">	<span class="keyword">if</span> v &gt; <span class="number">0</span> || w == <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 有等待者，但是在这个过程中数据还在变动</span></span><br><span class="line">	<span class="keyword">if</span> *statep != state &#123;</span><br><span class="line">		<span class="built_in">panic</span> (<span class="string">&quot;sync: WaitGroup misuse: Add called concurrently with Wait&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Reset waiters count to 0.</span></span><br><span class="line">	<span class="comment">// 重置状态，并用发出等同于等待者数量的信号量，告诉所有等待者任务已经完成</span></span><br><span class="line">	*statep = <span class="number">0</span></span><br><span class="line">	<span class="keyword">for</span> ; w != <span class="number">0</span>; w-- &#123;</span><br><span class="line">		runtime_Semrelease (semap, <span class="literal">false</span>, <span class="number">0</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里有几个要点我们其实已经看到了：</p>
+<ul>
+<li>Wait 的 <strong> 过程中 </strong> 是不能 Add 的，不然就会 panic，要注意</li>
+<li>虽然我们可以借助 Add 一个负数来一次性结束多个任务，但是如果任务数量控制的不好，变成负数也会 panic，Done 次数多了也一样</li>
+<li>wg 是通过信号量来通知的，当然可以有很多人在等，wg 它都会一一通知到位的</li>
+</ul>
+<h3 id="Wait"><a href="#Wait" class="headerlink" title="Wait"></a>Wait</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(wg *WaitGroup)</span> <span class="title">Wait</span> <span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 先获取状态</span></span><br><span class="line">	statep, semap := wg.state ()</span><br><span class="line">  </span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		<span class="comment">// 这里注意要用 atomic 的 Load 来保证一下写操作已经完成</span></span><br><span class="line">		state := atomic.LoadUint64 (statep)</span><br><span class="line">		<span class="comment">// 同样的，这里是任务计数</span></span><br><span class="line">		v := <span class="keyword">int32</span> (state &gt;&gt; <span class="number">32</span>)</span><br><span class="line">		<span class="comment">// 这里是等待者计数</span></span><br><span class="line">		w := <span class="keyword">uint32</span> (state)</span><br><span class="line">		<span class="comment">// 如果没有任务，那么直接结束，不用等待了</span></span><br><span class="line">		<span class="keyword">if</span> v == <span class="number">0</span> &#123;</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// 使用 cas 操作，如果不相等，证明中间已经被其他人修改了状态，重新走 for 循环</span></span><br><span class="line">		<span class="comment">// 注意这里 if 进去之后等待者的数量就 +1 了</span></span><br><span class="line">		<span class="keyword">if</span> atomic.CompareAndSwapUint64 (statep, state, state+<span class="number">1</span>) &#123;</span><br><span class="line">			<span class="comment">// 等待信号量</span></span><br><span class="line">			runtime_Semacquire (semap)</span><br><span class="line">			<span class="comment">// 如果信号量来了，但是状态还不是 0，则证明 wait 之后还是在人在 add，证明有人想充分利用 wg 但是时机不对</span></span><br><span class="line">			<span class="keyword">if</span> *statep != <span class="number">0</span> &#123;</span><br><span class="line">				<span class="built_in">panic</span> (<span class="string">&quot;sync: WaitGroup is reused before previous Wait has returned&quot;</span>)</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其实 wait 虽然简单，也有要点</p>
+<ul>
+<li>通过 load 和 cas 操作 + 循环来避免了锁，其实这个操作可以学一下</li>
+<li>其实这里也说明明白了，wg 可以重用，但是你必须等到 wait 全部完成之后再说</li>
+</ul>
+<h2 id="其他注意点"><a href="#其他注意点" class="headerlink" title="其他注意点"></a>其他注意点</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span> <span class="params">()</span></span> &#123;</span><br><span class="line">    wg := sync.WaitGroup &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line">        wg.Add (<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">go</span> <span class="function"><span class="keyword">func</span> <span class="params">(job <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">            doJob (job, wg)</span><br><span class="line">        &#125;(i)</span><br><span class="line">    &#125;</span><br><span class="line">    wg.Wait ()</span><br><span class="line">    fmt.Println (<span class="string">&quot;all done&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">doJob</span> <span class="params">(job <span class="keyword">int</span>, wg sync.WaitGroup)</span></span> &#123;</span><br><span class="line">    fmt.Printf (<span class="string">&quot;job % d done\n&quot;</span>, job)</span><br><span class="line">    wg.Done ()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的代码有问题吗？问题在哪呢？</p>
+<p>其实很简单，wg 作为一个参数传递的时候，wg 还是一个普通的结构体，我们在函数中操作的时候还是操作的一个拷贝的变量而已，对于原来的 wg 是不会改变的，所以这里需要传递指针才是正确的</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span> <span class="params">()</span></span> &#123;</span><br><span class="line">    wg := &amp;sync.WaitGroup &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line">            wg.Add (<span class="number">1</span>)</span><br><span class="line">            <span class="keyword">go</span> <span class="function"><span class="keyword">func</span> <span class="params">(job <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">                doJob (job, wg)</span><br><span class="line">            &#125;(i)</span><br><span class="line">    &#125;</span><br><span class="line">    wg.Wait ()</span><br><span class="line">    fmt.Println (<span class="string">&quot;all done&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">doJob</span> <span class="params">(job <span class="keyword">int</span>, wg *sync.WaitGroup)</span></span> &#123;</span><br><span class="line">    fmt.Printf (<span class="string">&quot;job % d done\n&quot;</span>, job)</span><br><span class="line">    wg.Done ()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但是其实并不推荐这样去传递 wg，因为这样很容易出现问题，一个不好就出问题了，个人还是建议直接在使用 goroutine 之后马上接一个 defer wg.Done () 来的更加靠谱一些</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>回过头来看看，之前的问题也都有了答案：</p>
+<ol>
+<li>Wait 可以被调用多次，并且每个都会收到完成的通知</li>
+<li>Wait 之后，如果再 Wait 的过程中不能在 Add，否则会 panic，但是 Wait 结束之后可以继续使用 Add 进行重用</li>
+<li>可以使用 Add 传递负数的方式一次性结束多个任务，但是需要保证任务计数器非负，否则会 panic</li>
+<li>wg作为参数传递的时候需要注意传递指针，或者尽量避免传递</li>
+<li>官方利用位操作节约了空间，存在在同一个地方；利用信号量来实现任务结束的通知….</li>
+</ol>
+<p>总的来说 wg 的实现还是非常简单的，需要注意的就是几个使用上的点不要出现意外即可。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LinkinStar</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://www.linkinstar.wiki/post/a0cda732.html">https://www.linkinstar.wiki/post/a0cda732.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://www.linkinstar.wiki" target="_blank">LinkinStar's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/sync-WaitGroup/">sync.WaitGroup</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button button--animated"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/images/wechatpay.png" target="_blank"><img class="post-qr-code-img" src="/images/wechatpay.png" alt="wechat"/></a><div class="post-qr-code-desc">wechat</div></li><li class="reward-item"><a href="/images/alipay.png" target="_blank"><img class="post-qr-code-img" src="/images/alipay.png" alt="alipay"/></a><div class="post-qr-code-desc">alipay</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/5c140909.html"><img class="prev-cover" src="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">回首网络知识之 TCP 协议</div></div></a></div><div class="next-post pull-right"><a href="/post/d7b70ffe.html"><img class="next-cover" src="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">回首网络知识之 UDP 协议</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-info-avatar is-center"><img class="avatar-img" src="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/LLX.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">LinkinStar</div><div class="author-info__description">No one but myself can do it.<br> Don't worry. Be happy!</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">50</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">45</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">22</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/LinkinStars"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/LinkinStars" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:linkinstar@foxmail.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://www.jianshu.com/u/dcc4b2396fc4" target="_blank" title="简书"><i class="fas fa-book"></i></a><a class="social-icon" href="https://www.cnblogs.com/linkstar" target="_blank" title="博客园"><i class="fas fa-link"></i></a><a class="social-icon" href="/atom.xml" target="_blank" title="RSS"><i class="fas fa-rss"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content">这里是【LinkinStar 的自习室】【你的加油站】互相共勉~ <p style='color:red;font-weight:bold;'>本博客封面图可能来源于网络，无商用，侵删</p></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8"><span class="toc-number">1.</span> <span class="toc-text">使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%9D%E8%80%83%E9%97%AE%E9%A2%98"><span class="toc-number">2.</span> <span class="toc-text">思考问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">源码分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%93%E6%9E%84"><span class="toc-number">3.1.</span> <span class="toc-text">结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#state"><span class="toc-number">3.2.</span> <span class="toc-text">state</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Done"><span class="toc-number">3.3.</span> <span class="toc-text">Done</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Add"><span class="toc-number">3.4.</span> <span class="toc-text">Add</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Wait"><span class="toc-number">3.5.</span> <span class="toc-text">Wait</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="toc-number">4.</span> <span class="toc-text">其他注意点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/da4cf864.html" title="轻量级 k8s 应用日志收集方案 loki">轻量级 k8s 应用日志收集方案 loki</a><time datetime="2021-04-19T16:00:00.000Z" title="发表于 2021-04-20 00:00:00">2021-04-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/94902806.html" title="monitoror/monitoror 最轻量的监控大屏">monitoror/monitoror 最轻量的监控大屏</a><time datetime="2021-04-11T16:00:00.000Z" title="发表于 2021-04-12 00:00:00">2021-04-12</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/b817d222.html" title="k8s 意外集锦 - oom 的连锁反应">k8s 意外集锦 - oom 的连锁反应</a><time datetime="2021-03-11T16:00:00.000Z" title="发表于 2021-03-12 00:00:00">2021-03-12</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/c86fbf9f.html" title="k8s 意外集锦 - configmap 挂载 目录 只读">k8s 意外集锦 - configmap 挂载 目录 只读</a><time datetime="2021-02-01T16:00:00.000Z" title="发表于 2021-02-02 00:00:00">2021-02-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/9ef22657.html" title="k8s 小技巧">k8s 小技巧</a><time datetime="2021-01-22T16:00:00.000Z" title="发表于 2021-01-23 00:00:00">2021-01-23</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg')"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2021 By LinkinStar</div><div class="footer_custom_text"><p><a style="margin-inline:5px" target="_blank" href="https://hexo.io/"><img src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&logo=hexo" title="博客框架为Hexo"></a><a style="margin-inline:5px" target="_blank" href="https://butterfly.js.org/"><img src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&logo=bitdefender" title="主题采用butterfly"></a><a style="margin-inline:5px" target="_blank" href="https://www.jsdelivr.com/"><img src="https://img.shields.io/badge/CDN-jsDelivr-orange?style=flat&logo=jsDelivr" title="本站使用JsDelivr为静态资源提供CDN加速"></a><a style="margin-inline:5px" target="_blank" href="https://vercel.com/ "><img src="https://img.shields.io/badge/Hosted-Vercel-brightgreen?style=flat&logo=Vercel" title="本站线路托管于Vercel"></a><a style="margin-inline:5px" target="_blank" href="https://vercel.com/ "><a style="margin-inline:5px" target="_blank" href="https://github.com/LinkinStars/linkinstars.github.io"><img src="https://img.shields.io/badge/Source-Github-d021d6?style=flat&logo=GitHub" title="本站项目由Gtihub托管"></a><a style="margin-inline:5px" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&logo=Claris" title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"></a><br><a href="https://beian.miit.gov.cn/" target="_blank">浙B2-20080101</a></p></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font-plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font-minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>function addGitalkSource () {
+  const ele = document.createElement('link')
+  ele.rel = 'stylesheet'
+  ele.href= 'https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css'
+  document.getElementsByTagName('head')[0].appendChild(ele)
+}
+
+function loadGitalk () {
+  function initGitalk () {
+    var gitalk = new Gitalk(Object.assign({
+      clientID: 'fb1c6a994a1f26c2655e',
+      clientSecret: '512d1338f3c8e48f1be73caf0661c005bf1c0425',
+      repo: 'linkinstars.github.io',
+      owner: 'LinkinStars',
+      admin: ['LinkinStars'],
+      id: '255a2f401ff9b91ff99333d5c795bb41',
+      language: 'zh-CN',
+      perPage: 50,
+      distractionFreeMode: true,
+      pagerDirection: 'last',
+      createIssueManually: false,
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  if (typeof Gitalk === 'function') initGitalk()
+  else {
+    addGitalkSource()
+    getScript('https://cdn.jsdelivr.net/npm/gitalk@latest/dist/gitalk.min.js').then(initGitalk)
+  }
+}
+
+function commentCount(n){
+  let isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+  if (isCommentCount) {
+    isCommentCount.innerHTML= n
+  }
+}
+
+if ('Gitalk' === 'Gitalk' || !false) {
+  if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+  else loadGitalk()
+} else {
+  function loadOtherComment () {
+    loadGitalk()
+  }
+}</script></div><script defer src="/live2d-widget/autoload.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

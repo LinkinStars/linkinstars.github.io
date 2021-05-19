@@ -1,0 +1,237 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>monitoror/monitoror 最轻量的监控大屏 | LinkinStar's Blog</title><meta name="keywords" content="monitoror"><meta name="author" content="LinkinStar"><meta name="copyright" content="LinkinStar"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="一提到监控大屏，那第一想法就是 grafana 对吧，各种样式图形都非常好看，而且支持各种数据源。而今天要分享的是一个更加轻量的监控大屏 monitoror&#x2F;monitoror 有了它能帮你快读构建一个的对于网站或者应用的监控页面，特别是在小应用数量多的时候非常简单易用，作为一个大屏展示时它我觉得它足够简洁">
+<meta property="og:type" content="article">
+<meta property="og:title" content="monitoror&#x2F;monitoror 最轻量的监控大屏">
+<meta property="og:url" content="https://www.linkinstar.wiki/post/94902806.html">
+<meta property="og:site_name" content="LinkinStar&#39;s Blog">
+<meta property="og:description" content="一提到监控大屏，那第一想法就是 grafana 对吧，各种样式图形都非常好看，而且支持各种数据源。而今天要分享的是一个更加轻量的监控大屏 monitoror&#x2F;monitoror 有了它能帮你快读构建一个的对于网站或者应用的监控页面，特别是在小应用数量多的时候非常简单易用，作为一个大屏展示时它我觉得它足够简洁">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg">
+<meta property="article:published_time" content="2021-04-11T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-05-19T15:51:06.148Z">
+<meta property="article:author" content="LinkinStar">
+<meta property="article:tag" content="monitoror">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg"><link rel="shortcut icon" href="/images/favicon-32x32.png"><link rel="canonical" href="https://www.linkinstar.wiki/post/94902806"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'monitoror/monitoror 最轻量的监控大屏',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-05-19 23:51:06'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const fontSizeVal = saveToLocal.get('global-font-size')
+    if (fontSizeVal !== undefined) {
+      document.documentElement.style.setProperty('--global-font-size', fontSizeVal + 'px')
+    }
+    })(window)</script><link rel="stylesheet" href="/css/background.css"><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="LinkinStar's Blog" type="application/atom+xml">
+</head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/LLX.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">50</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">45</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">22</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa-fw fa fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa-fw fa fa-list-ul"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa-fw fa fa-universal-access"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="/comments/"><i class="fa-fw fa-fw fas fa-comment-dots"></i><span> 留言</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fa-fw fab fa-modx"></i><span> 兴趣</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/books/"><i class="fa-fw fa-fw fa fa-book"></i><span> 读书</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fa-fw fa fa-film"></i><span> 电影</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">LinkinStar's Blog</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa-fw fa fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa-fw fa fa-list-ul"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa-fw fa fa-universal-access"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="/comments/"><i class="fa-fw fa-fw fas fa-comment-dots"></i><span> 留言</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fa-fw fab fa-modx"></i><span> 兴趣</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/books/"><i class="fa-fw fa-fw fa fa-book"></i><span> 读书</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fa-fw fa fa-film"></i><span> 电影</span></a></li></ul></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">monitoror/monitoror 最轻量的监控大屏</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2021-04-11T16:00:00.000Z" title="undefined 2021-04-12 00:00:00">2021-04-12</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/monitoror/">monitoror</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">1k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>3分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="monitoror/monitoror 最轻量的监控大屏"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><p>一提到监控大屏，那第一想法就是 grafana 对吧，各种样式图形都非常好看，而且支持各种数据源。而今天要分享的是一个更加轻量的监控大屏 monitoror/monitoror</p>
+<p>有了它能帮你快读构建一个的对于网站或者应用的监控页面，特别是在小应用数量多的时候非常简单易用，作为一个大屏展示时它我觉得它足够简洁</p>
+<span id="more"></span>
+<p align="center"><br>    <img src="https://github.com/monitoror/monitoror/raw/develop/.assets/monitoror-mockup.svg" alt width="70%"> <br><br></p>
+
+<h2 id="demo-amp-repo"><a href="#demo-amp-repo" class="headerlink" title="demo &amp; repo"></a>demo &amp; repo</h2><p><a target="_blank" rel="noopener" href="https://demo.monitoror.com/">https://demo.monitoror.com/</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/monitoror/monitoror">https://github.com/monitoror/monitoror</a></p>
+<h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><ul>
+<li>部署轻量</li>
+<li>配置简单</li>
+<li>大屏简洁</li>
+</ul>
+<h2 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h2><h3 id="二进制部署"><a href="#二进制部署" class="headerlink" title="二进制部署"></a>二进制部署</h3><p><a target="_blank" rel="noopener" href="https://monitoror.com/documentation/get-started/">https://monitoror.com/documentation/get-started/</a></p>
+<p>非常简单，只需要将二进制文件下载，然后按照要求配置对应的配置文件，就可以了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">chmod +x monitoror</span><br><span class="line">./monitoror</span><br></pre></td></tr></table></figure>
+<p>配置文件.env</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MO_CONFIG=&quot;./config.json&quot;</span><br></pre></td></tr></table></figure>
+<p>配置文件config.json</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;version&quot;</span>: <span class="string">&quot;2.0&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;columns&quot;</span>: <span class="number">2</span>,</span><br><span class="line">  <span class="attr">&quot;tiles&quot;</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;PORT&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;label&quot;</span>: <span class="string">&quot;Welcome config example&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;params&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;hostname&quot;</span>: <span class="string">&quot;127.0.0.1&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;port&quot;</span>: <span class="number">8080</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;HTTP-RAW&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;label&quot;</span>: <span class="string">&quot;Monitoror stars&quot;</span>,</span><br><span class="line">      <span class="attr">&quot;params&quot;</span>: &#123;</span><br><span class="line">        <span class="attr">&quot;url&quot;</span>: <span class="string">&quot;https://github.com/monitoror/monitoror&quot;</span>,</span><br><span class="line">        <span class="attr">&quot;regex&quot;</span>: <span class="string">&quot;(\\d+) users starred&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="k8s-部署"><a href="#k8s-部署" class="headerlink" title="k8s 部署"></a>k8s 部署</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">monitoror</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">monitoror</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">monitoror</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">monitoror</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">monitoror</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">monitoror</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">monitoror/monitoror:latest</span></span><br><span class="line">        <span class="attr">env:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">MO_CONFIG</span></span><br><span class="line">          <span class="attr">value:</span> <span class="string">&quot;/conf/monitoror.json&quot;</span></span><br><span class="line">        <span class="attr">volumeMounts:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">config-volume</span></span><br><span class="line">          <span class="attr">mountPath:</span> <span class="string">&quot;/conf&quot;</span></span><br><span class="line">        <span class="attr">ports:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">web</span></span><br><span class="line">          <span class="attr">containerPort:</span> <span class="number">32000</span></span><br><span class="line">        <span class="attr">resources:</span></span><br><span class="line">          <span class="attr">limits:</span></span><br><span class="line">            <span class="attr">cpu:</span> <span class="string">100m</span></span><br><span class="line">            <span class="attr">memory:</span> <span class="string">200Mi</span></span><br><span class="line">      <span class="attr">volumes:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">config-volume</span></span><br><span class="line">          <span class="attr">configMap:</span></span><br><span class="line">            <span class="attr">name:</span> <span class="string">monitoror-config</span></span><br><span class="line">            <span class="attr">items:</span> </span><br><span class="line">            <span class="bullet">-</span> <span class="attr">key:</span> <span class="string">monitoror.json</span></span><br><span class="line">              <span class="attr">path:</span> <span class="string">monitoror.json</span></span><br></pre></td></tr></table></figure>
+<p>其中需要注意的就是配置文件 configmap 挂载的位置</p>
+<p>还有环境变量 MO_CONFIG 需要指定对应的配置文件路径</p>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><p><a target="_blank" rel="noopener" href="https://monitoror.com/documentation/#configuration">https://monitoror.com/documentation/#configuration</a></p>
+<p>monitoror 的配置很简单</p>
+<h3 id="监控端口"><a href="#监控端口" class="headerlink" title="监控端口"></a>监控端口</h3><p>只需要填入对应的地址和端口即可</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;PORT&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;label&quot;</span>: <span class="string">&quot;Welcome config example&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;params&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;hostname&quot;</span>: <span class="string">&quot;127.0.0.1&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;port&quot;</span>: <span class="number">8080</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="监控HTTP"><a href="#监控HTTP" class="headerlink" title="监控HTTP"></a>监控HTTP</h3><p>只需要填入对应的地址，然后还可以做简单的处理，还有可能监控对应的 http code 状态码</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;type&quot;</span>: <span class="string">&quot;HTTP-RAW&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;label&quot;</span>: <span class="string">&quot;Monitoror stars&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;params&quot;</span>: &#123;</span><br><span class="line">    <span class="attr">&quot;url&quot;</span>: <span class="string">&quot;https://github.com/monitoror/monitoror&quot;</span>,</span><br><span class="line">    <span class="attr">&quot;regex&quot;</span>: <span class="string">&quot;(\\d+) users starred&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="多平台"><a href="#多平台" class="headerlink" title="多平台"></a>多平台</h2><p><a target="_blank" rel="noopener" href="https://monitoror.com/guides/">https://monitoror.com/guides/</a></p>
+<p>甚至可以将这个安装到树莓派上去，这个就很有意思了，因为轻量的关系，这个作为一个监控随便插到哪里，还蛮有意思的</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>如果你需要最快速的搭建一个可用的监控大屏，或许这就是一个不错的选择；当然如果你需要更多的数据监控，需要一些流量数值等等还需要一些图表，那么或许它还没有那么强大。</p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>当前这个监控还没有通知模块，也就是说，也只能大屏盯着看，emmm…，这个还是有点小鸡肋的，因为确实不可能一直盯着看。当然已经有人提 issue 了，但是官方的 roadmap 里面还没有这个计划，于是我自己先加了一个钉钉的监控意思一下，这样至少能保证出现问题的时候有个反应提醒。比较隔壁的 grafana 做了那么久 alert 模块应该能直接抄过来吧。</p>
+<p><img src="http://blog.linkinstars.com//blog/dingding.png" alt="dingding"></p>
+<blockquote>
+<p>地址：<a target="_blank" rel="noopener" href="https://github.com/LinkinStars/monitoror/tree/add-notification">https://github.com/LinkinStars/monitoror/tree/add-notification</a></p>
+</blockquote>
+<p>可以直接拿下来编译使用，注意需要配置：.env 文件</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">MO_CONFIG</span>=<span class="string">&quot;./config.json&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 钉钉的 webhook 地址</span></span><br><span class="line"><span class="attr">MO_MONITORABLE_DINGDING_WEBHOOK</span>=<span class="string">&quot;https://oapi.dingtalk.com/robot/send?access_token=xxxxx&quot;</span></span><br><span class="line"><span class="comment"># 钉钉的 secret 如果不配置 secret 使用 monitoror 关键字应该也可以</span></span><br><span class="line"><span class="attr">MO_MONITORABLE_DINGDING_SECRET</span>=<span class="string">&quot;SECxxxxxx&quot;</span></span><br></pre></td></tr></table></figure>
+<p>当前通知规则：</p>
+<p>最大连续出错通知 3 次，超过这个次数不会继续通知，当服务恢复后计数清零，再次出现异常时会重新通知，同样是 3 次；（这个是临时设置的规则，等全部写完之后会抽离为配置或者调整为更加合适的规则）</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LinkinStar</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://www.linkinstar.wiki/post/94902806.html">https://www.linkinstar.wiki/post/94902806.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://www.linkinstar.wiki" target="_blank">LinkinStar's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/monitoror/">monitoror</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button button--animated"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/images/wechatpay.png" target="_blank"><img class="post-qr-code-img" src="/images/wechatpay.png" alt="wechat"/></a><div class="post-qr-code-desc">wechat</div></li><li class="reward-item"><a href="/images/alipay.png" target="_blank"><img class="post-qr-code-img" src="/images/alipay.png" alt="alipay"/></a><div class="post-qr-code-desc">alipay</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/da4cf864.html"><img class="prev-cover" src="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">轻量级 k8s 应用日志收集方案 loki</div></div></a></div><div class="next-post pull-right"><a href="/post/b817d222.html"><img class="next-cover" src="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">k8s 意外集锦 - oom 的连锁反应</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-info-avatar is-center"><img class="avatar-img" src="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/LLX.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">LinkinStar</div><div class="author-info__description">No one but myself can do it.<br> Don't worry. Be happy!</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">50</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">45</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">22</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/LinkinStars"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/LinkinStars" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:linkinstar@foxmail.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://www.jianshu.com/u/dcc4b2396fc4" target="_blank" title="简书"><i class="fas fa-book"></i></a><a class="social-icon" href="https://www.cnblogs.com/linkstar" target="_blank" title="博客园"><i class="fas fa-link"></i></a><a class="social-icon" href="/atom.xml" target="_blank" title="RSS"><i class="fas fa-rss"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content">这里是【LinkinStar 的自习室】【你的加油站】互相共勉~ <p style='color:red;font-weight:bold;'>本博客封面图可能来源于网络，无商用，侵删</p></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#demo-amp-repo"><span class="toc-number">1.</span> <span class="toc-text">demo &amp; repo</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BC%98%E7%82%B9"><span class="toc-number">2.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%83%A8%E7%BD%B2"><span class="toc-number">3.</span> <span class="toc-text">部署</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E8%BF%9B%E5%88%B6%E9%83%A8%E7%BD%B2"><span class="toc-number">3.1.</span> <span class="toc-text">二进制部署</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#k8s-%E9%83%A8%E7%BD%B2"><span class="toc-number">3.2.</span> <span class="toc-text">k8s 部署</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE"><span class="toc-number">4.</span> <span class="toc-text">配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%91%E6%8E%A7%E7%AB%AF%E5%8F%A3"><span class="toc-number">4.1.</span> <span class="toc-text">监控端口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%91%E6%8E%A7HTTP"><span class="toc-number">4.2.</span> <span class="toc-text">监控HTTP</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%9A%E5%B9%B3%E5%8F%B0"><span class="toc-number">5.</span> <span class="toc-text">多平台</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">6.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%8E%E8%AE%B0"><span class="toc-number">7.</span> <span class="toc-text">后记</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/da4cf864.html" title="轻量级 k8s 应用日志收集方案 loki">轻量级 k8s 应用日志收集方案 loki</a><time datetime="2021-04-19T16:00:00.000Z" title="发表于 2021-04-20 00:00:00">2021-04-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/94902806.html" title="monitoror/monitoror 最轻量的监控大屏">monitoror/monitoror 最轻量的监控大屏</a><time datetime="2021-04-11T16:00:00.000Z" title="发表于 2021-04-12 00:00:00">2021-04-12</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/b817d222.html" title="k8s 意外集锦 - oom 的连锁反应">k8s 意外集锦 - oom 的连锁反应</a><time datetime="2021-03-11T16:00:00.000Z" title="发表于 2021-03-12 00:00:00">2021-03-12</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/c86fbf9f.html" title="k8s 意外集锦 - configmap 挂载 目录 只读">k8s 意外集锦 - configmap 挂载 目录 只读</a><time datetime="2021-02-01T16:00:00.000Z" title="发表于 2021-02-02 00:00:00">2021-02-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/9ef22657.html" title="k8s 小技巧">k8s 小技巧</a><time datetime="2021-01-22T16:00:00.000Z" title="发表于 2021-01-23 00:00:00">2021-01-23</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg')"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2021 By LinkinStar</div><div class="footer_custom_text"><p><a style="margin-inline:5px" target="_blank" href="https://hexo.io/"><img src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&logo=hexo" title="博客框架为Hexo"></a><a style="margin-inline:5px" target="_blank" href="https://butterfly.js.org/"><img src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&logo=bitdefender" title="主题采用butterfly"></a><a style="margin-inline:5px" target="_blank" href="https://www.jsdelivr.com/"><img src="https://img.shields.io/badge/CDN-jsDelivr-orange?style=flat&logo=jsDelivr" title="本站使用JsDelivr为静态资源提供CDN加速"></a><a style="margin-inline:5px" target="_blank" href="https://vercel.com/ "><img src="https://img.shields.io/badge/Hosted-Vercel-brightgreen?style=flat&logo=Vercel" title="本站线路托管于Vercel"></a><a style="margin-inline:5px" target="_blank" href="https://vercel.com/ "><a style="margin-inline:5px" target="_blank" href="https://github.com/LinkinStars/linkinstars.github.io"><img src="https://img.shields.io/badge/Source-Github-d021d6?style=flat&logo=GitHub" title="本站项目由Gtihub托管"></a><a style="margin-inline:5px" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&logo=Claris" title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"></a><br><a href="https://beian.miit.gov.cn/" target="_blank">浙B2-20080101</a></p></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font-plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font-minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>function addGitalkSource () {
+  const ele = document.createElement('link')
+  ele.rel = 'stylesheet'
+  ele.href= 'https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css'
+  document.getElementsByTagName('head')[0].appendChild(ele)
+}
+
+function loadGitalk () {
+  function initGitalk () {
+    var gitalk = new Gitalk(Object.assign({
+      clientID: 'fb1c6a994a1f26c2655e',
+      clientSecret: '512d1338f3c8e48f1be73caf0661c005bf1c0425',
+      repo: 'linkinstars.github.io',
+      owner: 'LinkinStars',
+      admin: ['LinkinStars'],
+      id: 'bf168d9b0d224b8829454aa598e323d9',
+      language: 'zh-CN',
+      perPage: 50,
+      distractionFreeMode: true,
+      pagerDirection: 'last',
+      createIssueManually: false,
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  if (typeof Gitalk === 'function') initGitalk()
+  else {
+    addGitalkSource()
+    getScript('https://cdn.jsdelivr.net/npm/gitalk@latest/dist/gitalk.min.js').then(initGitalk)
+  }
+}
+
+function commentCount(n){
+  let isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+  if (isCommentCount) {
+    isCommentCount.innerHTML= n
+  }
+}
+
+if ('Gitalk' === 'Gitalk' || !false) {
+  if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+  else loadGitalk()
+} else {
+  function loadOtherComment () {
+    loadGitalk()
+  }
+}</script></div><script defer src="/live2d-widget/autoload.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

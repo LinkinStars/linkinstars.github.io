@@ -1,0 +1,232 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>图解golang内存分配 | LinkinStar's Blog</title><meta name="keywords" content="内存"><meta name="author" content="LinkinStar"><meta name="copyright" content="LinkinStar"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="我们知道所有程序运行都需要使用内存，而内存的管理和分配又是非常重要的，它决定了你的程序能不能在有限的资源内跑的更快。可以设想一下，如果你自己来设计的一个内存分配的规则，会遇到什么问题呢？如果你有了一大块内存你要怎么去合理的分配和使用呢？今天我们通过几张图来看看golang中的内存分配是怎样的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="图解golang内存分配">
+<meta property="og:url" content="https://www.linkinstar.wiki/post/b0bf4e5c.html">
+<meta property="og:site_name" content="LinkinStar&#39;s Blog">
+<meta property="og:description" content="我们知道所有程序运行都需要使用内存，而内存的管理和分配又是非常重要的，它决定了你的程序能不能在有限的资源内跑的更快。可以设想一下，如果你自己来设计的一个内存分配的规则，会遇到什么问题呢？如果你有了一大块内存你要怎么去合理的分配和使用呢？今天我们通过几张图来看看golang中的内存分配是怎样的。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg">
+<meta property="article:published_time" content="2019-11-01T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-05-19T15:51:06.153Z">
+<meta property="article:author" content="LinkinStar">
+<meta property="article:tag" content="内存">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg"><link rel="shortcut icon" href="/images/favicon-32x32.png"><link rel="canonical" href="https://www.linkinstar.wiki/post/b0bf4e5c"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '图解golang内存分配',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-05-19 23:51:06'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const fontSizeVal = saveToLocal.get('global-font-size')
+    if (fontSizeVal !== undefined) {
+      document.documentElement.style.setProperty('--global-font-size', fontSizeVal + 'px')
+    }
+    })(window)</script><link rel="stylesheet" href="/css/background.css"><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="LinkinStar's Blog" type="application/atom+xml">
+</head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/LLX.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">50</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">45</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">22</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa-fw fa fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa-fw fa fa-list-ul"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa-fw fa fa-universal-access"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="/comments/"><i class="fa-fw fa-fw fas fa-comment-dots"></i><span> 留言</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fa-fw fab fa-modx"></i><span> 兴趣</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/books/"><i class="fa-fw fa-fw fa fa-book"></i><span> 读书</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fa-fw fa fa-film"></i><span> 电影</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">LinkinStar's Blog</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa-fw fa fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa-fw fa fa-list-ul"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa-fw fa fa-universal-access"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="/comments/"><i class="fa-fw fa-fw fas fa-comment-dots"></i><span> 留言</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fa-fw fab fa-modx"></i><span> 兴趣</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/books/"><i class="fa-fw fa-fw fa fa-book"></i><span> 读书</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fa-fw fa fa-film"></i><span> 电影</span></a></li></ul></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">图解golang内存分配</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2019-11-01T16:00:00.000Z" title="undefined 2019-11-02 00:00:00">2019-11-02</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/golang%E5%9F%BA%E7%A1%80/">golang基础</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">2.2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>6分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="图解golang内存分配"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><p>我们知道所有程序运行都需要使用内存，而内存的管理和分配又是非常重要的，它决定了你的程序能不能在有限的资源内跑的更快。可以设想一下，如果你自己来设计的一个内存分配的规则，会遇到什么问题呢？如果你有了一大块内存你要怎么去合理的分配和使用呢？今天我们通过几张图来看看golang中的内存分配是怎样的。</p>
+<span id="more"></span>
+<p>前置知识：对golang的GPM模型有所了解，对GC有一定的了解，有助于你理解下面的内容。</p>
+<h2 id="想一想"><a href="#想一想" class="headerlink" title="想一想"></a>想一想</h2><p>我们首先来想一下，如果我们自己来分配内存的时候可能会遇到什么问题。</p>
+<h3 id="我想要512G，你能给吗？"><a href="#我想要512G，你能给吗？" class="headerlink" title="我想要512G，你能给吗？"></a>我想要512G，你能给吗？</h3><p>操作系统的内存不是你想要多少就给你多少的。比如我跟操作系统说我要512G内存，你赶紧给我，不给我我就掐死你，如果你是操作系统，是不是立马就想把我给结束了？</p>
+<h3 id="能随便分割吗？"><a href="#能随便分割吗？" class="headerlink" title="能随便分割吗？"></a>能随便分割吗？</h3><p>如果我拿到一块内存，挺大的，你把它想象成一块地，我今天要用这块地的这个部分，肯定是从中间切一块出来用，然后明天要另一个部分，然后再切出来一部分。如果随便切，今天要一块三角形，明天要一块圆形，那么肯定会留有很多小块的地方，那些地方没有办法被合理的使用，就会浪费。等到想再要一块正方形的地的时候发现没地方可以切了。</p>
+<h3 id="不用了我需要放回去吗？"><a href="#不用了我需要放回去吗？" class="headerlink" title="不用了我需要放回去吗？"></a>不用了我需要放回去吗？</h3><p>如果我占用了很大一块内存资源，然后用完了，现在不需要了，那自私的人肯定想着，我就偷偷一直占用不行吗？显然是不可以的，不然的话你的应用程序就每天占用着一台机器大量的资源不释放，别的人都没得用了，肯定想把你干掉。所以用完了要放回去。</p>
+<p>–<br>其实上面的问题就是内存分配常见的一些问题，那<strong>为了高效、合理利用内存</strong>，势必需要一些人的管理和帮助，下面我们就来看看那些在golang中的管理者，看看他们是如何帮助我们去管理和分配内存的。</p>
+<h2 id="内存的管理者"><a href="#内存的管理者" class="headerlink" title="内存的管理者"></a>内存的管理者</h2><p><img src="http://blog.linkinstars.com/mweb/15726689114124.jpg" alt="-w505"><br>这张图里面就是golang中内存的管理者们，下面我来依次介绍一下</p>
+<h3 id="OS"><a href="#OS" class="headerlink" title="OS"></a>OS</h3><p>首先是操作系统，他拥有着全部的机器内存，我们的程序必须向它要。但是他是大领导，很忙的，你不能没事总找他要，很烦，所以每次都会向他一大块内存（1M打底）他会给你一票地址，但是实际其实并不会直接给你分配内存，但是你用到了自然会有。</p>
+<h3 id="heap"><a href="#heap" class="headerlink" title="heap"></a>heap</h3><p>这个是我们程序中最大的内存持有区域，堆，他管理着那些很大的内存块，同时是他向操作系统去申请内存的，全局只有他一个大人物。他还需要将从操作系统拿过来的内存进行一定的划分，划分成一整块一整块的样子方便管理，同时记录内存的使用情况，方便整理和回收。</p>
+<h3 id="central"><a href="#central" class="headerlink" title="central"></a>central</h3><p>这个是二把手，有很多，他们会负责将内存划分成足够小的单元，同时需要向下提供内存的分配工作，这个时候就需要一些合理的分配措施了，这个我们后面再说。</p>
+<h3 id="cache"><a href="#cache" class="headerlink" title="cache"></a>cache</h3><p>这个是最后一个小领导了，管理着最终线程需要使用的内存资源，<strong>而且每个线程都会有一个独立的cache</strong>，一对一绑定，这样使用的时候就会直接从对应的cache中去取来使用，这样的好处是不用和别人发生争抢。如果所有的线程都从一个地方进行取用，那么势必会造成你也要用，我也要用的情况。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>从上面的图我们可以基本明白一个总体的思路是说：需要有人总体去把控所有内存资源的使用，做到统一的调度和管理，这样可以方便后续的回收和利用。同时需要下面有人负责最终使用的分配，从而能达到一个内存的快速分配而不发生争抢。</p>
+<h2 id="内存的分配结构"><a href="#内存的分配结构" class="headerlink" title="内存的分配结构"></a>内存的分配结构</h2><p>我们知道了内存的管理者是谁，那么现在我们再来看看内存到底是怎么划分的，究竟是切成一个个长方形还是切成一个个圆形了呢？<br><img src="http://blog.linkinstars.com/mweb/15726829058612.jpg" alt="-w594"></p>
+<p>这张图就表示了整个golang中内存的分配结构长什么样子。</p>
+<h3 id="arena"><a href="#arena" class="headerlink" title="arena"></a>arena</h3><p>这块区域最大，明显就是用来存放我们最终的对象，里面分成了一个个8K大小的房间，每个房间我们称为page。（这里虽然写了它是512G，但是你心里要有B数，你电脑根本没这么大的内存，其实操作系统只是给了你地址而已）同时几个page组合在一起的大房间又叫做mspan（这个是golang中内存管理的基本单元）</p>
+<h3 id="bitmap"><a href="#bitmap" class="headerlink" title="bitmap"></a>bitmap</h3><p>然后我们再来看第二大的bitmap，它是用来表示arena中存放的对象的一些信息，包括这个对象GC标志，还有标识这个对象是否包含指针。你肯定就好奇，干嘛要有这个呢？这其实也很好理解，golang在进行垃圾回收的时候是根据引用的可达性分析来确定一个对象是否可以被回收，同时采用的是三色标记法进行标记对象，所以这里需要有bitmap来保存这些信息。（具体如果不清楚垃圾回收的细节可以去看看我之前写的有关垃圾回收的部分）</p>
+<h3 id="spans"><a href="#spans" class="headerlink" title="spans"></a>spans</h3><p>最后是spans，这里保存了mspan的指针，这个也好理解，为了方便管理那一个个大房间嘛</p>
+<h2 id="内存分配"><a href="#内存分配" class="headerlink" title="内存分配"></a>内存分配</h2><p>那么最后我们来看看我们创建的一个对象最后究竟会经历些什么，是怎么样分配的呢？<br>首先要说明的是，golang很聪明的，如果一个变量可以分配在栈上，那么就不会被分配在堆上，这样可以有效的节约资源（具体我后续还会写别的来说明golang中的变量）。总之我们这里讨论的是分配在堆上的情况。<br><img src="http://blog.linkinstars.com/mweb/15726846463324.jpg" alt="-w794"><br>整个流程差不多类似就是这样，嗯，你只要把内存想象成房间，现在房价那么贵，你懂的</p>
+<h3 id="分配流程"><a href="#分配流程" class="headerlink" title="分配流程"></a>分配流程</h3><ol>
+<li>大对象： &gt;32KB 的对象，直接从heap上分配</li>
+<li>小对象： 16B &lt; obj &lt;= 32KB 计算规格在mcache中找到合适大小的mspan进行分配（你有多大就住多大的房子竟可能的不要浪费房子的空间）</li>
+<li>微小对象： &lt;=16B 的对象使用mcache的tiny分配器分配；（如果将多个微小对象组合起来，用单块内存（object）存储，可有效减少内存浪费。）</li>
+</ol>
+<p>秉持原则：给到最合适的大小，然后能凑一起的凑一起挤一挤</p>
+<h3 id="扩容"><a href="#扩容" class="headerlink" title="扩容"></a>扩容</h3><p>如果不够怎么办呢？不够肯定就要扩容了呗，当不够的时候就会向领导上报，逐层上报，最终想办法拿到内存。<br>如果cache没有相应规格大小的mspan，则向central申请<br>如果central没有相应规格大小的mspan，则向heap申请<br>如果heap中也没有合适大小的mspan，则向操作系统申请</p>
+<h3 id="回收"><a href="#回收" class="headerlink" title="回收"></a>回收</h3><p>最后还要记得，如果你用完了，不用了，会有后台的清洁工来回收掉，最终还是会还回去的。一方面呢：cache用完了还给central，central就可以给别的cache用；central用完了就会还给heap…最终都不用的还给操作系统</p>
+<h2 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h2><p>至此golang的内存分配也就说的差不多了，其中一些细节可能没有说到，可能你还需要看看别的文章来补一补。总结一下：</p>
+<ol>
+<li>你多大人住多大的房间，不多给</li>
+<li>划分成合理的大小可以一起给一起回收，大小合适的分割才不会浪费</li>
+<li>用完还回去，需要标记怎么样算用完了</li>
+<li>每个人线程有独立的缓冲区来进行快速分配，不用抢来抢去</li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LinkinStar</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://www.linkinstar.wiki/post/b0bf4e5c.html">https://www.linkinstar.wiki/post/b0bf4e5c.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://www.linkinstar.wiki" target="_blank">LinkinStar's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%86%85%E5%AD%98/">内存</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button button--animated"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/images/wechatpay.png" target="_blank"><img class="post-qr-code-img" src="/images/wechatpay.png" alt="wechat"/></a><div class="post-qr-code-desc">wechat</div></li><li class="reward-item"><a href="/images/alipay.png" target="_blank"><img class="post-qr-code-img" src="/images/alipay.png" alt="alipay"/></a><div class="post-qr-code-desc">alipay</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/71525482.html"><img class="prev-cover" src="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">golang中神奇的sync.Pool</div></div></a></div><div class="next-post pull-right"><a href="/post/64a85efa.html"><img class="next-cover" src="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">大话图解gin源码</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-info-avatar is-center"><img class="avatar-img" src="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/LLX.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">LinkinStar</div><div class="author-info__description">No one but myself can do it.<br> Don't worry. Be happy!</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">50</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">45</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">22</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/LinkinStars"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/LinkinStars" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:linkinstar@foxmail.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://www.jianshu.com/u/dcc4b2396fc4" target="_blank" title="简书"><i class="fas fa-book"></i></a><a class="social-icon" href="https://www.cnblogs.com/linkstar" target="_blank" title="博客园"><i class="fas fa-link"></i></a><a class="social-icon" href="/atom.xml" target="_blank" title="RSS"><i class="fas fa-rss"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content">这里是【LinkinStar 的自习室】【你的加油站】互相共勉~ <p style='color:red;font-weight:bold;'>本博客封面图可能来源于网络，无商用，侵删</p></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%83%B3%E4%B8%80%E6%83%B3"><span class="toc-number">1.</span> <span class="toc-text">想一想</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%88%91%E6%83%B3%E8%A6%81512G%EF%BC%8C%E4%BD%A0%E8%83%BD%E7%BB%99%E5%90%97%EF%BC%9F"><span class="toc-number">1.1.</span> <span class="toc-text">我想要512G，你能给吗？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%83%BD%E9%9A%8F%E4%BE%BF%E5%88%86%E5%89%B2%E5%90%97%EF%BC%9F"><span class="toc-number">1.2.</span> <span class="toc-text">能随便分割吗？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8D%E7%94%A8%E4%BA%86%E6%88%91%E9%9C%80%E8%A6%81%E6%94%BE%E5%9B%9E%E5%8E%BB%E5%90%97%EF%BC%9F"><span class="toc-number">1.3.</span> <span class="toc-text">不用了我需要放回去吗？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E7%9A%84%E7%AE%A1%E7%90%86%E8%80%85"><span class="toc-number">2.</span> <span class="toc-text">内存的管理者</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#OS"><span class="toc-number">2.1.</span> <span class="toc-text">OS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#heap"><span class="toc-number">2.2.</span> <span class="toc-text">heap</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#central"><span class="toc-number">2.3.</span> <span class="toc-text">central</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#cache"><span class="toc-number">2.4.</span> <span class="toc-text">cache</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">2.5.</span> <span class="toc-text">总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E7%9A%84%E5%88%86%E9%85%8D%E7%BB%93%E6%9E%84"><span class="toc-number">3.</span> <span class="toc-text">内存的分配结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#arena"><span class="toc-number">3.1.</span> <span class="toc-text">arena</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bitmap"><span class="toc-number">3.2.</span> <span class="toc-text">bitmap</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#spans"><span class="toc-number">3.3.</span> <span class="toc-text">spans</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D"><span class="toc-number">4.</span> <span class="toc-text">内存分配</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E9%85%8D%E6%B5%81%E7%A8%8B"><span class="toc-number">4.1.</span> <span class="toc-text">分配流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A9%E5%AE%B9"><span class="toc-number">4.2.</span> <span class="toc-text">扩容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9E%E6%94%B6"><span class="toc-number">4.3.</span> <span class="toc-text">回收</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-1"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/da4cf864.html" title="轻量级 k8s 应用日志收集方案 loki">轻量级 k8s 应用日志收集方案 loki</a><time datetime="2021-04-19T16:00:00.000Z" title="发表于 2021-04-20 00:00:00">2021-04-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/94902806.html" title="monitoror/monitoror 最轻量的监控大屏">monitoror/monitoror 最轻量的监控大屏</a><time datetime="2021-04-11T16:00:00.000Z" title="发表于 2021-04-12 00:00:00">2021-04-12</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/b817d222.html" title="k8s 意外集锦 - oom 的连锁反应">k8s 意外集锦 - oom 的连锁反应</a><time datetime="2021-03-11T16:00:00.000Z" title="发表于 2021-03-12 00:00:00">2021-03-12</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/c86fbf9f.html" title="k8s 意外集锦 - configmap 挂载 目录 只读">k8s 意外集锦 - configmap 挂载 目录 只读</a><time datetime="2021-02-01T16:00:00.000Z" title="发表于 2021-02-02 00:00:00">2021-02-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/9ef22657.html" title="k8s 小技巧">k8s 小技巧</a><time datetime="2021-01-22T16:00:00.000Z" title="发表于 2021-01-23 00:00:00">2021-01-23</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg')"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2021 By LinkinStar</div><div class="footer_custom_text"><p><a style="margin-inline:5px" target="_blank" href="https://hexo.io/"><img src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&logo=hexo" title="博客框架为Hexo"></a><a style="margin-inline:5px" target="_blank" href="https://butterfly.js.org/"><img src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&logo=bitdefender" title="主题采用butterfly"></a><a style="margin-inline:5px" target="_blank" href="https://www.jsdelivr.com/"><img src="https://img.shields.io/badge/CDN-jsDelivr-orange?style=flat&logo=jsDelivr" title="本站使用JsDelivr为静态资源提供CDN加速"></a><a style="margin-inline:5px" target="_blank" href="https://vercel.com/ "><img src="https://img.shields.io/badge/Hosted-Vercel-brightgreen?style=flat&logo=Vercel" title="本站线路托管于Vercel"></a><a style="margin-inline:5px" target="_blank" href="https://vercel.com/ "><a style="margin-inline:5px" target="_blank" href="https://github.com/LinkinStars/linkinstars.github.io"><img src="https://img.shields.io/badge/Source-Github-d021d6?style=flat&logo=GitHub" title="本站项目由Gtihub托管"></a><a style="margin-inline:5px" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&logo=Claris" title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"></a><br><a href="https://beian.miit.gov.cn/" target="_blank">浙B2-20080101</a></p></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font-plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font-minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>function addGitalkSource () {
+  const ele = document.createElement('link')
+  ele.rel = 'stylesheet'
+  ele.href= 'https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css'
+  document.getElementsByTagName('head')[0].appendChild(ele)
+}
+
+function loadGitalk () {
+  function initGitalk () {
+    var gitalk = new Gitalk(Object.assign({
+      clientID: 'fb1c6a994a1f26c2655e',
+      clientSecret: '512d1338f3c8e48f1be73caf0661c005bf1c0425',
+      repo: 'linkinstars.github.io',
+      owner: 'LinkinStars',
+      admin: ['LinkinStars'],
+      id: 'f1a5e0160b3732ef78140456cf2facb0',
+      language: 'zh-CN',
+      perPage: 50,
+      distractionFreeMode: true,
+      pagerDirection: 'last',
+      createIssueManually: false,
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  if (typeof Gitalk === 'function') initGitalk()
+  else {
+    addGitalkSource()
+    getScript('https://cdn.jsdelivr.net/npm/gitalk@latest/dist/gitalk.min.js').then(initGitalk)
+  }
+}
+
+function commentCount(n){
+  let isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+  if (isCommentCount) {
+    isCommentCount.innerHTML= n
+  }
+}
+
+if ('Gitalk' === 'Gitalk' || !false) {
+  if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+  else loadGitalk()
+} else {
+  function loadOtherComment () {
+    loadGitalk()
+  }
+}</script></div><script defer src="/live2d-widget/autoload.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

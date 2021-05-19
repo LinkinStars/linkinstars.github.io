@@ -1,0 +1,277 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>大话图解golang map源码详解 | LinkinStar's Blog</title><meta name="keywords" content="hashmap"><meta name="author" content="LinkinStar"><meta name="copyright" content="LinkinStar"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="网上分析golang中map的源码的博客已经非常多了，随便一搜就有，而且也非常详细，所以如果我再来写就有点画蛇添足了（而且我也写不好，手动滑稽）。但是我还是要写，略略略，这篇博客的意义在于能从几张图片，然后用我最通俗的文字，让没看过源码的人最快程度上了解golang中map是怎么样的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="大话图解golang map源码详解">
+<meta property="og:url" content="https://www.linkinstar.wiki/post/60d021b9.html">
+<meta property="og:site_name" content="LinkinStar&#39;s Blog">
+<meta property="og:description" content="网上分析golang中map的源码的博客已经非常多了，随便一搜就有，而且也非常详细，所以如果我再来写就有点画蛇添足了（而且我也写不好，手动滑稽）。但是我还是要写，略略略，这篇博客的意义在于能从几张图片，然后用我最通俗的文字，让没看过源码的人最快程度上了解golang中map是怎么样的。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg">
+<meta property="article:published_time" content="2019-06-02T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-05-19T15:51:06.158Z">
+<meta property="article:author" content="LinkinStar">
+<meta property="article:tag" content="hashmap">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg"><link rel="shortcut icon" href="/images/favicon-32x32.png"><link rel="canonical" href="https://www.linkinstar.wiki/post/60d021b9"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '大话图解golang map源码详解',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-05-19 23:51:06'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const fontSizeVal = saveToLocal.get('global-font-size')
+    if (fontSizeVal !== undefined) {
+      document.documentElement.style.setProperty('--global-font-size', fontSizeVal + 'px')
+    }
+    })(window)</script><link rel="stylesheet" href="/css/background.css"><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="LinkinStar's Blog" type="application/atom+xml">
+</head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/LLX.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">50</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">45</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">22</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa-fw fa fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa-fw fa fa-list-ul"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa-fw fa fa-universal-access"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="/comments/"><i class="fa-fw fa-fw fas fa-comment-dots"></i><span> 留言</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fa-fw fab fa-modx"></i><span> 兴趣</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/books/"><i class="fa-fw fa-fw fa fa-book"></i><span> 读书</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fa-fw fa fa-film"></i><span> 电影</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">LinkinStar's Blog</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa-fw fa fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa-fw fa fa-list-ul"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa-fw fa fa-universal-access"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="/comments/"><i class="fa-fw fa-fw fas fa-comment-dots"></i><span> 留言</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fa-fw fab fa-modx"></i><span> 兴趣</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/books/"><i class="fa-fw fa-fw fa fa-book"></i><span> 读书</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fa-fw fa fa-film"></i><span> 电影</span></a></li></ul></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">大话图解golang map源码详解</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2019-06-02T16:00:00.000Z" title="undefined 2019-06-03 00:00:00">2019-06-03</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/golang%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">golang源码解析</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">2.9k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>9分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="大话图解golang map源码详解"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><p>网上分析golang中map的源码的博客已经非常多了，随便一搜就有，而且也非常详细，所以如果我再来写就有点画蛇添足了（而且我也写不好，手动滑稽）。但是我还是要写，略略略，这篇博客的意义在于能从几张图片，然后用我最通俗的文字，让没看过源码的人最快程度上了解golang中map是怎么样的。</p>
+<span id="more"></span>
+<p>当然，因为简单，所以不完美。有很多地方省略了细节问题，如果你觉得没看够，或者本来就想了解详细情况的话在文末给出了一些非常不错的博客，当然有能力还是自己去阅读源码比较靠谱。</p>
+<p>那么下面我将从这几个方面来说明，你先记住有下面几个方向，这样可以有一个大致的思路：</p>
+<ul>
+<li>基础结构：golang中的map是什么样子的，是由什么数据结构组成的？</li>
+<li>初始化：初始化之后map是怎么样的？</li>
+<li>get：如何获取一个元素？</li>
+<li>put：如何存放一个元素？</li>
+<li>扩容：当存放空间不够的时候扩容是怎么扩的？</li>
+</ul>
+<h2 id="基础结构"><a href="#基础结构" class="headerlink" title="基础结构"></a>基础结构</h2><h3 id="图解"><a href="#图解" class="headerlink" title="图解"></a>图解</h3><p><img src="http://blog.linkinstars.com/mweb/15593603213325.jpg" alt><br>这个就是golang中map的结构，其实真的不复杂，我省略了其中一些和结构关系不大的字段，就只剩下这些了。</p>
+<h3 id="大话"><a href="#大话" class="headerlink" title="大话"></a>大话</h3><p>大话来描述一些要点：</p>
+<ul>
+<li><strong>最外面是hmap结构体，用buckets存放一些名字叫bmap的桶（数量不定，是2的指数倍）</strong></li>
+<li><strong>bmap是一种有8个格子的桶（一定只有8个格子），每个格子存放一对key-value</strong></li>
+<li><strong>bmap有一个overflow，用于连接下一个bmap（溢出桶）</strong></li>
+<li><strong>hmap还有oldbuckets，用于存放老数据（用于扩容时）</strong></li>
+<li><strong>mapextra用于存放非指针数据（用于优化存储和访问），内部的overflow和oldoverflow实际还是bmap的数组。</strong></li>
+</ul>
+<p>这就是map的结构，然后我们稍微对比总结一下。</p>
+<blockquote>
+<p>我们常见的map如java中的map是直接拿数组，数组中直接对应出了key-value，而在golang中，做了多加中间一层，buckets；java中如果key的哈希相同会采用链表的方式连接下去，当达到一定程度会转换红黑树，golang中直接类似链表连接下去，只不过连接下去的是buckets。</p>
+</blockquote>
+<h3 id="源码一瞥"><a href="#源码一瞥" class="headerlink" title="源码一瞥"></a>源码一瞥</h3><ul>
+<li>下面附上源码中它们的样子，方便之后你自己阅读的时候有个印象（注意源码中的样子和编译之后是不同的哟，golang会根据map存放的类型不同来搞定它们实际的样子）<br><img src="http://blog.linkinstars.com/mweb/15593618241922.jpg" alt><br><img src="http://blog.linkinstars.com/mweb/15593618591929.jpg" alt><br><img src="http://blog.linkinstars.com/mweb/15593618386359.jpg" alt></li>
+</ul>
+<p>那么看完结构你肯定会有疑问？为什么要多一层8个格子的bucket呢？我们怎么确定放在8个格子其中的哪个呢？带着问题往下看。<br><br></p>
+<h2 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h2><h3 id="源码一瞥-1"><a href="#源码一瞥-1" class="headerlink" title="源码一瞥"></a>源码一瞥</h3><p>初始化就不需要图去说明了，因为初始化之后就是产生基础的一个结构，根据map中存放的类型不同。这里主要说明一下，初始化的代码放在什么位置。我也删除了其中一些代码，大致看看就好。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// makehmap_small implements Go map creation for make(map[k]v) and</span></span><br><span class="line"><span class="comment">// make(map[k]v, hint) when hint is known to be at most bucketCnt</span></span><br><span class="line"><span class="comment">// at compile time and the map needs to be allocated on the heap.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">makemap_small</span><span class="params">()</span> *<span class="title">hmap</span></span> &#123;</span><br><span class="line">	h := <span class="built_in">new</span>(hmap)</span><br><span class="line">	h.hash0 = fastrand()</span><br><span class="line">	<span class="keyword">return</span> h</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// makemap implements Go map creation for make(map[k]v, hint).</span></span><br><span class="line"><span class="comment">// If the compiler has determined that the map or the first bucket</span></span><br><span class="line"><span class="comment">// can be created on the stack, h and/or bucket may be non-nil.</span></span><br><span class="line"><span class="comment">// If h != nil, the map can be created directly in h.</span></span><br><span class="line"><span class="comment">// If h.buckets != nil, bucket pointed to can be used as the first bucket.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">makemap</span><span class="params">(t *maptype, hint <span class="keyword">int</span>, h *hmap)</span> *<span class="title">hmap</span></span> &#123;</span><br><span class="line">	.....</span><br><span class="line"></span><br><span class="line">	<span class="comment">// initialize Hmap</span></span><br><span class="line">	<span class="keyword">if</span> h == <span class="literal">nil</span> &#123;</span><br><span class="line">		h = (*hmap)(newobject(t.hmap))</span><br><span class="line">	&#125;</span><br><span class="line">	h.hash0 = fastrand()</span><br><span class="line"></span><br><span class="line">	<span class="comment">// find size parameter which will hold the requested # of elements</span></span><br><span class="line">	B := <span class="keyword">uint8</span>(<span class="number">0</span>)</span><br><span class="line">	<span class="keyword">for</span> overLoadFactor(hint, B) &#123;</span><br><span class="line">		B++</span><br><span class="line">	&#125;</span><br><span class="line">	h.B = B</span><br><span class="line">	</span><br><span class="line">	......</span><br><span class="line">	<span class="keyword">return</span> h</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>其中需要注意一个点：“B”</strong>，还记得刚才说名字叫bmap的桶数量是不确定的吗？这个B一定程度上表示的就是桶的数量，当然不是说B是3桶的数量就是3，而是2的3次方，也就是8；当B为5，桶的数量就是32；记住这个B，后面会用到它。</p>
+<p>其实你想嘛，初始化还能干什么，<strong>最重要的肯定就是确定一开始要有多少个桶，初始的大小还是很重要的</strong>，还有一些别的初始化哈希种子等等，问题不大。我们的重点还是要放在存/取上面。</p>
+<h2 id="GET"><a href="#GET" class="headerlink" title="GET"></a>GET</h2><h3 id="图解-1"><a href="#图解-1" class="headerlink" title="图解"></a>图解</h3><p>其实从结构上面来看，我们已经可以摸到一些门道了。先自己想一下，要从一个hashmap中获取一个元素，那么一定是通过key的哈希值去定位到这个元素，那么想着这个大致方向，看下面一张流程图来详细理解golang中是如何实现的。<br><img src="http://blog.linkinstars.com/mweb/15595430252367.jpg" alt></p>
+<h3 id="大话-1"><a href="#大话-1" class="headerlink" title="大话"></a>大话</h3><p>下面说明要点：</p>
+<ul>
+<li><strong>计算出key的hash</strong></li>
+<li><strong>用最后的“B”位来确定在哪个桶（“B”就是前面说的那个，B为4，就有16个桶，0101用十进制表示为5，所以在5号桶）</strong></li>
+<li><strong>根据key的前8位快速确定是在哪个格子（额外说明一下，在bmap中存放了每个key对应的tophash，是key的前8位）</strong></li>
+<li><strong>最终还是需要比对key完整的hash是否匹配，如果匹配则获取对应value</strong></li>
+<li><strong>如果都没有找到，就去下一个overflow找</strong></li>
+</ul>
+<p>总结一下：通过后B位确定桶，通过前8位确定格子，循环遍历连着的所有桶全部找完为止。<br>那么为什么要有这个tophash呢？因为tophash可以快速确定key是否正确，你可以把它理解成一种缓存措施，如果前8位都不对了，后面就没有必要比较了。</p>
+<h3 id="源码一瞥-2"><a href="#源码一瞥-2" class="headerlink" title="源码一瞥"></a>源码一瞥</h3><p><img src="http://blog.linkinstars.com/mweb/15595446518430.jpg" alt><br>其中红色的字标出的地方说明了上面的关键点，最后有关key和value具体的存放方式和取出的定位不做深究，有兴趣可以看最后的参考博客。</p>
+<h2 id="PUT"><a href="#PUT" class="headerlink" title="PUT"></a>PUT</h2><p>其实当你知道了如何GET，那么PUT就没有什么难度了，因为本质是一样的。PUT的时候一样的方式去定位key的位置：</p>
+<ul>
+<li>通过key的后“B”位确定是哪一个桶</li>
+<li>通过key的前8位快速确定是否已经存在</li>
+<li>最终确定存放位置，如果8个格子已经满了，没地方放了，那么就重新创建一个bmap作为溢出桶连接在overflow</li>
+</ul>
+<h3 id="图解-2"><a href="#图解-2" class="headerlink" title="图解"></a>图解</h3><p><img src="http://blog.linkinstars.com/mweb/15595457248954.jpg" alt><br>这里主要图解说明一下，如果新来的key发现前面有一个格子空着（这个情况是删除造成的），就会记录这个位置，当全部扫描完成之后发现自己确实是新来的，那么就会放前面那个空着的，而不会放最后（我把这个称为紧凑原则，尽可能保证数据存放紧凑，这样下次扫描会快）</p>
+<h3 id="代码位置"><a href="#代码位置" class="headerlink" title="代码位置"></a>代码位置</h3><p>go/src/runtime/hashmap.go的mapassign函数就是map的put方法，因为代码很长这里就不多赘述了。</p>
+<h2 id="扩容"><a href="#扩容" class="headerlink" title="扩容"></a>扩容</h2><p>这个就是最复杂的地方了，但是呢？Don’t worry我这里还是会省略其中某些部分，将最重要的地方拎出来。</p>
+<h3 id="扩容的方式"><a href="#扩容的方式" class="headerlink" title="扩容的方式"></a>扩容的方式</h3><ol>
+<li>相同容量扩容</li>
+<li>2倍容量扩容<br>啥意思呢？第一种出现的情况是：因为map不断的put和delete，出现了很多空格，这些空格会导致bmap很长，但是中间有很多空的地方，扫描时间变长。所以第一种扩容实际是一种整理，将数据整理到前面一起。第二种呢：就是真的不够用了，扩容两倍。</li>
+</ol>
+<h3 id="扩容的条件"><a href="#扩容的条件" class="headerlink" title="扩容的条件"></a>扩容的条件</h3><h4 id="装载因子"><a href="#装载因子" class="headerlink" title="装载因子"></a>装载因子</h4><p>如果你看过Java的HashMap实现，就知道有个装载因子，同样的在golang中也有，但是不一样哦。装载因子的定义是这个样子：<br>loadFactor := count / (2^B)<br>其中count为map中元素的个数，B就是之前个那个“B”<br>翻译一下就是装载因子 = （map中元素的个数）/（map当前桶的个数）</p>
+<h4 id="扩容条件1"><a href="#扩容条件1" class="headerlink" title="扩容条件1"></a>扩容条件1</h4><p>装载因子 &gt; 6.5（这个值是源码中写的）<br>其实意思就是，桶只有那么几个，但是元素很多，证明有很多溢出桶的存在（可以想成链表拉的太长了），那么扫描速度会很慢，就要扩容。</p>
+<h4 id="扩容条件2"><a href="#扩容条件2" class="headerlink" title="扩容条件2"></a>扩容条件2</h4><p>overflow 的 bucket 数量过多：当 B 小于 15，如果 overflow 的 bucket 数量超过 2^B ；当 B &gt;= 15，如果 overflow 的 bucket 数量超过 2^15 。<br>其实意思就是，可能有一个单独的一条链拉的很长，溢出桶太多了，说白了就是，加入的key不巧，后B位都一样，一直落在同一个桶里面，这个桶一直放，虽然装载因子不高，但是扫描速度就很慢。</p>
+<h4 id="扩容条件3"><a href="#扩容条件3" class="headerlink" title="扩容条件3"></a>扩容条件3</h4><p>当前不能正在扩容</p>
+<h3 id="图解-3"><a href="#图解-3" class="headerlink" title="图解"></a>图解</h3><p><img src="http://blog.linkinstars.com/mweb/15595559620626.jpg" alt><br>这张图表示的就是相同容量的扩容，实际上就是一种整理，将分散的数据集合到一起，提高扫描效率。（上面表示扩容之前，下面表示扩容之后）</p>
+<p><img src="http://blog.linkinstars.com/mweb/15595560739274.jpg" alt><br>这张图表示的是就是2倍的扩容（上面表示扩容之前，下面表示扩容之后），如果有两个key后三位分别是001和101，当B=2时，只有4个桶，只看最后两位，这两个key后两位都是01所以在一个桶里面；扩容之后B=3，就会有8个桶，看后面三位，于是它们就分到了不同的桶里面。</p>
+<h3 id="大话-2"><a href="#大话-2" class="headerlink" title="大话"></a>大话</h3><p>下面说一些扩容时的细节：</p>
+<ul>
+<li>扩容不是一次性完成的，还记的我们hmap一开始有一个oldbuckets吗？是先将老数据存到这个里面</li>
+<li>每次搬运1到2个bucket，当插入或修改、删除key触发</li>
+<li>扩容之后肯定会影响到get和put，遍历的时候肯定会先从oldbuckets拿，put肯定也要考虑是否要放到新产生的桶里面去</li>
+</ul>
+<h3 id="源码一瞥-3"><a href="#源码一瞥-3" class="headerlink" title="源码一瞥"></a>源码一瞥</h3><p><img src="http://blog.linkinstars.com/mweb/15595579954236.jpg" alt><br>扩容的三个条件，看到了吗？这个地方在mapassign方法中。</p>
+<p><img src="http://blog.linkinstars.com/mweb/15595581176990.jpg" alt><br>这里可以看到，注释也写的很清楚，如果是加载因子超出了，那么就2倍扩容，如果不是那么就是因为太多溢出桶了，sameSizeGrow表示就是相同容量扩容</p>
+<p><img src="http://blog.linkinstars.com/mweb/15595579061242.jpg" alt><br>evacuate是搬运方法，这边可以看到，每次搬运是1到2个</p>
+<p>evacuate实在是太长了，也非常复杂，但是情况就是图上描述的那样，有兴趣的可以详细去看，这里不截图说明了。</p>
+<h2 id="总结和小问题"><a href="#总结和小问题" class="headerlink" title="总结和小问题"></a>总结和小问题</h2><p>至此你应该对于golang中的map有一个基本的认识了，你还可以去看看删除，你还可以去看看遍历等等，相信有了上面的基本认识那么应该不会难到你。下面有几个小问题：</p>
+<ol>
+<li>是否线程安全？否，而且并发操作会抛出异常。</li>
+<li>源码位置：src/runtime/hashmap.go</li>
+<li>每次遍历map顺序是否一致？不一致，每次遍历会随机个数，通过随机数来决定从哪个元素开始。</li>
+</ol>
+<p>写的仓促，难免疏漏，有问题的地方还请批评指正。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>如果你希望看到源码的各种细节讲解，下面这几篇是我学习的时候看的，供你参考，希望对你有帮助<br><a target="_blank" rel="noopener" href="https://github.com/qcrao/Go-Questions/tree/master/map">https://github.com/qcrao/Go-Questions/tree/master/map</a><br><a target="_blank" rel="noopener" href="https://github.com/cch123/golang-notes/blob/master/map.md">https://github.com/cch123/golang-notes/blob/master/map.md</a><br><a target="_blank" rel="noopener" href="https://draveness.me/golang-hashmap">https://draveness.me/golang-hashmap</a><br><a target="_blank" rel="noopener" href="https://lukechampine.com/hackmap.html">https://lukechampine.com/hackmap.html</a></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LinkinStar</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://www.linkinstar.wiki/post/60d021b9.html">https://www.linkinstar.wiki/post/60d021b9.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://www.linkinstar.wiki" target="_blank">LinkinStar's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/hashmap/">hashmap</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button button--animated"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/images/wechatpay.png" target="_blank"><img class="post-qr-code-img" src="/images/wechatpay.png" alt="wechat"/></a><div class="post-qr-code-desc">wechat</div></li><li class="reward-item"><a href="/images/alipay.png" target="_blank"><img class="post-qr-code-img" src="/images/alipay.png" alt="alipay"/></a><div class="post-qr-code-desc">alipay</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/f8988a3a.html"><img class="prev-cover" src="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Golang指针与unsafe</div></div></a></div><div class="next-post pull-right"><a href="/post/bde46176.html"><img class="next-cover" src="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Golang 读写锁RWMutex 互斥锁Mutex 源码详解</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-info-avatar is-center"><img class="avatar-img" src="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/LLX.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">LinkinStar</div><div class="author-info__description">No one but myself can do it.<br> Don't worry. Be happy!</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">50</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">45</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">22</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/LinkinStars"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/LinkinStars" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:linkinstar@foxmail.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://www.jianshu.com/u/dcc4b2396fc4" target="_blank" title="简书"><i class="fas fa-book"></i></a><a class="social-icon" href="https://www.cnblogs.com/linkstar" target="_blank" title="博客园"><i class="fas fa-link"></i></a><a class="social-icon" href="/atom.xml" target="_blank" title="RSS"><i class="fas fa-rss"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content">这里是【LinkinStar 的自习室】【你的加油站】互相共勉~ <p style='color:red;font-weight:bold;'>本博客封面图可能来源于网络，无商用，侵删</p></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%BB%93%E6%9E%84"><span class="toc-number">1.</span> <span class="toc-text">基础结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%BE%E8%A7%A3"><span class="toc-number">1.1.</span> <span class="toc-text">图解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%A7%E8%AF%9D"><span class="toc-number">1.2.</span> <span class="toc-text">大话</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BA%90%E7%A0%81%E4%B8%80%E7%9E%A5"><span class="toc-number">1.3.</span> <span class="toc-text">源码一瞥</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-number">2.</span> <span class="toc-text">初始化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BA%90%E7%A0%81%E4%B8%80%E7%9E%A5-1"><span class="toc-number">2.1.</span> <span class="toc-text">源码一瞥</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GET"><span class="toc-number">3.</span> <span class="toc-text">GET</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%BE%E8%A7%A3-1"><span class="toc-number">3.1.</span> <span class="toc-text">图解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%A7%E8%AF%9D-1"><span class="toc-number">3.2.</span> <span class="toc-text">大话</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BA%90%E7%A0%81%E4%B8%80%E7%9E%A5-2"><span class="toc-number">3.3.</span> <span class="toc-text">源码一瞥</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PUT"><span class="toc-number">4.</span> <span class="toc-text">PUT</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%BE%E8%A7%A3-2"><span class="toc-number">4.1.</span> <span class="toc-text">图解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E4%BD%8D%E7%BD%AE"><span class="toc-number">4.2.</span> <span class="toc-text">代码位置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%A9%E5%AE%B9"><span class="toc-number">5.</span> <span class="toc-text">扩容</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A9%E5%AE%B9%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="toc-number">5.1.</span> <span class="toc-text">扩容的方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A9%E5%AE%B9%E7%9A%84%E6%9D%A1%E4%BB%B6"><span class="toc-number">5.2.</span> <span class="toc-text">扩容的条件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A3%85%E8%BD%BD%E5%9B%A0%E5%AD%90"><span class="toc-number">5.2.1.</span> <span class="toc-text">装载因子</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%89%A9%E5%AE%B9%E6%9D%A1%E4%BB%B61"><span class="toc-number">5.2.2.</span> <span class="toc-text">扩容条件1</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%89%A9%E5%AE%B9%E6%9D%A1%E4%BB%B62"><span class="toc-number">5.2.3.</span> <span class="toc-text">扩容条件2</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%89%A9%E5%AE%B9%E6%9D%A1%E4%BB%B63"><span class="toc-number">5.2.4.</span> <span class="toc-text">扩容条件3</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%BE%E8%A7%A3-3"><span class="toc-number">5.3.</span> <span class="toc-text">图解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%A7%E8%AF%9D-2"><span class="toc-number">5.4.</span> <span class="toc-text">大话</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BA%90%E7%A0%81%E4%B8%80%E7%9E%A5-3"><span class="toc-number">5.5.</span> <span class="toc-text">源码一瞥</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93%E5%92%8C%E5%B0%8F%E9%97%AE%E9%A2%98"><span class="toc-number">6.</span> <span class="toc-text">总结和小问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-number">7.</span> <span class="toc-text">参考资料</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/da4cf864.html" title="轻量级 k8s 应用日志收集方案 loki">轻量级 k8s 应用日志收集方案 loki</a><time datetime="2021-04-19T16:00:00.000Z" title="发表于 2021-04-20 00:00:00">2021-04-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/94902806.html" title="monitoror/monitoror 最轻量的监控大屏">monitoror/monitoror 最轻量的监控大屏</a><time datetime="2021-04-11T16:00:00.000Z" title="发表于 2021-04-12 00:00:00">2021-04-12</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/b817d222.html" title="k8s 意外集锦 - oom 的连锁反应">k8s 意外集锦 - oom 的连锁反应</a><time datetime="2021-03-11T16:00:00.000Z" title="发表于 2021-03-12 00:00:00">2021-03-12</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/c86fbf9f.html" title="k8s 意外集锦 - configmap 挂载 目录 只读">k8s 意外集锦 - configmap 挂载 目录 只读</a><time datetime="2021-02-01T16:00:00.000Z" title="发表于 2021-02-02 00:00:00">2021-02-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/9ef22657.html" title="k8s 小技巧">k8s 小技巧</a><time datetime="2021-01-22T16:00:00.000Z" title="发表于 2021-01-23 00:00:00">2021-01-23</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg')"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2021 By LinkinStar</div><div class="footer_custom_text"><p><a style="margin-inline:5px" target="_blank" href="https://hexo.io/"><img src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&logo=hexo" title="博客框架为Hexo"></a><a style="margin-inline:5px" target="_blank" href="https://butterfly.js.org/"><img src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&logo=bitdefender" title="主题采用butterfly"></a><a style="margin-inline:5px" target="_blank" href="https://www.jsdelivr.com/"><img src="https://img.shields.io/badge/CDN-jsDelivr-orange?style=flat&logo=jsDelivr" title="本站使用JsDelivr为静态资源提供CDN加速"></a><a style="margin-inline:5px" target="_blank" href="https://vercel.com/ "><img src="https://img.shields.io/badge/Hosted-Vercel-brightgreen?style=flat&logo=Vercel" title="本站线路托管于Vercel"></a><a style="margin-inline:5px" target="_blank" href="https://vercel.com/ "><a style="margin-inline:5px" target="_blank" href="https://github.com/LinkinStars/linkinstars.github.io"><img src="https://img.shields.io/badge/Source-Github-d021d6?style=flat&logo=GitHub" title="本站项目由Gtihub托管"></a><a style="margin-inline:5px" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&logo=Claris" title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"></a><br><a href="https://beian.miit.gov.cn/" target="_blank">浙B2-20080101</a></p></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font-plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font-minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>function addGitalkSource () {
+  const ele = document.createElement('link')
+  ele.rel = 'stylesheet'
+  ele.href= 'https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css'
+  document.getElementsByTagName('head')[0].appendChild(ele)
+}
+
+function loadGitalk () {
+  function initGitalk () {
+    var gitalk = new Gitalk(Object.assign({
+      clientID: 'fb1c6a994a1f26c2655e',
+      clientSecret: '512d1338f3c8e48f1be73caf0661c005bf1c0425',
+      repo: 'linkinstars.github.io',
+      owner: 'LinkinStars',
+      admin: ['LinkinStars'],
+      id: '3b84ec5b5222c37e163958a0c7614319',
+      language: 'zh-CN',
+      perPage: 50,
+      distractionFreeMode: true,
+      pagerDirection: 'last',
+      createIssueManually: false,
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  if (typeof Gitalk === 'function') initGitalk()
+  else {
+    addGitalkSource()
+    getScript('https://cdn.jsdelivr.net/npm/gitalk@latest/dist/gitalk.min.js').then(initGitalk)
+  }
+}
+
+function commentCount(n){
+  let isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+  if (isCommentCount) {
+    isCommentCount.innerHTML= n
+  }
+}
+
+if ('Gitalk' === 'Gitalk' || !false) {
+  if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+  else loadGitalk()
+} else {
+  function loadOtherComment () {
+    loadGitalk()
+  }
+}</script></div><script defer src="/live2d-widget/autoload.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

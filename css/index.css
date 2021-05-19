@@ -1363,7 +1363,7 @@ input::placeholder {
   z-index: -999;
   width: 100%;
   height: 100%;
-  background: url(http://blog.linkinstars.com/background.jpg) !important;;
+  background: url(https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg) !important;;
   background-attachment: local;
   background-position: center;
   -webkit-background-size: cover;

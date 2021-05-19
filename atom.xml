@@ -6,7 +6,7 @@
   <link href="https://www.linkinstar.wiki/atom.xml" rel="self"/>
   
   <link href="https://www.linkinstar.wiki/"/>
-  <updated>2021-05-15T02:44:36.000Z</updated>
+  <updated>2021-05-19T15:51:06.148Z</updated>
   <id>https://www.linkinstar.wiki/</id>
   
   <author>
@@ -18,10 +18,10 @@
   
   <entry>
     <title>轻量级 k8s 应用日志收集方案 loki</title>
-    <link href="https://www.linkinstar.wiki/2021/04/20/open-source-component/loki/"/>
-    <id>https://www.linkinstar.wiki/2021/04/20/open-source-component/loki/</id>
+    <link href="https://www.linkinstar.wiki/post/da4cf864.html"/>
+    <id>https://www.linkinstar.wiki/post/da4cf864.html</id>
     <published>2021-04-19T16:00:00.000Z</published>
-    <updated>2021-05-15T02:44:36.000Z</updated>
+    <updated>2021-05-19T15:51:06.148Z</updated>
     
     
     <summary type="html">&lt;p&gt;微服务早已是一个过时的热词，同时，容器 和 k8s 的出现让它更一步成为了一种时尚。同样会带来很多附赠的问题，&lt;strong&gt;日志收集&lt;/strong&gt;就是其中一个比较重要的问题。当应用容器化之后，需要查看日志，如果还需要登录服务器，找到对应目录，然后 tail 查看，成本太高了，极大的影响效率。当前其实日志收集方案很多，在实践了多个方案之后，我终于能在今天写出我个人认为我最喜欢的一个方案了 &lt;strong&gt;loki&lt;/strong&gt;&lt;/p&gt;</summary>
@@ -37,10 +37,10 @@
   
   <entry>
     <title>monitoror/monitoror 最轻量的监控大屏</title>
-    <link href="https://www.linkinstar.wiki/2021/04/12/open-source-component/monitoror/"/>
-    <id>https://www.linkinstar.wiki/2021/04/12/open-source-component/monitoror/</id>
+    <link href="https://www.linkinstar.wiki/post/94902806.html"/>
+    <id>https://www.linkinstar.wiki/post/94902806.html</id>
     <published>2021-04-11T16:00:00.000Z</published>
-    <updated>2021-05-10T15:23:48.000Z</updated>
+    <updated>2021-05-19T15:51:06.148Z</updated>
     
     
     <summary type="html">&lt;p&gt;一提到监控大屏，那第一想法就是 grafana 对吧，各种样式图形都非常好看，而且支持各种数据源。而今天要分享的是一个更加轻量的监控大屏 monitoror/monitoror&lt;/p&gt;
@@ -57,10 +57,10 @@
   
   <entry>
     <title>k8s 意外集锦 - oom 的连锁反应</title>
-    <link href="https://www.linkinstar.wiki/2021/03/12/k8s/k8s-oom-evicted/"/>
-    <id>https://www.linkinstar.wiki/2021/03/12/k8s/k8s-oom-evicted/</id>
+    <link href="https://www.linkinstar.wiki/post/b817d222.html"/>
+    <id>https://www.linkinstar.wiki/post/b817d222.html</id>
     <published>2021-03-11T16:00:00.000Z</published>
-    <updated>2021-05-10T15:38:07.000Z</updated>
+    <updated>2021-05-19T15:51:06.136Z</updated>
     
     
     <summary type="html">&lt;p&gt;一开始觉得 oom 是一个常见问题，应该没有什么大问题，反正 k8s 集群会调度的，但其实它造成的连锁反应很恐怖。&lt;/p&gt;</summary>
@@ -76,10 +76,10 @@
   
   <entry>
     <title>k8s 意外集锦 - configmap 挂载 目录 只读</title>
-    <link href="https://www.linkinstar.wiki/2021/02/02/k8s/k8s-configmap-etc-dir-accident/"/>
-    <id>https://www.linkinstar.wiki/2021/02/02/k8s/k8s-configmap-etc-dir-accident/</id>
+    <link href="https://www.linkinstar.wiki/post/c86fbf9f.html"/>
+    <id>https://www.linkinstar.wiki/post/c86fbf9f.html</id>
     <published>2021-02-01T16:00:00.000Z</published>
-    <updated>2021-05-10T15:37:51.000Z</updated>
+    <updated>2021-05-19T15:51:06.133Z</updated>
     
     
     <summary type="html">&lt;p&gt; OCI runtime create failed:&lt;/p&gt;
@@ -96,10 +96,10 @@
   
   <entry>
     <title>k8s 小技巧</title>
-    <link href="https://www.linkinstar.wiki/2021/01/23/k8s/k8s-tips/"/>
-    <id>https://www.linkinstar.wiki/2021/01/23/k8s/k8s-tips/</id>
+    <link href="https://www.linkinstar.wiki/post/9ef22657.html"/>
+    <id>https://www.linkinstar.wiki/post/9ef22657.html</id>
     <published>2021-01-22T16:00:00.000Z</published>
-    <updated>2021-05-10T15:37:33.000Z</updated>
+    <updated>2021-05-19T15:51:06.137Z</updated>
     
     
     <summary type="html">&lt;p&gt;本博客持续更新…用于记录 k8s 使用过程中的很多的小技巧，也希望你能提供更多的小技巧来~&lt;/p&gt;</summary>
@@ -115,10 +115,10 @@
   
   <entry>
     <title>Weave Scope 监控 k8s 集群</title>
-    <link href="https://www.linkinstar.wiki/2021/01/12/open-source-component/weave-scope/"/>
-    <id>https://www.linkinstar.wiki/2021/01/12/open-source-component/weave-scope/</id>
+    <link href="https://www.linkinstar.wiki/post/2580a453.html"/>
+    <id>https://www.linkinstar.wiki/post/2580a453.html</id>
     <published>2021-01-11T16:00:00.000Z</published>
-    <updated>2021-05-10T15:23:12.000Z</updated>
+    <updated>2021-05-19T15:51:06.150Z</updated>
     
     
     <summary type="html">&lt;p&gt;之前一直在寻找一个 k8s 监控的工具，因为一直使用的是本地的 lens 的客户端，虽然使用上已经非常方便了，但是其实对于资源消耗的监控少了一点，有些资源消耗并不是能容易看到，并且服务间依赖是没有办法表现出来的，后来发现了 Weave Scope 满足了我的需求。&lt;/p&gt;</summary>
@@ -134,10 +134,10 @@
   
   <entry>
     <title>GopherChina2020 个人总结</title>
-    <link href="https://www.linkinstar.wiki/2020/11/23/other/gopher-china2020/"/>
-    <id>https://www.linkinstar.wiki/2020/11/23/other/gopher-china2020/</id>
+    <link href="https://www.linkinstar.wiki/post/c2947f12.html"/>
+    <id>https://www.linkinstar.wiki/post/c2947f12.html</id>
     <published>2020-11-22T16:00:00.000Z</published>
-    <updated>2021-05-10T15:35:47.000Z</updated>
+    <updated>2021-05-19T15:51:06.166Z</updated>
     
     
     <summary type="html">&lt;p&gt;之前去过几次相关 go 的线下 meetup，这次相对来说比较大型一些，两天的听下来还是比较烧脑的，光是记录的笔记都有近千行了，整体来说收获很大。&lt;/p&gt;
@@ -155,10 +155,10 @@
   
   <entry>
     <title>下一个 nginx？caddy 自动 https 真香</title>
-    <link href="https://www.linkinstar.wiki/2020/11/14/open-source-component/caddy/"/>
-    <id>https://www.linkinstar.wiki/2020/11/14/open-source-component/caddy/</id>
+    <link href="https://www.linkinstar.wiki/post/51c3059c.html"/>
+    <id>https://www.linkinstar.wiki/post/51c3059c.html</id>
     <published>2020-11-13T16:00:00.000Z</published>
-    <updated>2021-05-10T15:33:12.000Z</updated>
+    <updated>2021-05-19T15:51:06.144Z</updated>
     
     
     <summary type="html">&lt;p&gt;我们通常在部署 web 服务的时候往往会选择 nginx 作为最前面的一个狠角色，它的性能和能力大家也是有目共睹的，反向代理负载均衡等等。而作为后起之秀 caddy 却不被人所熟知，不过渐渐的也开始展露头角。&lt;br&gt;今天我就来介绍这个 caddy ，为什么我会称它有可能成为下一个 nginx。&lt;/p&gt;</summary>
@@ -174,10 +174,10 @@
   
   <entry>
     <title>openfaas/faas 环境搭建和开发使用</title>
-    <link href="https://www.linkinstar.wiki/2020/10/19/open-source-component/openfaas/"/>
-    <id>https://www.linkinstar.wiki/2020/10/19/open-source-component/openfaas/</id>
+    <link href="https://www.linkinstar.wiki/post/f7a42ef3.html"/>
+    <id>https://www.linkinstar.wiki/post/f7a42ef3.html</id>
     <published>2020-10-18T16:00:00.000Z</published>
-    <updated>2021-05-10T15:04:00.000Z</updated>
+    <updated>2021-05-19T15:51:06.149Z</updated>
     
     
     <summary type="html">&lt;p&gt;serverless 大环境下出现了 faas，即 function as  a service，函数即服务；其意思也非常好理解，就是能将一个函数作为一个服务进行使用，用户只需要编写一个函数功能即可，不需要额外去关心别的东西。&lt;a href=&quot;https://github.com/openfaas/faas&quot;&gt;https://github.com/openfaas/faas&lt;/a&gt; 是其中的一种实现方式。&lt;/p&gt;</summary>
@@ -193,10 +193,10 @@
   
   <entry>
     <title>Golang Mutex 到底是否应该使用指针</title>
-    <link href="https://www.linkinstar.wiki/2020/07/18/golang/basic/mutex-use-point-or-not/"/>
-    <id>https://www.linkinstar.wiki/2020/07/18/golang/basic/mutex-use-point-or-not/</id>
+    <link href="https://www.linkinstar.wiki/post/e360d978.html"/>
+    <id>https://www.linkinstar.wiki/post/e360d978.html</id>
     <published>2020-07-17T16:00:00.000Z</published>
-    <updated>2021-05-10T14:36:07.000Z</updated>
+    <updated>2021-05-19T15:51:06.155Z</updated>
     
     
     <summary type="html">&lt;p&gt;在写 go 的时候，你使用 Mutex 的时候使用的是指针还是说没有使用指针，还是随意来？&lt;/p&gt;
@@ -213,10 +213,10 @@
   
   <entry>
     <title>Linux 图形化监控工具</title>
-    <link href="https://www.linkinstar.wiki/2020/07/11/linux/linux-monitor/"/>
-    <id>https://www.linkinstar.wiki/2020/07/11/linux/linux-monitor/</id>
+    <link href="https://www.linkinstar.wiki/post/a4957565.html"/>
+    <id>https://www.linkinstar.wiki/post/a4957565.html</id>
     <published>2020-07-10T16:00:00.000Z</published>
-    <updated>2020-07-19T14:17:38.000Z</updated>
+    <updated>2021-05-19T15:51:06.139Z</updated>
     
     
     <summary type="html">&lt;p&gt;最近在分析线上问题，需要监控 Linux 相关指标，如果只是用命令，总是只能知道当前的值，无法记录过程。而设备不是云厂商的设备，所以没有相关监控，zabbix 有，但是没有相关权限可以看到。所以找到一些好用的监控小方案。&lt;/p&gt;</summary>
@@ -232,10 +232,10 @@
   
   <entry>
     <title>你的网络还好吗</title>
-    <link href="https://www.linkinstar.wiki/2020/07/04/linux/network/"/>
-    <id>https://www.linkinstar.wiki/2020/07/04/linux/network/</id>
+    <link href="https://www.linkinstar.wiki/post/8fbd221e.html"/>
+    <id>https://www.linkinstar.wiki/post/8fbd221e.html</id>
     <published>2020-07-03T16:00:00.000Z</published>
-    <updated>2020-07-19T14:17:57.000Z</updated>
+    <updated>2021-05-19T15:51:06.140Z</updated>
     
     
     <summary type="html">&lt;p&gt;之前说了 CPU、内存 、IO 在排查过程中可能出现的问题以及出现问题会影响的指标，这次就来看看在 linux 中网络的问题。&lt;/p&gt;
@@ -252,10 +252,10 @@
   
   <entry>
     <title>你的 IO 还好吗</title>
-    <link href="https://www.linkinstar.wiki/2020/06/27/linux/io/"/>
-    <id>https://www.linkinstar.wiki/2020/06/27/linux/io/</id>
+    <link href="https://www.linkinstar.wiki/post/f0943d44.html"/>
+    <id>https://www.linkinstar.wiki/post/f0943d44.html</id>
     <published>2020-06-26T16:00:00.000Z</published>
-    <updated>2020-07-19T14:13:10.000Z</updated>
+    <updated>2021-05-19T15:51:06.138Z</updated>
     
     
     <summary type="html">&lt;p&gt;在 CPU 看来内存好慢啊，看我跑的多快；在内存看来磁盘你好慢啊，看我比你还快点；磁盘…&lt;/p&gt;
@@ -272,10 +272,10 @@
   
   <entry>
     <title>快速上手 dubbo-go</title>
-    <link href="https://www.linkinstar.wiki/2020/06/20/open-source-component/dubbo-go/"/>
-    <id>https://www.linkinstar.wiki/2020/06/20/open-source-component/dubbo-go/</id>
+    <link href="https://www.linkinstar.wiki/post/81d69338.html"/>
+    <id>https://www.linkinstar.wiki/post/81d69338.html</id>
     <published>2020-06-19T16:00:00.000Z</published>
-    <updated>2020-07-19T14:22:03.000Z</updated>
+    <updated>2021-05-19T15:51:06.145Z</updated>
     
     
     <summary type="html">&lt;p&gt;每次技术调研总会发现自己学不动了怎么办？用已有的知识来拓展要学习的新知识就好了~ by LinkinStar&lt;br&gt;最近需要调研使用 dubbo，之前完全是 0 基础，对于 dubbo 只存在于听说，今天上手实战一把，告诉你如何快速用 go 上手 dubbo&lt;br&gt;PS：以下的学习方式适用于很多新技术  &lt;/p&gt;</summary>
@@ -291,10 +291,10 @@
   
   <entry>
     <title>你的内存还好吗</title>
-    <link href="https://www.linkinstar.wiki/2020/06/14/linux/memory/"/>
-    <id>https://www.linkinstar.wiki/2020/06/14/linux/memory/</id>
+    <link href="https://www.linkinstar.wiki/post/14f810f7.html"/>
+    <id>https://www.linkinstar.wiki/post/14f810f7.html</id>
     <published>2020-06-13T16:00:00.000Z</published>
-    <updated>2021-05-15T02:40:59.000Z</updated>
+    <updated>2021-05-19T15:51:06.140Z</updated>
     
     
     <summary type="html">&lt;p&gt;内存问题往往是线上环境最容易导致的问题，因为其实对于程序来说，内存总是不够用的。而大多数我们在线上遇到的问题总是一个叫 OOM 的，导致这个问题的原因也有很多，今天我们就来看看，如何在线上定位或者排查这样的问题。&lt;/p&gt;</summary>
@@ -310,10 +310,10 @@
   
   <entry>
     <title>Golang 监控全局变量</title>
-    <link href="https://www.linkinstar.wiki/2020/06/13/golang/basic/vars/"/>
-    <id>https://www.linkinstar.wiki/2020/06/13/golang/basic/vars/</id>
+    <link href="https://www.linkinstar.wiki/post/2dc2d3f5.html"/>
+    <id>https://www.linkinstar.wiki/post/2dc2d3f5.html</id>
     <published>2020-06-12T16:00:00.000Z</published>
-    <updated>2020-06-14T14:20:56.000Z</updated>
+    <updated>2021-05-19T15:51:06.156Z</updated>
     
     
     <summary type="html">&lt;p&gt;你是否曾经遇到过这样的情况，在开发环境排查问题，因为一些数据保存在了一些全局变量中，这些变量往往是一个 map 或者是一个数组，想看看在运行过程中，这里面究竟存放了什么数据，有时不得不在运行的时候将它输出到日志中，那么如果我想实时看到这些数据的情况又怎么办呢？&lt;/p&gt;
@@ -330,10 +330,10 @@
   
   <entry>
     <title>你的 CPU 还好吗</title>
-    <link href="https://www.linkinstar.wiki/2020/06/06/linux/cpu/"/>
-    <id>https://www.linkinstar.wiki/2020/06/06/linux/cpu/</id>
+    <link href="https://www.linkinstar.wiki/post/49d36794.html"/>
+    <id>https://www.linkinstar.wiki/post/49d36794.html</id>
     <published>2020-06-05T16:00:00.000Z</published>
-    <updated>2020-06-14T14:28:48.000Z</updated>
+    <updated>2021-05-19T15:51:06.138Z</updated>
     
     
     <summary type="html">&lt;p&gt;最近经常在线上排查一些问题，在大多数情况下，都是代码写的业务逻辑有问题；还有一些情况是内存上导致的问题，如 OOM 或者由于数据量大导致的一些问题；但是很少会关注，但常常又会瞟一眼的，这个关注点就是 CPU。&lt;/p&gt;
@@ -351,10 +351,10 @@
   
   <entry>
     <title>python 基础语法笔记</title>
-    <link href="https://www.linkinstar.wiki/2020/05/09/python/basic/basic-grammar/"/>
-    <id>https://www.linkinstar.wiki/2020/05/09/python/basic/basic-grammar/</id>
+    <link href="https://www.linkinstar.wiki/post/fb63c20b.html"/>
+    <id>https://www.linkinstar.wiki/post/fb63c20b.html</id>
     <published>2020-05-08T16:00:00.000Z</published>
-    <updated>2020-05-25T15:52:32.000Z</updated>
+    <updated>2021-05-19T15:51:06.165Z</updated>
     
     
     <summary type="html">&lt;p&gt;记录python的一些基础语法，用于查阅&lt;/p&gt;</summary>
@@ -370,10 +370,10 @@
   
   <entry>
     <title>Golang用300行代码实现内网穿透</title>
-    <link href="https://www.linkinstar.wiki/2020/04/25/network/nat/"/>
-    <id>https://www.linkinstar.wiki/2020/04/25/network/nat/</id>
+    <link href="https://www.linkinstar.wiki/post/34237eb6.html"/>
+    <id>https://www.linkinstar.wiki/post/34237eb6.html</id>
     <published>2020-04-24T16:00:00.000Z</published>
-    <updated>2020-05-25T15:05:00.000Z</updated>
+    <updated>2021-05-19T15:51:06.141Z</updated>
     
     
     <summary type="html">&lt;blockquote&gt;
@@ -393,10 +393,10 @@
   
   <entry>
     <title>将版本信息打包到go的二进制中</title>
-    <link href="https://www.linkinstar.wiki/2020/04/18/golang/basic/gobuild-x/"/>
-    <id>https://www.linkinstar.wiki/2020/04/18/golang/basic/gobuild-x/</id>
+    <link href="https://www.linkinstar.wiki/post/f83d929.html"/>
+    <id>https://www.linkinstar.wiki/post/f83d929.html</id>
     <published>2020-04-17T16:00:00.000Z</published>
-    <updated>2020-05-25T15:01:20.000Z</updated>
+    <updated>2021-05-19T15:51:06.154Z</updated>
     
     
     <summary type="html">&lt;p&gt;很多时候对于go打包后的二进制文件，我们是无法知道这个二进制是什么当前什么版本、什么时候打包的，而很多软件的命令行都会有一个 -version 的选项来打印出当前程序的版本号，当然你可以直接在程序里面写死这个版本号，但是还有更加优雅的解决方式。&lt;/p&gt;</summary>
