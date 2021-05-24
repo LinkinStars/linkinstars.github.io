@@ -261,6 +261,67 @@
       </tags>
   </entry>
   <entry>
+    <title>你的 IO 还好吗</title>
+    <url>/post/f0943d44.html</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><p>在 CPU 看来内存好慢啊，看我跑的多快；在内存看来磁盘你好慢啊，看我比你还快点；磁盘…</p>
+<p>IO 问题并非特别常见，但是因为最终要落到磁盘上，当它成为瓶颈时，往往会拖慢你的脚本，今天我们来分析下在 linux 中的 IO 问题</p>
+<span id="more"></span>
+<h2 id="指标"><a href="#指标" class="headerlink" title="指标"></a>指标</h2><p>看 IO 并不只是看 IO，记住这句话，因为很多时候，IO 问题总会伴随着别的问题一起出现，而会导致误判的，从而遗漏了问题的关键。</p>
+<p>IO 问题的指标来源于两块：</p>
+<ol>
+<li>文件系统</li>
+<li>磁盘</li>
+</ol>
+<h3 id="iowait"><a href="#iowait" class="headerlink" title="iowait"></a>iowait</h3><h4 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h4><p><code>top</code> </p>
+<p><code>iostat</code></p>
+<p><strong>%iowait 表示在一个采样周期内有百分之几的时间属于以下情况：CPU空闲、并且有仍未完成的I/O请求。</strong></p>
+<h4 id="指标-1"><a href="#指标-1" class="headerlink" title="指标"></a>指标</h4><p>iowait 升高或者居高不下，可以考虑存在 IO 瓶颈或压力</p>
+<h3 id="rs-ws"><a href="#rs-ws" class="headerlink" title="rs / ws"></a>rs / ws</h3><h4 id="命令-1"><a href="#命令-1" class="headerlink" title="命令"></a>命令</h4><p><code>iostat -x -d 1</code></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util</span><br><span class="line">vda               0.00    13.00    0.00    4.00     0.00    68.00    34.00     0.00    1.00    0.00    1.00   0.25   0.10</span><br><span class="line">dm-0              0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00</span><br></pre></td></tr></table></figure>
+<h4 id="指标-2"><a href="#指标-2" class="headerlink" title="指标"></a>指标</h4><ul>
+<li>r/s: 每秒完成的读 I/O 设备次数。即 rio/s</li>
+<li>w/s: 每秒完成的写 I/O 设备次数。即 wio/s</li>
+<li>rkB/s: 每秒读K字节数。是 rsect/s 的一半，因为每扇区大小为512字节。</li>
+<li>wkB/s: 每秒写K字节数。是 wsect/s 的一半。</li>
+</ul>
+<p>从这里可以确定是读或者写存在压力</p>
+<h3 id="util"><a href="#util" class="headerlink" title="%util"></a>%util</h3><h4 id="指标-3"><a href="#指标-3" class="headerlink" title="指标"></a>指标</h4><p>一秒中有百分之多少的时间用于 I/O 操作，即被io消耗的cpu百分比</p>
+<p>如果 %util 接近 100%，说明产生的I/O请求太多，I/O系统已经满负荷，该磁盘可能存在瓶颈</p>
+<h3 id="wait"><a href="#wait" class="headerlink" title="wait"></a>wait</h3><h4 id="指标-4"><a href="#指标-4" class="headerlink" title="指标"></a>指标</h4><ul>
+<li>await: 平均每次设备I/O操作的等待时间 (毫秒)。</li>
+<li>svctm: 平均每次设备I/O操作的服务时间 (毫秒)。</li>
+</ul>
+<p>如果 svctm 比较接近 await，说明 I/O 几乎没有等待时间；如果 await 远大于 svctm，说明I/O 队列太长，io响应太慢，则需要进行必要优化</p>
+<h2 id="排查步骤"><a href="#排查步骤" class="headerlink" title="排查步骤"></a>排查步骤</h2><p>对于 IO 问题，其实个人遇到的比较少，因为其实现在大多都是 web 类型的服务应用和一些数据处理服务，基本上都是累垮 cpu 和内存的，但是并不代表 IO 问题就没有，当出现问题的时候就很容易被忽视。（这里暂时不讨论网络的 IO 问题，关注于磁盘）</p>
+<ol>
+<li>确定当前应用存在 IO 操作：有很多时候你自己都不知道你的应用存在 IO 操作，如：日志操作，临时文件…</li>
+<li>确定 iowait ：这个指标很关键，虽然它高不一定 100% 有问题，但是能证明存在了大量的 IO 操作</li>
+<li>使用 iostat 看：如果确定了前两项，那么就可以考虑 IO 可能存在瓶颈，就可以看一下读写大不大是否正常</li>
+<li>使用 pidstat -d 看：确定是否是自己进程导致，还是别的应用或者是中间件导致</li>
+<li>最后看到底是谁在操作并且操作了什么文件：strace + lsof 基本就能分析出最终的一个文件操作了</li>
+</ol>
+<h2 id="问题原因"><a href="#问题原因" class="headerlink" title="问题原因"></a>问题原因</h2><h3 id="日志打印"><a href="#日志打印" class="headerlink" title="日志打印"></a>日志打印</h3><p>这个是最常见的一个问题，大多数情况下，日志的打印基本都是异步的一个操作，并且日志大多数情况下也比较小。但代码是人写的，所以就会出现问题。</p>
+<p>最常见的是，将返回值直接输出到日志，有的时候，一些命令的调用或者是一些请求的返回，当出现异常时错误输出可能会很大，而直接输出到日志那么势必会增加 IO 负担。而当出现错误程序员必然会将错误打印日志。而出现错误必然会导致用户重试。</p>
+<p>用户重试 -&gt; 命令出错 -&gt; 打印错误日志 -&gt; 用户重试</p>
+<p>一方面我见过直接日志把磁盘吃满的情况，一方面还有因为日志开启了 debug 导致其他 IO 等待的问题</p>
+<h3 id="临时文件"><a href="#临时文件" class="headerlink" title="临时文件"></a>临时文件</h3><p>我们在执行命令或者是利用磁盘做缓存，或者是文件上传，都会产生一些临时文件，而这些临时文件的操作也有可能导致 IO 问题</p>
+<h3 id="中间件"><a href="#中间件" class="headerlink" title="中间件"></a>中间件</h3><p>mysql 、mongo、redis等等一下常见的组件都会对磁盘进行操作，尤其是数据库这种，存储数据量很大的情况。<strong>注意 IO 问题并不一定是写，有可能是读！</strong> 因为你数据存磁盘上，你要进行读取，磁盘的磁头也就扫那么快，要不你就 SSD，否则当读取量很大的时候，那也有可能导致瓶颈</p>
+<h3 id="direct"><a href="#direct" class="headerlink" title="direct"></a>direct</h3><p>有的时候也和我们操作 IO 的方式有关，如果我们之间跳过系统缓存直接操作磁盘。还有随机写，同步异步也会直接影响 IO 的速度</p>
+<h3 id="硬件"><a href="#硬件" class="headerlink" title="硬件"></a>硬件</h3><p>虽然这个很不常见，对于我们来说还是很少看到，但不得不提一下，凡是有万一嘛。</p>
+<p>最直接的就是磁盘换 ssd，使用 RAID….</p>
+<p>如果硬件出现问题，那么可以尝试看看 dmsg 看看是否有出现一些奇怪的报错信息。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>就想一开始说的，I/O 往往是一个系统中跑的最慢的，如果它出现瓶颈，那么势必带来的问题就很明显。</p>
+<p>同样的，也就是因为是最后一个位置，在这之前都可以通过CPU、内存、缓存等等在这之前搞定它。</p>
+<p>如果你的数据最后落库，那么数据库上的 I/O 问题也是需要被考虑在内的。</p>
+]]></content>
+      <categories>
+        <category>linux</category>
+      </categories>
+      <tags>
+        <tag>io</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>你的 CPU 还好吗</title>
     <url>/post/49d36794.html</url>
     <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><p>最近经常在线上排查一些问题，在大多数情况下，都是代码写的业务逻辑有问题；还有一些情况是内存上导致的问题，如 OOM 或者由于数据量大导致的一些问题；但是很少会关注，但常常又会瞟一眼的，这个关注点就是 CPU。</p>
@@ -324,67 +385,6 @@
       </categories>
       <tags>
         <tag>cpu</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>你的 IO 还好吗</title>
-    <url>/post/f0943d44.html</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><p>在 CPU 看来内存好慢啊，看我跑的多快；在内存看来磁盘你好慢啊，看我比你还快点；磁盘…</p>
-<p>IO 问题并非特别常见，但是因为最终要落到磁盘上，当它成为瓶颈时，往往会拖慢你的脚本，今天我们来分析下在 linux 中的 IO 问题</p>
-<span id="more"></span>
-<h2 id="指标"><a href="#指标" class="headerlink" title="指标"></a>指标</h2><p>看 IO 并不只是看 IO，记住这句话，因为很多时候，IO 问题总会伴随着别的问题一起出现，而会导致误判的，从而遗漏了问题的关键。</p>
-<p>IO 问题的指标来源于两块：</p>
-<ol>
-<li>文件系统</li>
-<li>磁盘</li>
-</ol>
-<h3 id="iowait"><a href="#iowait" class="headerlink" title="iowait"></a>iowait</h3><h4 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h4><p><code>top</code> </p>
-<p><code>iostat</code></p>
-<p><strong>%iowait 表示在一个采样周期内有百分之几的时间属于以下情况：CPU空闲、并且有仍未完成的I/O请求。</strong></p>
-<h4 id="指标-1"><a href="#指标-1" class="headerlink" title="指标"></a>指标</h4><p>iowait 升高或者居高不下，可以考虑存在 IO 瓶颈或压力</p>
-<h3 id="rs-ws"><a href="#rs-ws" class="headerlink" title="rs / ws"></a>rs / ws</h3><h4 id="命令-1"><a href="#命令-1" class="headerlink" title="命令"></a>命令</h4><p><code>iostat -x -d 1</code></p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util</span><br><span class="line">vda               0.00    13.00    0.00    4.00     0.00    68.00    34.00     0.00    1.00    0.00    1.00   0.25   0.10</span><br><span class="line">dm-0              0.00     0.00    0.00    0.00     0.00     0.00     0.00     0.00    0.00    0.00    0.00   0.00   0.00</span><br></pre></td></tr></table></figure>
-<h4 id="指标-2"><a href="#指标-2" class="headerlink" title="指标"></a>指标</h4><ul>
-<li>r/s: 每秒完成的读 I/O 设备次数。即 rio/s</li>
-<li>w/s: 每秒完成的写 I/O 设备次数。即 wio/s</li>
-<li>rkB/s: 每秒读K字节数。是 rsect/s 的一半，因为每扇区大小为512字节。</li>
-<li>wkB/s: 每秒写K字节数。是 wsect/s 的一半。</li>
-</ul>
-<p>从这里可以确定是读或者写存在压力</p>
-<h3 id="util"><a href="#util" class="headerlink" title="%util"></a>%util</h3><h4 id="指标-3"><a href="#指标-3" class="headerlink" title="指标"></a>指标</h4><p>一秒中有百分之多少的时间用于 I/O 操作，即被io消耗的cpu百分比</p>
-<p>如果 %util 接近 100%，说明产生的I/O请求太多，I/O系统已经满负荷，该磁盘可能存在瓶颈</p>
-<h3 id="wait"><a href="#wait" class="headerlink" title="wait"></a>wait</h3><h4 id="指标-4"><a href="#指标-4" class="headerlink" title="指标"></a>指标</h4><ul>
-<li>await: 平均每次设备I/O操作的等待时间 (毫秒)。</li>
-<li>svctm: 平均每次设备I/O操作的服务时间 (毫秒)。</li>
-</ul>
-<p>如果 svctm 比较接近 await，说明 I/O 几乎没有等待时间；如果 await 远大于 svctm，说明I/O 队列太长，io响应太慢，则需要进行必要优化</p>
-<h2 id="排查步骤"><a href="#排查步骤" class="headerlink" title="排查步骤"></a>排查步骤</h2><p>对于 IO 问题，其实个人遇到的比较少，因为其实现在大多都是 web 类型的服务应用和一些数据处理服务，基本上都是累垮 cpu 和内存的，但是并不代表 IO 问题就没有，当出现问题的时候就很容易被忽视。（这里暂时不讨论网络的 IO 问题，关注于磁盘）</p>
-<ol>
-<li>确定当前应用存在 IO 操作：有很多时候你自己都不知道你的应用存在 IO 操作，如：日志操作，临时文件…</li>
-<li>确定 iowait ：这个指标很关键，虽然它高不一定 100% 有问题，但是能证明存在了大量的 IO 操作</li>
-<li>使用 iostat 看：如果确定了前两项，那么就可以考虑 IO 可能存在瓶颈，就可以看一下读写大不大是否正常</li>
-<li>使用 pidstat -d 看：确定是否是自己进程导致，还是别的应用或者是中间件导致</li>
-<li>最后看到底是谁在操作并且操作了什么文件：strace + lsof 基本就能分析出最终的一个文件操作了</li>
-</ol>
-<h2 id="问题原因"><a href="#问题原因" class="headerlink" title="问题原因"></a>问题原因</h2><h3 id="日志打印"><a href="#日志打印" class="headerlink" title="日志打印"></a>日志打印</h3><p>这个是最常见的一个问题，大多数情况下，日志的打印基本都是异步的一个操作，并且日志大多数情况下也比较小。但代码是人写的，所以就会出现问题。</p>
-<p>最常见的是，将返回值直接输出到日志，有的时候，一些命令的调用或者是一些请求的返回，当出现异常时错误输出可能会很大，而直接输出到日志那么势必会增加 IO 负担。而当出现错误程序员必然会将错误打印日志。而出现错误必然会导致用户重试。</p>
-<p>用户重试 -&gt; 命令出错 -&gt; 打印错误日志 -&gt; 用户重试</p>
-<p>一方面我见过直接日志把磁盘吃满的情况，一方面还有因为日志开启了 debug 导致其他 IO 等待的问题</p>
-<h3 id="临时文件"><a href="#临时文件" class="headerlink" title="临时文件"></a>临时文件</h3><p>我们在执行命令或者是利用磁盘做缓存，或者是文件上传，都会产生一些临时文件，而这些临时文件的操作也有可能导致 IO 问题</p>
-<h3 id="中间件"><a href="#中间件" class="headerlink" title="中间件"></a>中间件</h3><p>mysql 、mongo、redis等等一下常见的组件都会对磁盘进行操作，尤其是数据库这种，存储数据量很大的情况。<strong>注意 IO 问题并不一定是写，有可能是读！</strong> 因为你数据存磁盘上，你要进行读取，磁盘的磁头也就扫那么快，要不你就 SSD，否则当读取量很大的时候，那也有可能导致瓶颈</p>
-<h3 id="direct"><a href="#direct" class="headerlink" title="direct"></a>direct</h3><p>有的时候也和我们操作 IO 的方式有关，如果我们之间跳过系统缓存直接操作磁盘。还有随机写，同步异步也会直接影响 IO 的速度</p>
-<h3 id="硬件"><a href="#硬件" class="headerlink" title="硬件"></a>硬件</h3><p>虽然这个很不常见，对于我们来说还是很少看到，但不得不提一下，凡是有万一嘛。</p>
-<p>最直接的就是磁盘换 ssd，使用 RAID….</p>
-<p>如果硬件出现问题，那么可以尝试看看 dmsg 看看是否有出现一些奇怪的报错信息。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>就想一开始说的，I/O 往往是一个系统中跑的最慢的，如果它出现瓶颈，那么势必带来的问题就很明显。</p>
-<p>同样的，也就是因为是最后一个位置，在这之前都可以通过CPU、内存、缓存等等在这之前搞定它。</p>
-<p>如果你的数据最后落库，那么数据库上的 I/O 问题也是需要被考虑在内的。</p>
-]]></content>
-      <categories>
-        <category>linux</category>
-      </categories>
-      <tags>
-        <tag>io</tag>
       </tags>
   </entry>
   <entry>
@@ -666,82 +666,6 @@
       </tags>
   </entry>
   <entry>
-    <title>回首网络知识之 TCP 协议</title>
-    <url>/post/5c140909.html</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><blockquote>
-<p>之前我们说了 UDP 协议，也说到了 UDP 协议和 TCP 协议的对比，知道了 TCP 协议有那么一些复杂，所以这次就来仔细说说这个复杂的 TCP</p>
-</blockquote>
-<span id="more"></span>
-<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>提到 TCP 你第一想到的应该就是两个字 “靠谱”~ 因为它的所有设计都是围绕着这个任务展开的。</p>
-<h2 id="报文格式"><a href="#报文格式" class="headerlink" title="报文格式"></a>报文格式</h2><p><img src="http://blog.linkinstars.com//blog/image-20200321191551447.png" alt="TCP 报文格式"></p>
-<p>很多人一看到这个就头疼了，因为格式好复杂啊，和 UDP 对比起来，怎么多了那么多东西呢？</p>
-<p>别急，其实并不是很多，而且只要你想着为什么，你就知道会有什么。</p>
-<ul>
-<li>首先是两个端口，这个和 UDP 一样，肯定需要端口，不然的话不知道是发给谁的</li>
-<li>然后是序号和确认序号，序号是为了解决乱序的问题，如果没有序号，那么我是不知道那个先那个后，同时我还要告诉对方我收到了这个序号的信息，所以需要一个确认序号，确认的方式是告诉你我要的下一个序号是多少</li>
-<li>首部长度也很好理解，告诉你首部有多长，你就知道前面有多长，你才知道数据从哪里开始</li>
-<li>中间那几个标识位需要知道的是：<ul>
-<li>SYN：建立连接时用的，建立连接会标识为 1</li>
-<li>ACK：回复你建立连接，建立连接之后标识为 1</li>
-<li>RST：重新连接</li>
-<li>FIN：结束连接</li>
-</ul>
-</li>
-<li>窗口大小，接收方告诉发送方别发太快了或者太慢了，用于流量控制</li>
-</ul>
-<h2 id="三次握手"><a href="#三次握手" class="headerlink" title="三次握手"></a>三次握手</h2><h3 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h3><p>这个问题已经在面试的时候被问烂了，总是有面试官喜欢问网络，而作为第一个开头炮，三次握手总是被提及。</p>
-<p><img src="http://blog.linkinstars.com//blog/image-20200321201952258.png" alt="三次握手"></p>
-<p>中间的标识位，可能就有人从来就没弄懂，可能即使懂了，也是靠死记硬背的，不复习肯定忘记。</p>
-<p>其实没有那么玄乎啦。分两个部分来看：</p>
-<ol>
-<li>大写的 SYN 和 ACK 其实上面都已经说了，就是建立连接的时候，第一个给你的报文里面 SYN 标识位为 1 告诉你开始建立连接了，否则你怎么知道这次是建立连接呢？而 ACK 就是告诉你我收到了，可以建立连接了</li>
-<li>而小写的 seq 和 ack 就更简单了，他们表示的就是上面说的序号，确认号 ack 为收到的 seq 序号 + 1</li>
-</ol>
-<p>需要注意的是，序号每次都是不一样的，它是一个 32 位的每 4ms 递增的一个值，为什么这样设计呢？是因为如果每次序号都从 1 开始，那么势必在多次发送或者重连之后导致序号重复，误以为收到的新的数据，其实是旧数据，只不过序号相同。</p>
-<h3 id="为什么要三次"><a href="#为什么要三次" class="headerlink" title="为什么要三次"></a>为什么要三次</h3><p>等你描述的不清不楚的时候，面试官下一个问题就来了，为什么要做三次握手呢？</p>
-<p>其实这个问题也不复杂，你时刻要记住网络其实很不稳定的，不是两根网线连接两边就好了，中间可能隔了一个太平洋。所以丢包太常见了。</p>
-<p>而作为可靠的 TCP，<strong>三次握手能保证每个人都能有至少一次正反馈</strong>，对于发送方来说肯定有一问一答，对于接收方来说也有一问一答，否则都属于发了没反馈。</p>
-<p>还有一个重要原因就是重试，如果由于网络原因，第一次建立连接迟迟收不到反馈，就会发第二个，而对于接收方来说，很有可能就会收到多个一模一样的建立连接的请求，如果只是一次或者两次，那么 <strong>就会建立很多无用的连接</strong> 占用资源。</p>
-<h2 id="四次挥手"><a href="#四次挥手" class="headerlink" title="四次挥手"></a>四次挥手</h2><h3 id="过程-1"><a href="#过程-1" class="headerlink" title="过程"></a>过程</h3><p><img src="http://blog.linkinstars.com//blog/image-20200321204640147.png" alt="四次挥手"></p>
-<p>其实当你把三次握手想清楚了，四次挥手也就不足为奇。对于四次挥手来说，其实就是从 SYN 表示位改到了 FIN 标识位，对于数据的序号还是一样的规则。只不过确实有几个要点需要注意。</p>
-<ul>
-<li>B 收到 FIN=1 的时候，此时 TCP 属于并关闭状态了，但是很有可能 B 还有数据需要发送，但是 A 收不收就是 A 自己决定了。</li>
-<li>A 收到 FIN=1 回复了之后，还有一个 2MSL（最大报文存活时间）的 TIME-WAIT 状态</li>
-</ul>
-<h3 id="为什么要四次"><a href="#为什么要四次" class="headerlink" title="为什么要四次"></a>为什么要四次</h3><p>其实和建立连接时的原因一样：<strong>每个人都收到了一问一答</strong>，而建立连接时还没有正在发送的数据，所以中间那次可以复用，所以就三次了，而断开连接显然是一方主动发起的，而另一方是毫无准备的，就如同你关闭显示器，服务器是毫无准备的。</p>
-<p>还有原因就是如果 A 告诉 B 之后直接走了，不管了，那么 B 就懵逼了，这个时候可能 B 还在发数据，B 就算发起结束，也没人回应了，B 就只能傻等着；如果 A 告诉 B，B 不管了，那么也有问题了，A 不知道 B 收到没有，B 如果没收到 A 还要继续发…</p>
-<h3 id="为什么需要-TIME-WAIT"><a href="#为什么需要-TIME-WAIT" class="headerlink" title="为什么需要 TIME-WAIT"></a>为什么需要 TIME-WAIT</h3><p>这也是一个很奇怪的问题，明明都已经断开连接了，一直保持这个状态等着干啥？</p>
-<ul>
-<li>原因 1：如果这个时候不等了，直接断开连接，那最后一个挥手可能就到不了了</li>
-<li>原因 2：如果等的时间短，直接关闭，因为关闭了，那么就可以和别人建立新的连接，那么很有可能还在网络上的老数据会跑到新的连接里面捣乱了</li>
-</ul>
-<h2 id="为了可靠你究竟做了什么"><a href="#为了可靠你究竟做了什么" class="headerlink" title="为了可靠你究竟做了什么"></a>为了可靠你究竟做了什么</h2><p>TCP 为了做一个可靠的人，付出了很多你看不见的努力</p>
-<h3 id="重传"><a href="#重传" class="headerlink" title="重传"></a>重传</h3><ol>
-<li><p>如果一个发送的报文在超时时间内没有收到确认，那么就会重新发送，<strong>超时时间并不是固定的</strong>，因为网络的环境不同，所以利用了一个 <strong>自适应重传算法</strong>，会根据当前的往返时间进行加权平均进行计算。</p>
-</li>
-<li><p>当然这样还是不够的，因为触发的周期还是太长，于是还有一个机制叫 <strong>快速重传</strong>，当接收方收到序号 5，但是现在还是要序号 3 的时候，那么会发送几个冗余的请求来要中间丢的报文。</p>
-</li>
-</ol>
-<h3 id="滑动窗口"><a href="#滑动窗口" class="headerlink" title="滑动窗口"></a>滑动窗口</h3><p>窗口在很多网络协议中都有被设计来控制流量，我们知道如果发的太猛不管客户端死活，或者发的太慢，让客户端饿死都是不好的。所以窗口的存在，就是维持一个返回，让你知道后面该不该往下发了，只有一家发送并得到一个确认，窗口才会移动或改变大小。</p>
-<p>最重要的是，当窗口被设置为 0 时，则发送端就不能再发送数据了。</p>
-<h3 id="拥塞控制"><a href="#拥塞控制" class="headerlink" title="拥塞控制"></a>拥塞控制</h3><p>流量控制是为了控制客户端和服务端的处理和发送速度，不至于压垮对方。而拥塞控制则是避免去压垮网络。说白了，可能你客户端处理能力很强，一收到处理，你怎么发都可以，但是网络带宽不允许你这么干。</p>
-<p><img src="http://blog.linkinstars.com//blog/image-20200322213339816.png" alt="拥塞控制"></p>
-<p>这个图是不是很熟悉？没错，只要你大学里面学过计算机网络，这个图太经典了，可能当时你都不理解它为什么要这么设计，一开始慢慢发，然后越来越快，然后进行拥塞控制，然后到超时，再慢开始。</p>
-<p>慢开始、拥塞避免、快重传、快恢复就是拥塞控制所做的事情了。</p>
-<p>注意的是，图中的第 4 个点就是上面说的快速重传 3 个冗余 ACK 来找到丢的报文，并且是从 5 开始的，并不是再慢开始。</p>
-<blockquote>
-<p>有个比喻很形象这里的控制，就像往一个管子里面倒水，你不知道管子中间多粗，总是先倒的很快；等水满出来了，哦，知道了，倒太快了，就慢一点，等水下去一点然后再开始倒。</p>
-</blockquote>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>其实回头看看，是不是 TCP 并没有想象中的那么复杂。所以它的负责，它的所作所为都是为了成为一个可靠的人，面对现在复杂的社会网络环境，它不得不做一个可靠的人，如果没有它可靠的负责，可能我们聊天聊到一半消息不见了，也不是不可能的。</p>
-]]></content>
-      <categories>
-        <category>network</category>
-      </categories>
-      <tags>
-        <tag>TCP</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>回首网络知识之 UDP 协议</title>
     <url>/post/d7b70ffe.html</url>
     <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><blockquote>
@@ -822,6 +746,82 @@
       </categories>
       <tags>
         <tag>UDP</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>回首网络知识之 TCP 协议</title>
+    <url>/post/5c140909.html</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><blockquote>
+<p>之前我们说了 UDP 协议，也说到了 UDP 协议和 TCP 协议的对比，知道了 TCP 协议有那么一些复杂，所以这次就来仔细说说这个复杂的 TCP</p>
+</blockquote>
+<span id="more"></span>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>提到 TCP 你第一想到的应该就是两个字 “靠谱”~ 因为它的所有设计都是围绕着这个任务展开的。</p>
+<h2 id="报文格式"><a href="#报文格式" class="headerlink" title="报文格式"></a>报文格式</h2><p><img src="http://blog.linkinstars.com//blog/image-20200321191551447.png" alt="TCP 报文格式"></p>
+<p>很多人一看到这个就头疼了，因为格式好复杂啊，和 UDP 对比起来，怎么多了那么多东西呢？</p>
+<p>别急，其实并不是很多，而且只要你想着为什么，你就知道会有什么。</p>
+<ul>
+<li>首先是两个端口，这个和 UDP 一样，肯定需要端口，不然的话不知道是发给谁的</li>
+<li>然后是序号和确认序号，序号是为了解决乱序的问题，如果没有序号，那么我是不知道那个先那个后，同时我还要告诉对方我收到了这个序号的信息，所以需要一个确认序号，确认的方式是告诉你我要的下一个序号是多少</li>
+<li>首部长度也很好理解，告诉你首部有多长，你就知道前面有多长，你才知道数据从哪里开始</li>
+<li>中间那几个标识位需要知道的是：<ul>
+<li>SYN：建立连接时用的，建立连接会标识为 1</li>
+<li>ACK：回复你建立连接，建立连接之后标识为 1</li>
+<li>RST：重新连接</li>
+<li>FIN：结束连接</li>
+</ul>
+</li>
+<li>窗口大小，接收方告诉发送方别发太快了或者太慢了，用于流量控制</li>
+</ul>
+<h2 id="三次握手"><a href="#三次握手" class="headerlink" title="三次握手"></a>三次握手</h2><h3 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h3><p>这个问题已经在面试的时候被问烂了，总是有面试官喜欢问网络，而作为第一个开头炮，三次握手总是被提及。</p>
+<p><img src="http://blog.linkinstars.com//blog/image-20200321201952258.png" alt="三次握手"></p>
+<p>中间的标识位，可能就有人从来就没弄懂，可能即使懂了，也是靠死记硬背的，不复习肯定忘记。</p>
+<p>其实没有那么玄乎啦。分两个部分来看：</p>
+<ol>
+<li>大写的 SYN 和 ACK 其实上面都已经说了，就是建立连接的时候，第一个给你的报文里面 SYN 标识位为 1 告诉你开始建立连接了，否则你怎么知道这次是建立连接呢？而 ACK 就是告诉你我收到了，可以建立连接了</li>
+<li>而小写的 seq 和 ack 就更简单了，他们表示的就是上面说的序号，确认号 ack 为收到的 seq 序号 + 1</li>
+</ol>
+<p>需要注意的是，序号每次都是不一样的，它是一个 32 位的每 4ms 递增的一个值，为什么这样设计呢？是因为如果每次序号都从 1 开始，那么势必在多次发送或者重连之后导致序号重复，误以为收到的新的数据，其实是旧数据，只不过序号相同。</p>
+<h3 id="为什么要三次"><a href="#为什么要三次" class="headerlink" title="为什么要三次"></a>为什么要三次</h3><p>等你描述的不清不楚的时候，面试官下一个问题就来了，为什么要做三次握手呢？</p>
+<p>其实这个问题也不复杂，你时刻要记住网络其实很不稳定的，不是两根网线连接两边就好了，中间可能隔了一个太平洋。所以丢包太常见了。</p>
+<p>而作为可靠的 TCP，<strong>三次握手能保证每个人都能有至少一次正反馈</strong>，对于发送方来说肯定有一问一答，对于接收方来说也有一问一答，否则都属于发了没反馈。</p>
+<p>还有一个重要原因就是重试，如果由于网络原因，第一次建立连接迟迟收不到反馈，就会发第二个，而对于接收方来说，很有可能就会收到多个一模一样的建立连接的请求，如果只是一次或者两次，那么 <strong>就会建立很多无用的连接</strong> 占用资源。</p>
+<h2 id="四次挥手"><a href="#四次挥手" class="headerlink" title="四次挥手"></a>四次挥手</h2><h3 id="过程-1"><a href="#过程-1" class="headerlink" title="过程"></a>过程</h3><p><img src="http://blog.linkinstars.com//blog/image-20200321204640147.png" alt="四次挥手"></p>
+<p>其实当你把三次握手想清楚了，四次挥手也就不足为奇。对于四次挥手来说，其实就是从 SYN 表示位改到了 FIN 标识位，对于数据的序号还是一样的规则。只不过确实有几个要点需要注意。</p>
+<ul>
+<li>B 收到 FIN=1 的时候，此时 TCP 属于并关闭状态了，但是很有可能 B 还有数据需要发送，但是 A 收不收就是 A 自己决定了。</li>
+<li>A 收到 FIN=1 回复了之后，还有一个 2MSL（最大报文存活时间）的 TIME-WAIT 状态</li>
+</ul>
+<h3 id="为什么要四次"><a href="#为什么要四次" class="headerlink" title="为什么要四次"></a>为什么要四次</h3><p>其实和建立连接时的原因一样：<strong>每个人都收到了一问一答</strong>，而建立连接时还没有正在发送的数据，所以中间那次可以复用，所以就三次了，而断开连接显然是一方主动发起的，而另一方是毫无准备的，就如同你关闭显示器，服务器是毫无准备的。</p>
+<p>还有原因就是如果 A 告诉 B 之后直接走了，不管了，那么 B 就懵逼了，这个时候可能 B 还在发数据，B 就算发起结束，也没人回应了，B 就只能傻等着；如果 A 告诉 B，B 不管了，那么也有问题了，A 不知道 B 收到没有，B 如果没收到 A 还要继续发…</p>
+<h3 id="为什么需要-TIME-WAIT"><a href="#为什么需要-TIME-WAIT" class="headerlink" title="为什么需要 TIME-WAIT"></a>为什么需要 TIME-WAIT</h3><p>这也是一个很奇怪的问题，明明都已经断开连接了，一直保持这个状态等着干啥？</p>
+<ul>
+<li>原因 1：如果这个时候不等了，直接断开连接，那最后一个挥手可能就到不了了</li>
+<li>原因 2：如果等的时间短，直接关闭，因为关闭了，那么就可以和别人建立新的连接，那么很有可能还在网络上的老数据会跑到新的连接里面捣乱了</li>
+</ul>
+<h2 id="为了可靠你究竟做了什么"><a href="#为了可靠你究竟做了什么" class="headerlink" title="为了可靠你究竟做了什么"></a>为了可靠你究竟做了什么</h2><p>TCP 为了做一个可靠的人，付出了很多你看不见的努力</p>
+<h3 id="重传"><a href="#重传" class="headerlink" title="重传"></a>重传</h3><ol>
+<li><p>如果一个发送的报文在超时时间内没有收到确认，那么就会重新发送，<strong>超时时间并不是固定的</strong>，因为网络的环境不同，所以利用了一个 <strong>自适应重传算法</strong>，会根据当前的往返时间进行加权平均进行计算。</p>
+</li>
+<li><p>当然这样还是不够的，因为触发的周期还是太长，于是还有一个机制叫 <strong>快速重传</strong>，当接收方收到序号 5，但是现在还是要序号 3 的时候，那么会发送几个冗余的请求来要中间丢的报文。</p>
+</li>
+</ol>
+<h3 id="滑动窗口"><a href="#滑动窗口" class="headerlink" title="滑动窗口"></a>滑动窗口</h3><p>窗口在很多网络协议中都有被设计来控制流量，我们知道如果发的太猛不管客户端死活，或者发的太慢，让客户端饿死都是不好的。所以窗口的存在，就是维持一个返回，让你知道后面该不该往下发了，只有一家发送并得到一个确认，窗口才会移动或改变大小。</p>
+<p>最重要的是，当窗口被设置为 0 时，则发送端就不能再发送数据了。</p>
+<h3 id="拥塞控制"><a href="#拥塞控制" class="headerlink" title="拥塞控制"></a>拥塞控制</h3><p>流量控制是为了控制客户端和服务端的处理和发送速度，不至于压垮对方。而拥塞控制则是避免去压垮网络。说白了，可能你客户端处理能力很强，一收到处理，你怎么发都可以，但是网络带宽不允许你这么干。</p>
+<p><img src="http://blog.linkinstars.com//blog/image-20200322213339816.png" alt="拥塞控制"></p>
+<p>这个图是不是很熟悉？没错，只要你大学里面学过计算机网络，这个图太经典了，可能当时你都不理解它为什么要这么设计，一开始慢慢发，然后越来越快，然后进行拥塞控制，然后到超时，再慢开始。</p>
+<p>慢开始、拥塞避免、快重传、快恢复就是拥塞控制所做的事情了。</p>
+<p>注意的是，图中的第 4 个点就是上面说的快速重传 3 个冗余 ACK 来找到丢的报文，并且是从 5 开始的，并不是再慢开始。</p>
+<blockquote>
+<p>有个比喻很形象这里的控制，就像往一个管子里面倒水，你不知道管子中间多粗，总是先倒的很快；等水满出来了，哦，知道了，倒太快了，就慢一点，等水下去一点然后再开始倒。</p>
+</blockquote>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>其实回头看看，是不是 TCP 并没有想象中的那么复杂。所以它的负责，它的所作所为都是为了成为一个可靠的人，面对现在复杂的社会网络环境，它不得不做一个可靠的人，如果没有它可靠的负责，可能我们聊天聊到一半消息不见了，也不是不可能的。</p>
+]]></content>
+      <categories>
+        <category>network</category>
+      </categories>
+      <tags>
+        <tag>TCP</tag>
       </tags>
   </entry>
   <entry>
@@ -1437,6 +1437,70 @@
       </tags>
   </entry>
   <entry>
+    <title>不是我吹，你可能连defer都不清楚</title>
+    <url>/post/48e6221e.html</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><p>在golang中，对于defer，我之前的理解就是和java中的finally代码块一样，没什么难度，但是吧，当我最近看的一些神奇的问题，我就发现原来并非想的那么简单。</p>
+<span id="more"></span>
+<h2 id="先举个栗子"><a href="#先举个栗子" class="headerlink" title="先举个栗子"></a>先举个栗子</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    fmt.Println(DeferFunc1(<span class="number">1</span>))</span><br><span class="line">    fmt.Println(DeferFunc2(<span class="number">1</span>))</span><br><span class="line">    fmt.Println(DeferFunc3(<span class="number">1</span>))</span><br><span class="line">    DeferFunc4()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc1</span><span class="params">(i <span class="keyword">int</span>)</span> <span class="params">(t <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    t = i</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        t += <span class="number">3</span></span><br><span class="line">    &#125;()</span><br><span class="line">    <span class="keyword">return</span> t</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc2</span><span class="params">(i <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">    t := i</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        t += <span class="number">3</span></span><br><span class="line">    &#125;()</span><br><span class="line">    <span class="keyword">return</span> t</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc3</span><span class="params">(i <span class="keyword">int</span>)</span> <span class="params">(t <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        t += i</span><br><span class="line">    &#125;()</span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc4</span><span class="params">()</span> <span class="params">(t <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">(i <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">        fmt.Println(i)</span><br><span class="line">        fmt.Println(t)</span><br><span class="line">    &#125;(t)</span><br><span class="line">    t = <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>请问这段代码输出的结果是什么？<br><br><br><em>答案见文末</em><br><br><br>如果你看完答对了，那么请直接点击右上角的关闭按钮，如果你答错了，你可以继续往下看了。<br>下面会一步步介绍，到底为什么结果会是这样</p>
+<h2 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h2><h3 id="函数的返回值初始化"><a href="#函数的返回值初始化" class="headerlink" title="函数的返回值初始化"></a>函数的返回值初始化</h3><p>如 ： <code>func DeferFunc1(i int) (t int) &#123;</code><br>其中返回值t int，这个t会在函数起始处被初始化为对应类型的零值并且作用域为整个函数。</p>
+<h3 id="defer的执行顺序"><a href="#defer的执行顺序" class="headerlink" title="defer的执行顺序"></a>defer的执行顺序</h3><p>虽然这边没有提及，但是还是要说一下，因为很多人学习defer的时候都会用到，就是当多个defer出现的时候，<strong>它是一个“栈”的关系，也就是先进后出</strong>。一个函数中，写在前面的defer会比写在后面的defer调用的晚。</p>
+<h3 id="defer与return谁先谁后"><a href="#defer与return谁先谁后" class="headerlink" title="defer与return谁先谁后"></a>defer与return谁先谁后</h3><p>return先，defer后<br>这个可能会让人怀疑，后面会详细解释。</p>
+<h3 id="函数的返回与return"><a href="#函数的返回与return" class="headerlink" title="函数的返回与return"></a>函数的返回与return</h3><p>在没有defer的情况下，其实函数的返回就是与return一致的，但是有了defer就不一样了。<br>函数的返回其实是有两个步骤的，第一个当执行到return语句的时候<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc3</span><span class="params">(i <span class="keyword">int</span>)</span> <span class="params">(t <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        t += i</span><br><span class="line">    &#125;()</span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>这个时候会先将返回值t赋值为2，然后执行defer，完成之后才会真正返回外部调用者。</p>
+<h3 id="defer调用的三步走"><a href="#defer调用的三步走" class="headerlink" title="defer调用的三步走"></a>defer调用的三步走</h3><p>这个就是今天的重头戏了，defer这个语法其实一共有三个步骤。</p>
+<ol>
+<li>将defer方法中的参数进行赋值。</li>
+<li>将defer压入栈中。</li>
+<li>当return或者是panic的时候依次出栈执行。<br>后面会用实际的例子说明具体执行的情况。</li>
+</ol>
+<h2 id="解释"><a href="#解释" class="headerlink" title="解释"></a>解释</h2><p>有了上面的所有知识点，其实你就应该能明白上面输出的结果了。如果还不明白就看看下面的分析解释吧。</p>
+<h3 id="DeferFunc1"><a href="#DeferFunc1" class="headerlink" title="DeferFunc1"></a>DeferFunc1</h3><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc1</span><span class="params">(i <span class="keyword">int</span>)</span> <span class="params">(t <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    t = i</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        t += <span class="number">3</span></span><br><span class="line">    &#125;()</span><br><span class="line">    <span class="keyword">return</span> t</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先上面是第一个方法</p>
+<ol>
+<li>将返回值t赋值为传入的i，此时t为1</li>
+<li>执行return语句将t赋值给t（等于啥也没做）</li>
+<li>执行defer方法，将t + 3 = 4</li>
+<li>函数返回 4<br>因为t的作用域为整个函数所以修改有效。</li>
+</ol>
+<h3 id="DeferFunc2"><a href="#DeferFunc2" class="headerlink" title="DeferFunc2"></a>DeferFunc2</h3><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc2</span><span class="params">(i <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">    t := i</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        t += <span class="number">3</span></span><br><span class="line">    &#125;()</span><br><span class="line">    <span class="keyword">return</span> t</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>第二个方法</p>
+<ol>
+<li>创建变量t并赋值为1</li>
+<li>执行return语句，注意这里是将t赋值给返回值，此时返回值为1（这个返回值并不是t）</li>
+<li>执行defer方法，将t + 3 = 4 </li>
+<li>函数返回返回值1</li>
+</ol>
+<p>可能这里就有点难理解了，修改一下代码你就明白了<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc2</span><span class="params">(i <span class="keyword">int</span>)</span> <span class="params">(result <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    t := i</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        t += <span class="number">3</span></span><br><span class="line">    &#125;()</span><br><span class="line">    <span class="keyword">return</span> t</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>上面的代码return的时候相当于将t赋值给了result，当defer修改了t的值之后，对result是不会造成影响的。</p>
+<h3 id="DeferFunc3"><a href="#DeferFunc3" class="headerlink" title="DeferFunc3"></a>DeferFunc3</h3><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc3</span><span class="params">(i <span class="keyword">int</span>)</span> <span class="params">(t <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        t += i</span><br><span class="line">    &#125;()</span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>首先执行return将返回值t赋值为2</li>
+<li>执行defer方法将t + 1</li>
+<li>最后返回 3</li>
+</ol>
+<h3 id="DeferFunc4"><a href="#DeferFunc4" class="headerlink" title="DeferFunc4"></a>DeferFunc4</h3><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc4</span><span class="params">()</span> <span class="params">(t <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">(i <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">        fmt.Println(i)</span><br><span class="line">        fmt.Println(t)</span><br><span class="line">    &#125;(t)</span><br><span class="line">    t = <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个分析的步骤要详细一些</p>
+<ol>
+<li>初始化返回值t为零值 0</li>
+<li>首先执行defer的第一步，赋值defer中的func入参t为0</li>
+<li>执行defer的第二步，将defer压栈</li>
+<li>将t赋值为1</li>
+<li>执行return语句，将返回值t赋值为2</li>
+<li>执行defer的第三步，出栈并执行<br>因为在入栈时defer执行的func的入参已经赋值了，此时它作为的是一个形式参数，所以打印为0；相对应的因为最后已经将t的值修改为2，所以再打印一个2</li>
+</ol>
+<h2 id="源码一瞥"><a href="#源码一瞥" class="headerlink" title="源码一瞥"></a>源码一瞥</h2><p>那么 defer 在底层究竟是如何实现的呢？<br>通过生成汇编代码我们可以看到下面这样的方法：<br>CALL runtime.deferproc(SB)<br>CALL runtime.deferreturn(SB)<br>实际上来说当我们使用defer的使用就会调用runtime.deferproc，那么这个时候，就会将所有的参数赋值好，所有就像我们上面例子中看到的一样，在调用defer的时候参数会先计算好保存起来，然后挂载到G._defer中，最后deferreturn的时候进行执行相关的defer中的方法<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">deferproc</span><span class="params">(siz <span class="keyword">int32</span>, fn *funcval)</span></span> &#123; <span class="comment">// arguments of fn follow fn</span></span><br><span class="line">     sp := getcallersp(unsafe.Pointer(&amp;siz))</span><br><span class="line">     argp := <span class="keyword">uintptr</span>(unsafe.Pointer(&amp;fn)) + unsafe.Sizeof(fn)</span><br><span class="line">     callerpc := getcallerpc(unsafe.Pointer(&amp;siz))</span><br><span class="line">     systemstack(<span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">            d := newdefer(siz)</span><br><span class="line">&#125;)</span><br><span class="line">d.fn = fn</span><br><span class="line">d.pc = callerpc</span><br><span class="line">d.sp = sp</span><br><span class="line">memmove(add(unsafe.Pointer(d), unsafe.Sizeof(*d)),</span><br><span class="line">       unsafe.Pointer(argp), <span class="keyword">uintptr</span>(siz))</span><br><span class="line">     <span class="comment">// deferproc returns 0 normally.</span></span><br><span class="line">     <span class="comment">// a deferred func that stops a panic makes the deferproc return 1.</span></span><br><span class="line">     <span class="comment">// the code the compiler generates always checks the return value and jumps to the</span></span><br><span class="line">     <span class="comment">// end of the function if deferproc returns != 0.</span></span><br><span class="line">     return0()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>看完，有的人肯定又要出来搞事了，说这个在实际中不会遇到的，实际中谁写这么蠢的代码。但是其实某些时候非常重要，当我们需要在defer中返回一些错误信息的时候，并且需要将这些信息给到调用者的时候，就需要注意变量的作用域以及执行顺序所带来的差异。</p>
+<p>而且正因为这样的执行顺序，在实际中要记住：<br><strong>defer 最大的功能是 panic 后依然有效</strong><br>所以defer可以保证你的一些资源一定会被关闭，从而避免一些异常出现的问题。</p>
+<p>参考例子来源于网络，自己做了修改和结合：<br><a href="https://stackoverflow.com/questions/52718143/is-golang-defer-statement-execute-before-or-after-return-statement">https://stackoverflow.com/questions/52718143/is-golang-defer-statement-execute-before-or-after-return-statement</a></p>
+<h2 id="答案"><a href="#答案" class="headerlink" title="答案"></a>答案</h2><p>4<br>1<br>3<br>0<br>2</p>
+]]></content>
+      <categories>
+        <category>golang基础</category>
+      </categories>
+      <tags>
+        <tag>defer</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Weave Scope 监控 k8s 集群</title>
     <url>/post/2580a453.html</url>
     <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><p>之前一直在寻找一个 k8s 监控的工具，因为一直使用的是本地的 lens 的客户端，虽然使用上已经非常方便了，但是其实对于资源消耗的监控少了一点，有些资源消耗并不是能容易看到，并且服务间依赖是没有办法表现出来的，后来发现了 Weave Scope 满足了我的需求。</p>
@@ -1473,6 +1537,52 @@
       </categories>
       <tags>
         <tag>Weave-Scope</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>图解golang内存分配</title>
+    <url>/post/b0bf4e5c.html</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><p>我们知道所有程序运行都需要使用内存，而内存的管理和分配又是非常重要的，它决定了你的程序能不能在有限的资源内跑的更快。可以设想一下，如果你自己来设计的一个内存分配的规则，会遇到什么问题呢？如果你有了一大块内存你要怎么去合理的分配和使用呢？今天我们通过几张图来看看golang中的内存分配是怎样的。</p>
+<span id="more"></span>
+<p>前置知识：对golang的GPM模型有所了解，对GC有一定的了解，有助于你理解下面的内容。</p>
+<h2 id="想一想"><a href="#想一想" class="headerlink" title="想一想"></a>想一想</h2><p>我们首先来想一下，如果我们自己来分配内存的时候可能会遇到什么问题。</p>
+<h3 id="我想要512G，你能给吗？"><a href="#我想要512G，你能给吗？" class="headerlink" title="我想要512G，你能给吗？"></a>我想要512G，你能给吗？</h3><p>操作系统的内存不是你想要多少就给你多少的。比如我跟操作系统说我要512G内存，你赶紧给我，不给我我就掐死你，如果你是操作系统，是不是立马就想把我给结束了？</p>
+<h3 id="能随便分割吗？"><a href="#能随便分割吗？" class="headerlink" title="能随便分割吗？"></a>能随便分割吗？</h3><p>如果我拿到一块内存，挺大的，你把它想象成一块地，我今天要用这块地的这个部分，肯定是从中间切一块出来用，然后明天要另一个部分，然后再切出来一部分。如果随便切，今天要一块三角形，明天要一块圆形，那么肯定会留有很多小块的地方，那些地方没有办法被合理的使用，就会浪费。等到想再要一块正方形的地的时候发现没地方可以切了。</p>
+<h3 id="不用了我需要放回去吗？"><a href="#不用了我需要放回去吗？" class="headerlink" title="不用了我需要放回去吗？"></a>不用了我需要放回去吗？</h3><p>如果我占用了很大一块内存资源，然后用完了，现在不需要了，那自私的人肯定想着，我就偷偷一直占用不行吗？显然是不可以的，不然的话你的应用程序就每天占用着一台机器大量的资源不释放，别的人都没得用了，肯定想把你干掉。所以用完了要放回去。</p>
+<p>–<br>其实上面的问题就是内存分配常见的一些问题，那<strong>为了高效、合理利用内存</strong>，势必需要一些人的管理和帮助，下面我们就来看看那些在golang中的管理者，看看他们是如何帮助我们去管理和分配内存的。</p>
+<h2 id="内存的管理者"><a href="#内存的管理者" class="headerlink" title="内存的管理者"></a>内存的管理者</h2><p><img src="http://blog.linkinstars.com/mweb/15726689114124.jpg" alt="-w505"><br>这张图里面就是golang中内存的管理者们，下面我来依次介绍一下</p>
+<h3 id="OS"><a href="#OS" class="headerlink" title="OS"></a>OS</h3><p>首先是操作系统，他拥有着全部的机器内存，我们的程序必须向它要。但是他是大领导，很忙的，你不能没事总找他要，很烦，所以每次都会向他一大块内存（1M打底）他会给你一票地址，但是实际其实并不会直接给你分配内存，但是你用到了自然会有。</p>
+<h3 id="heap"><a href="#heap" class="headerlink" title="heap"></a>heap</h3><p>这个是我们程序中最大的内存持有区域，堆，他管理着那些很大的内存块，同时是他向操作系统去申请内存的，全局只有他一个大人物。他还需要将从操作系统拿过来的内存进行一定的划分，划分成一整块一整块的样子方便管理，同时记录内存的使用情况，方便整理和回收。</p>
+<h3 id="central"><a href="#central" class="headerlink" title="central"></a>central</h3><p>这个是二把手，有很多，他们会负责将内存划分成足够小的单元，同时需要向下提供内存的分配工作，这个时候就需要一些合理的分配措施了，这个我们后面再说。</p>
+<h3 id="cache"><a href="#cache" class="headerlink" title="cache"></a>cache</h3><p>这个是最后一个小领导了，管理着最终线程需要使用的内存资源，<strong>而且每个线程都会有一个独立的cache</strong>，一对一绑定，这样使用的时候就会直接从对应的cache中去取来使用，这样的好处是不用和别人发生争抢。如果所有的线程都从一个地方进行取用，那么势必会造成你也要用，我也要用的情况。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>从上面的图我们可以基本明白一个总体的思路是说：需要有人总体去把控所有内存资源的使用，做到统一的调度和管理，这样可以方便后续的回收和利用。同时需要下面有人负责最终使用的分配，从而能达到一个内存的快速分配而不发生争抢。</p>
+<h2 id="内存的分配结构"><a href="#内存的分配结构" class="headerlink" title="内存的分配结构"></a>内存的分配结构</h2><p>我们知道了内存的管理者是谁，那么现在我们再来看看内存到底是怎么划分的，究竟是切成一个个长方形还是切成一个个圆形了呢？<br><img src="http://blog.linkinstars.com/mweb/15726829058612.jpg" alt="-w594"></p>
+<p>这张图就表示了整个golang中内存的分配结构长什么样子。</p>
+<h3 id="arena"><a href="#arena" class="headerlink" title="arena"></a>arena</h3><p>这块区域最大，明显就是用来存放我们最终的对象，里面分成了一个个8K大小的房间，每个房间我们称为page。（这里虽然写了它是512G，但是你心里要有B数，你电脑根本没这么大的内存，其实操作系统只是给了你地址而已）同时几个page组合在一起的大房间又叫做mspan（这个是golang中内存管理的基本单元）</p>
+<h3 id="bitmap"><a href="#bitmap" class="headerlink" title="bitmap"></a>bitmap</h3><p>然后我们再来看第二大的bitmap，它是用来表示arena中存放的对象的一些信息，包括这个对象GC标志，还有标识这个对象是否包含指针。你肯定就好奇，干嘛要有这个呢？这其实也很好理解，golang在进行垃圾回收的时候是根据引用的可达性分析来确定一个对象是否可以被回收，同时采用的是三色标记法进行标记对象，所以这里需要有bitmap来保存这些信息。（具体如果不清楚垃圾回收的细节可以去看看我之前写的有关垃圾回收的部分）</p>
+<h3 id="spans"><a href="#spans" class="headerlink" title="spans"></a>spans</h3><p>最后是spans，这里保存了mspan的指针，这个也好理解，为了方便管理那一个个大房间嘛</p>
+<h2 id="内存分配"><a href="#内存分配" class="headerlink" title="内存分配"></a>内存分配</h2><p>那么最后我们来看看我们创建的一个对象最后究竟会经历些什么，是怎么样分配的呢？<br>首先要说明的是，golang很聪明的，如果一个变量可以分配在栈上，那么就不会被分配在堆上，这样可以有效的节约资源（具体我后续还会写别的来说明golang中的变量）。总之我们这里讨论的是分配在堆上的情况。<br><img src="http://blog.linkinstars.com/mweb/15726846463324.jpg" alt="-w794"><br>整个流程差不多类似就是这样，嗯，你只要把内存想象成房间，现在房价那么贵，你懂的</p>
+<h3 id="分配流程"><a href="#分配流程" class="headerlink" title="分配流程"></a>分配流程</h3><ol>
+<li>大对象： &gt;32KB 的对象，直接从heap上分配</li>
+<li>小对象： 16B &lt; obj &lt;= 32KB 计算规格在mcache中找到合适大小的mspan进行分配（你有多大就住多大的房子竟可能的不要浪费房子的空间）</li>
+<li>微小对象： &lt;=16B 的对象使用mcache的tiny分配器分配；（如果将多个微小对象组合起来，用单块内存（object）存储，可有效减少内存浪费。）</li>
+</ol>
+<p>秉持原则：给到最合适的大小，然后能凑一起的凑一起挤一挤</p>
+<h3 id="扩容"><a href="#扩容" class="headerlink" title="扩容"></a>扩容</h3><p>如果不够怎么办呢？不够肯定就要扩容了呗，当不够的时候就会向领导上报，逐层上报，最终想办法拿到内存。<br>如果cache没有相应规格大小的mspan，则向central申请<br>如果central没有相应规格大小的mspan，则向heap申请<br>如果heap中也没有合适大小的mspan，则向操作系统申请</p>
+<h3 id="回收"><a href="#回收" class="headerlink" title="回收"></a>回收</h3><p>最后还要记得，如果你用完了，不用了，会有后台的清洁工来回收掉，最终还是会还回去的。一方面呢：cache用完了还给central，central就可以给别的cache用；central用完了就会还给heap…最终都不用的还给操作系统</p>
+<h2 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h2><p>至此golang的内存分配也就说的差不多了，其中一些细节可能没有说到，可能你还需要看看别的文章来补一补。总结一下：</p>
+<ol>
+<li>你多大人住多大的房间，不多给</li>
+<li>划分成合理的大小可以一起给一起回收，大小合适的分割才不会浪费</li>
+<li>用完还回去，需要标记怎么样算用完了</li>
+<li>每个人线程有独立的缓冲区来进行快速分配，不用抢来抢去</li>
+</ol>
+]]></content>
+      <categories>
+        <category>golang基础</category>
+      </categories>
+      <tags>
+        <tag>内存</tag>
       </tags>
   </entry>
   <entry>
@@ -1758,116 +1868,6 @@
       </categories>
       <tags>
         <tag>gobuild</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>图解golang内存分配</title>
-    <url>/post/b0bf4e5c.html</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><p>我们知道所有程序运行都需要使用内存，而内存的管理和分配又是非常重要的，它决定了你的程序能不能在有限的资源内跑的更快。可以设想一下，如果你自己来设计的一个内存分配的规则，会遇到什么问题呢？如果你有了一大块内存你要怎么去合理的分配和使用呢？今天我们通过几张图来看看golang中的内存分配是怎样的。</p>
-<span id="more"></span>
-<p>前置知识：对golang的GPM模型有所了解，对GC有一定的了解，有助于你理解下面的内容。</p>
-<h2 id="想一想"><a href="#想一想" class="headerlink" title="想一想"></a>想一想</h2><p>我们首先来想一下，如果我们自己来分配内存的时候可能会遇到什么问题。</p>
-<h3 id="我想要512G，你能给吗？"><a href="#我想要512G，你能给吗？" class="headerlink" title="我想要512G，你能给吗？"></a>我想要512G，你能给吗？</h3><p>操作系统的内存不是你想要多少就给你多少的。比如我跟操作系统说我要512G内存，你赶紧给我，不给我我就掐死你，如果你是操作系统，是不是立马就想把我给结束了？</p>
-<h3 id="能随便分割吗？"><a href="#能随便分割吗？" class="headerlink" title="能随便分割吗？"></a>能随便分割吗？</h3><p>如果我拿到一块内存，挺大的，你把它想象成一块地，我今天要用这块地的这个部分，肯定是从中间切一块出来用，然后明天要另一个部分，然后再切出来一部分。如果随便切，今天要一块三角形，明天要一块圆形，那么肯定会留有很多小块的地方，那些地方没有办法被合理的使用，就会浪费。等到想再要一块正方形的地的时候发现没地方可以切了。</p>
-<h3 id="不用了我需要放回去吗？"><a href="#不用了我需要放回去吗？" class="headerlink" title="不用了我需要放回去吗？"></a>不用了我需要放回去吗？</h3><p>如果我占用了很大一块内存资源，然后用完了，现在不需要了，那自私的人肯定想着，我就偷偷一直占用不行吗？显然是不可以的，不然的话你的应用程序就每天占用着一台机器大量的资源不释放，别的人都没得用了，肯定想把你干掉。所以用完了要放回去。</p>
-<p>–<br>其实上面的问题就是内存分配常见的一些问题，那<strong>为了高效、合理利用内存</strong>，势必需要一些人的管理和帮助，下面我们就来看看那些在golang中的管理者，看看他们是如何帮助我们去管理和分配内存的。</p>
-<h2 id="内存的管理者"><a href="#内存的管理者" class="headerlink" title="内存的管理者"></a>内存的管理者</h2><p><img src="http://blog.linkinstars.com/mweb/15726689114124.jpg" alt="-w505"><br>这张图里面就是golang中内存的管理者们，下面我来依次介绍一下</p>
-<h3 id="OS"><a href="#OS" class="headerlink" title="OS"></a>OS</h3><p>首先是操作系统，他拥有着全部的机器内存，我们的程序必须向它要。但是他是大领导，很忙的，你不能没事总找他要，很烦，所以每次都会向他一大块内存（1M打底）他会给你一票地址，但是实际其实并不会直接给你分配内存，但是你用到了自然会有。</p>
-<h3 id="heap"><a href="#heap" class="headerlink" title="heap"></a>heap</h3><p>这个是我们程序中最大的内存持有区域，堆，他管理着那些很大的内存块，同时是他向操作系统去申请内存的，全局只有他一个大人物。他还需要将从操作系统拿过来的内存进行一定的划分，划分成一整块一整块的样子方便管理，同时记录内存的使用情况，方便整理和回收。</p>
-<h3 id="central"><a href="#central" class="headerlink" title="central"></a>central</h3><p>这个是二把手，有很多，他们会负责将内存划分成足够小的单元，同时需要向下提供内存的分配工作，这个时候就需要一些合理的分配措施了，这个我们后面再说。</p>
-<h3 id="cache"><a href="#cache" class="headerlink" title="cache"></a>cache</h3><p>这个是最后一个小领导了，管理着最终线程需要使用的内存资源，<strong>而且每个线程都会有一个独立的cache</strong>，一对一绑定，这样使用的时候就会直接从对应的cache中去取来使用，这样的好处是不用和别人发生争抢。如果所有的线程都从一个地方进行取用，那么势必会造成你也要用，我也要用的情况。</p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>从上面的图我们可以基本明白一个总体的思路是说：需要有人总体去把控所有内存资源的使用，做到统一的调度和管理，这样可以方便后续的回收和利用。同时需要下面有人负责最终使用的分配，从而能达到一个内存的快速分配而不发生争抢。</p>
-<h2 id="内存的分配结构"><a href="#内存的分配结构" class="headerlink" title="内存的分配结构"></a>内存的分配结构</h2><p>我们知道了内存的管理者是谁，那么现在我们再来看看内存到底是怎么划分的，究竟是切成一个个长方形还是切成一个个圆形了呢？<br><img src="http://blog.linkinstars.com/mweb/15726829058612.jpg" alt="-w594"></p>
-<p>这张图就表示了整个golang中内存的分配结构长什么样子。</p>
-<h3 id="arena"><a href="#arena" class="headerlink" title="arena"></a>arena</h3><p>这块区域最大，明显就是用来存放我们最终的对象，里面分成了一个个8K大小的房间，每个房间我们称为page。（这里虽然写了它是512G，但是你心里要有B数，你电脑根本没这么大的内存，其实操作系统只是给了你地址而已）同时几个page组合在一起的大房间又叫做mspan（这个是golang中内存管理的基本单元）</p>
-<h3 id="bitmap"><a href="#bitmap" class="headerlink" title="bitmap"></a>bitmap</h3><p>然后我们再来看第二大的bitmap，它是用来表示arena中存放的对象的一些信息，包括这个对象GC标志，还有标识这个对象是否包含指针。你肯定就好奇，干嘛要有这个呢？这其实也很好理解，golang在进行垃圾回收的时候是根据引用的可达性分析来确定一个对象是否可以被回收，同时采用的是三色标记法进行标记对象，所以这里需要有bitmap来保存这些信息。（具体如果不清楚垃圾回收的细节可以去看看我之前写的有关垃圾回收的部分）</p>
-<h3 id="spans"><a href="#spans" class="headerlink" title="spans"></a>spans</h3><p>最后是spans，这里保存了mspan的指针，这个也好理解，为了方便管理那一个个大房间嘛</p>
-<h2 id="内存分配"><a href="#内存分配" class="headerlink" title="内存分配"></a>内存分配</h2><p>那么最后我们来看看我们创建的一个对象最后究竟会经历些什么，是怎么样分配的呢？<br>首先要说明的是，golang很聪明的，如果一个变量可以分配在栈上，那么就不会被分配在堆上，这样可以有效的节约资源（具体我后续还会写别的来说明golang中的变量）。总之我们这里讨论的是分配在堆上的情况。<br><img src="http://blog.linkinstars.com/mweb/15726846463324.jpg" alt="-w794"><br>整个流程差不多类似就是这样，嗯，你只要把内存想象成房间，现在房价那么贵，你懂的</p>
-<h3 id="分配流程"><a href="#分配流程" class="headerlink" title="分配流程"></a>分配流程</h3><ol>
-<li>大对象： &gt;32KB 的对象，直接从heap上分配</li>
-<li>小对象： 16B &lt; obj &lt;= 32KB 计算规格在mcache中找到合适大小的mspan进行分配（你有多大就住多大的房子竟可能的不要浪费房子的空间）</li>
-<li>微小对象： &lt;=16B 的对象使用mcache的tiny分配器分配；（如果将多个微小对象组合起来，用单块内存（object）存储，可有效减少内存浪费。）</li>
-</ol>
-<p>秉持原则：给到最合适的大小，然后能凑一起的凑一起挤一挤</p>
-<h3 id="扩容"><a href="#扩容" class="headerlink" title="扩容"></a>扩容</h3><p>如果不够怎么办呢？不够肯定就要扩容了呗，当不够的时候就会向领导上报，逐层上报，最终想办法拿到内存。<br>如果cache没有相应规格大小的mspan，则向central申请<br>如果central没有相应规格大小的mspan，则向heap申请<br>如果heap中也没有合适大小的mspan，则向操作系统申请</p>
-<h3 id="回收"><a href="#回收" class="headerlink" title="回收"></a>回收</h3><p>最后还要记得，如果你用完了，不用了，会有后台的清洁工来回收掉，最终还是会还回去的。一方面呢：cache用完了还给central，central就可以给别的cache用；central用完了就会还给heap…最终都不用的还给操作系统</p>
-<h2 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h2><p>至此golang的内存分配也就说的差不多了，其中一些细节可能没有说到，可能你还需要看看别的文章来补一补。总结一下：</p>
-<ol>
-<li>你多大人住多大的房间，不多给</li>
-<li>划分成合理的大小可以一起给一起回收，大小合适的分割才不会浪费</li>
-<li>用完还回去，需要标记怎么样算用完了</li>
-<li>每个人线程有独立的缓冲区来进行快速分配，不用抢来抢去</li>
-</ol>
-]]></content>
-      <categories>
-        <category>golang基础</category>
-      </categories>
-      <tags>
-        <tag>内存</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>不是我吹，你可能连defer都不清楚</title>
-    <url>/post/48e6221e.html</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><p>在golang中，对于defer，我之前的理解就是和java中的finally代码块一样，没什么难度，但是吧，当我最近看的一些神奇的问题，我就发现原来并非想的那么简单。</p>
-<span id="more"></span>
-<h2 id="先举个栗子"><a href="#先举个栗子" class="headerlink" title="先举个栗子"></a>先举个栗子</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    fmt.Println(DeferFunc1(<span class="number">1</span>))</span><br><span class="line">    fmt.Println(DeferFunc2(<span class="number">1</span>))</span><br><span class="line">    fmt.Println(DeferFunc3(<span class="number">1</span>))</span><br><span class="line">    DeferFunc4()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc1</span><span class="params">(i <span class="keyword">int</span>)</span> <span class="params">(t <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    t = i</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        t += <span class="number">3</span></span><br><span class="line">    &#125;()</span><br><span class="line">    <span class="keyword">return</span> t</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc2</span><span class="params">(i <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">    t := i</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        t += <span class="number">3</span></span><br><span class="line">    &#125;()</span><br><span class="line">    <span class="keyword">return</span> t</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc3</span><span class="params">(i <span class="keyword">int</span>)</span> <span class="params">(t <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        t += i</span><br><span class="line">    &#125;()</span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc4</span><span class="params">()</span> <span class="params">(t <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">(i <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">        fmt.Println(i)</span><br><span class="line">        fmt.Println(t)</span><br><span class="line">    &#125;(t)</span><br><span class="line">    t = <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>请问这段代码输出的结果是什么？<br><br><br><em>答案见文末</em><br><br><br>如果你看完答对了，那么请直接点击右上角的关闭按钮，如果你答错了，你可以继续往下看了。<br>下面会一步步介绍，到底为什么结果会是这样</p>
-<h2 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h2><h3 id="函数的返回值初始化"><a href="#函数的返回值初始化" class="headerlink" title="函数的返回值初始化"></a>函数的返回值初始化</h3><p>如 ： <code>func DeferFunc1(i int) (t int) &#123;</code><br>其中返回值t int，这个t会在函数起始处被初始化为对应类型的零值并且作用域为整个函数。</p>
-<h3 id="defer的执行顺序"><a href="#defer的执行顺序" class="headerlink" title="defer的执行顺序"></a>defer的执行顺序</h3><p>虽然这边没有提及，但是还是要说一下，因为很多人学习defer的时候都会用到，就是当多个defer出现的时候，<strong>它是一个“栈”的关系，也就是先进后出</strong>。一个函数中，写在前面的defer会比写在后面的defer调用的晚。</p>
-<h3 id="defer与return谁先谁后"><a href="#defer与return谁先谁后" class="headerlink" title="defer与return谁先谁后"></a>defer与return谁先谁后</h3><p>return先，defer后<br>这个可能会让人怀疑，后面会详细解释。</p>
-<h3 id="函数的返回与return"><a href="#函数的返回与return" class="headerlink" title="函数的返回与return"></a>函数的返回与return</h3><p>在没有defer的情况下，其实函数的返回就是与return一致的，但是有了defer就不一样了。<br>函数的返回其实是有两个步骤的，第一个当执行到return语句的时候<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc3</span><span class="params">(i <span class="keyword">int</span>)</span> <span class="params">(t <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        t += i</span><br><span class="line">    &#125;()</span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>这个时候会先将返回值t赋值为2，然后执行defer，完成之后才会真正返回外部调用者。</p>
-<h3 id="defer调用的三步走"><a href="#defer调用的三步走" class="headerlink" title="defer调用的三步走"></a>defer调用的三步走</h3><p>这个就是今天的重头戏了，defer这个语法其实一共有三个步骤。</p>
-<ol>
-<li>将defer方法中的参数进行赋值。</li>
-<li>将defer压入栈中。</li>
-<li>当return或者是panic的时候依次出栈执行。<br>后面会用实际的例子说明具体执行的情况。</li>
-</ol>
-<h2 id="解释"><a href="#解释" class="headerlink" title="解释"></a>解释</h2><p>有了上面的所有知识点，其实你就应该能明白上面输出的结果了。如果还不明白就看看下面的分析解释吧。</p>
-<h3 id="DeferFunc1"><a href="#DeferFunc1" class="headerlink" title="DeferFunc1"></a>DeferFunc1</h3><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc1</span><span class="params">(i <span class="keyword">int</span>)</span> <span class="params">(t <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    t = i</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        t += <span class="number">3</span></span><br><span class="line">    &#125;()</span><br><span class="line">    <span class="keyword">return</span> t</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>首先上面是第一个方法</p>
-<ol>
-<li>将返回值t赋值为传入的i，此时t为1</li>
-<li>执行return语句将t赋值给t（等于啥也没做）</li>
-<li>执行defer方法，将t + 3 = 4</li>
-<li>函数返回 4<br>因为t的作用域为整个函数所以修改有效。</li>
-</ol>
-<h3 id="DeferFunc2"><a href="#DeferFunc2" class="headerlink" title="DeferFunc2"></a>DeferFunc2</h3><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc2</span><span class="params">(i <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">    t := i</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        t += <span class="number">3</span></span><br><span class="line">    &#125;()</span><br><span class="line">    <span class="keyword">return</span> t</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>第二个方法</p>
-<ol>
-<li>创建变量t并赋值为1</li>
-<li>执行return语句，注意这里是将t赋值给返回值，此时返回值为1（这个返回值并不是t）</li>
-<li>执行defer方法，将t + 3 = 4 </li>
-<li>函数返回返回值1</li>
-</ol>
-<p>可能这里就有点难理解了，修改一下代码你就明白了<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc2</span><span class="params">(i <span class="keyword">int</span>)</span> <span class="params">(result <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    t := i</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        t += <span class="number">3</span></span><br><span class="line">    &#125;()</span><br><span class="line">    <span class="keyword">return</span> t</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>上面的代码return的时候相当于将t赋值给了result，当defer修改了t的值之后，对result是不会造成影响的。</p>
-<h3 id="DeferFunc3"><a href="#DeferFunc3" class="headerlink" title="DeferFunc3"></a>DeferFunc3</h3><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc3</span><span class="params">(i <span class="keyword">int</span>)</span> <span class="params">(t <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        t += i</span><br><span class="line">    &#125;()</span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ol>
-<li>首先执行return将返回值t赋值为2</li>
-<li>执行defer方法将t + 1</li>
-<li>最后返回 3</li>
-</ol>
-<h3 id="DeferFunc4"><a href="#DeferFunc4" class="headerlink" title="DeferFunc4"></a>DeferFunc4</h3><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeferFunc4</span><span class="params">()</span> <span class="params">(t <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">(i <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">        fmt.Println(i)</span><br><span class="line">        fmt.Println(t)</span><br><span class="line">    &#125;(t)</span><br><span class="line">    t = <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这个分析的步骤要详细一些</p>
-<ol>
-<li>初始化返回值t为零值 0</li>
-<li>首先执行defer的第一步，赋值defer中的func入参t为0</li>
-<li>执行defer的第二步，将defer压栈</li>
-<li>将t赋值为1</li>
-<li>执行return语句，将返回值t赋值为2</li>
-<li>执行defer的第三步，出栈并执行<br>因为在入栈时defer执行的func的入参已经赋值了，此时它作为的是一个形式参数，所以打印为0；相对应的因为最后已经将t的值修改为2，所以再打印一个2</li>
-</ol>
-<h2 id="源码一瞥"><a href="#源码一瞥" class="headerlink" title="源码一瞥"></a>源码一瞥</h2><p>那么 defer 在底层究竟是如何实现的呢？<br>通过生成汇编代码我们可以看到下面这样的方法：<br>CALL runtime.deferproc(SB)<br>CALL runtime.deferreturn(SB)<br>实际上来说当我们使用defer的使用就会调用runtime.deferproc，那么这个时候，就会将所有的参数赋值好，所有就像我们上面例子中看到的一样，在调用defer的时候参数会先计算好保存起来，然后挂载到G._defer中，最后deferreturn的时候进行执行相关的defer中的方法<br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">deferproc</span><span class="params">(siz <span class="keyword">int32</span>, fn *funcval)</span></span> &#123; <span class="comment">// arguments of fn follow fn</span></span><br><span class="line">     sp := getcallersp(unsafe.Pointer(&amp;siz))</span><br><span class="line">     argp := <span class="keyword">uintptr</span>(unsafe.Pointer(&amp;fn)) + unsafe.Sizeof(fn)</span><br><span class="line">     callerpc := getcallerpc(unsafe.Pointer(&amp;siz))</span><br><span class="line">     systemstack(<span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">            d := newdefer(siz)</span><br><span class="line">&#125;)</span><br><span class="line">d.fn = fn</span><br><span class="line">d.pc = callerpc</span><br><span class="line">d.sp = sp</span><br><span class="line">memmove(add(unsafe.Pointer(d), unsafe.Sizeof(*d)),</span><br><span class="line">       unsafe.Pointer(argp), <span class="keyword">uintptr</span>(siz))</span><br><span class="line">     <span class="comment">// deferproc returns 0 normally.</span></span><br><span class="line">     <span class="comment">// a deferred func that stops a panic makes the deferproc return 1.</span></span><br><span class="line">     <span class="comment">// the code the compiler generates always checks the return value and jumps to the</span></span><br><span class="line">     <span class="comment">// end of the function if deferproc returns != 0.</span></span><br><span class="line">     return0()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>看完，有的人肯定又要出来搞事了，说这个在实际中不会遇到的，实际中谁写这么蠢的代码。但是其实某些时候非常重要，当我们需要在defer中返回一些错误信息的时候，并且需要将这些信息给到调用者的时候，就需要注意变量的作用域以及执行顺序所带来的差异。</p>
-<p>而且正因为这样的执行顺序，在实际中要记住：<br><strong>defer 最大的功能是 panic 后依然有效</strong><br>所以defer可以保证你的一些资源一定会被关闭，从而避免一些异常出现的问题。</p>
-<p>参考例子来源于网络，自己做了修改和结合：<br><a href="https://stackoverflow.com/questions/52718143/is-golang-defer-statement-execute-before-or-after-return-statement">https://stackoverflow.com/questions/52718143/is-golang-defer-statement-execute-before-or-after-return-statement</a></p>
-<h2 id="答案"><a href="#答案" class="headerlink" title="答案"></a>答案</h2><p>4<br>1<br>3<br>0<br>2</p>
-]]></content>
-      <categories>
-        <category>golang基础</category>
-      </categories>
-      <tags>
-        <tag>defer</tag>
       </tags>
   </entry>
   <entry>
@@ -2481,6 +2481,86 @@
       </tags>
   </entry>
   <entry>
+    <title>golang中神奇的sync.Pool</title>
+    <url>/post/71525482.html</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><p>在 golang 中有一个池，它特别神奇，你只要和它有个约定，你要什么它就给什么，你用完了还可以还回去，但是下次拿的时候呢，确不一定是你上次存的那个，这个池就是 sync.Pool</p>
+<p>说实话第一次看到这个东西的时候，真的想不到这个东西有啥用啊，为什么要有这个东西呢？等我看完之后，嗯，还有有点用的；等到有一次优化经历的时候，嗯，这个有点意思了。今天我们就来看看这个神奇的 sync.Pool</p>
+<span id="more"></span>
+<h2 id="简单案例"><a href="#简单案例" class="headerlink" title="简单案例"></a>简单案例</h2><p>首先我们来看看这个 sync.Pool 是如何使用的，其实非常的简单。<br>它一共只有三个方法我们需要知道的：New、Put、Get</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">&quot;fmt&quot;</span></span><br><span class="line">    <span class="string">&quot;sync&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> strPool = sync.Pool&#123;</span><br><span class="line">    New: <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="title">interface</span></span>&#123;&#125; &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;test str&quot;</span></span><br><span class="line">    &#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    str := strPool.Get()</span><br><span class="line">    fmt.Println(str)</span><br><span class="line">    strPool.Put(str)</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ul>
+<li>通过<code>New</code>去定义你这个池子里面放的究竟是什么东西，在这个池子里面你只能放一种类型的东西。比如在上面的例子中我就在池子里面放了字符串。</li>
+<li>我们随时可以通过<code>Get</code>方法从池子里面获取我们之前在New里面定义类型的数据。</li>
+<li>当我们用完了之后可以通过<code>Put</code>方法放回去，或者放别的同类型的数据进去。</li>
+</ul>
+<h2 id="目的"><a href="#目的" class="headerlink" title="目的"></a>目的</h2><p>那么这个池子的目的是什么呢？其实一句话就可以说明白，就是为了复用已经使用过的对象，来达到优化内存使用和回收的目的。说白了，一开始这个池子会初始化一些对象供你使用，如果不够了呢，自己会通过new产生一些，当你放回去了之后这些对象会被别人进行复用，当对象特别大并且使用非常频繁的时候可以大大的减少对象的创建和回收的时间。</p>
+<h2 id="来看看doc"><a href="#来看看doc" class="headerlink" title="来看看doc"></a>来看看doc</h2><p>其实官方文档里面给出了一些小细节让我们一起来看看</p>
+<ul>
+<li><a href="https://golang.google.cn/pkg/sync/#Pool">https://golang.google.cn/pkg/sync/#Pool</a></li>
+</ul>
+<p>A Pool is a set of <strong>temporary objects</strong> that may be individually saved and retrieved.</p>
+<p>Any item stored in the Pool may be <strong>removed automatically</strong> at any time without notification. <strong>If the Pool holds the only reference when this happens, the item might be deallocated.</strong></p>
+<p><strong>A Pool is safe for use by multiple goroutines simultaneously.</strong></p>
+<p>Pool’s purpose is to cache allocated but unused items for later reuse, <strong>relieving pressure on the garbage collector</strong>. That is, it makes it easy to build efficient, thread-safe free lists. However, it is not suitable for all free lists.</p>
+<p>An appropriate use of a Pool is to manage a group of temporary items silently shared among and potentially reused by concurrent independent clients of a package. Pool provides a way to amortize allocation overhead across many clients.</p>
+<p>An example of good use of a Pool is in the fmt package, which maintains a dynamically-sized store of temporary output buffers. <strong>The store scales under load (when many goroutines are actively printing) and shrinks when quiescent.</strong></p>
+<p>On the other hand, a free list maintained as part of a short-lived object is not a suitable use for a Pool, since the overhead does not amortize well in that scenario. It is more efficient to have such objects implement their own free list.</p>
+<p><strong>A Pool must not be copied after first use.</strong></p>
+<p>注意其中加粗的部分，我列一下其中的点，建议还是尝试去阅读doc里面的说明。</p>
+<ul>
+<li>临时对象</li>
+<li>自动移除</li>
+<li>当这个对象的引用只有sync.Pool持有时，这个对象内存会被释放</li>
+<li>多线程安全</li>
+<li>目的就是缓存并重用对象，减少GC的压力</li>
+<li>自动扩容、缩容</li>
+<li>不要去拷贝pool，也就是说最好单例</li>
+</ul>
+<h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><p>下面我们从源码层面来看看这个 sync.Pool；可能需要你有GPM模型和GC的相关知识。<br>使用golang版本： go version go1.13</p>
+<h3 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h3><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> Pool <span class="keyword">struct</span> &#123;</span><br><span class="line">	noCopy noCopy</span><br><span class="line"></span><br><span class="line">	local     unsafe.Pointer <span class="comment">// local fixed-size per-P pool, actual type is [P]poolLocal</span></span><br><span class="line">	localSize <span class="keyword">uintptr</span>        <span class="comment">// size of the local array</span></span><br><span class="line"></span><br><span class="line">	victim     unsafe.Pointer <span class="comment">// local from previous cycle</span></span><br><span class="line">	victimSize <span class="keyword">uintptr</span>        <span class="comment">// size of victims array</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// New optionally specifies a function to generate</span></span><br><span class="line">	<span class="comment">// a value when Get would otherwise return nil.</span></span><br><span class="line">	<span class="comment">// It may not be changed concurrently with calls to Get.</span></span><br><span class="line">	New <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="title">interface</span></span>&#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Local per-P Pool appendix.</span></span><br><span class="line"><span class="keyword">type</span> poolLocalInternal <span class="keyword">struct</span> &#123;</span><br><span class="line">	private <span class="keyword">interface</span>&#123;&#125; <span class="comment">// Can be used only by the respective P.</span></span><br><span class="line">	shared  poolChain   <span class="comment">// Local P can pushHead/popHead; any P can popTail.</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> poolLocal <span class="keyword">struct</span> &#123;</span><br><span class="line">	poolLocalInternal</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Prevents false sharing on widespread platforms with</span></span><br><span class="line">	<span class="comment">// 128 mod (cache line size) = 0 .</span></span><br><span class="line">	pad [<span class="number">128</span> - unsafe.Sizeof(poolLocalInternal&#123;&#125;)%<span class="number">128</span>]<span class="keyword">byte</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们可以看到其实结构并不复杂，但是如果自己看的话有点懵。注意几个细节就ok。</p>
+<ul>
+<li>local这里面真正的是[P]poolLocal其中P就是GPM模型中的P，有多少个P数组就有多大，也就是每个P维护了一个本地的poolLocal。</li>
+<li>poolLocal里面维护了一个private一个shared，看名字其实就很明显了，private是给自己用的，而shared的是一个队列，可以给别人用的。注释写的也很清楚，自己可以从队列的头部存然后从头部取，而别的P可以从尾部取。</li>
+<li>victim这个从字面上面也可以知道，幸存者嘛，当进行gc的stw时候，会将local中的对象移到victim中去，也就是说幸存了一次gc，</li>
+</ul>
+<h3 id="Get"><a href="#Get" class="headerlink" title="Get"></a>Get</h3><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Pool)</span> <span class="title">Get</span><span class="params">()</span> <span class="title">interface</span></span>&#123;&#125; &#123;</span><br><span class="line">	......</span><br><span class="line">	l, pid := p.pin()</span><br><span class="line">	x := l.private</span><br><span class="line">	l.private = <span class="literal">nil</span></span><br><span class="line">	<span class="keyword">if</span> x == <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="comment">// Try to pop the head of the local shard. We prefer</span></span><br><span class="line">		<span class="comment">// the head over the tail for temporal locality of</span></span><br><span class="line">		<span class="comment">// reuse.</span></span><br><span class="line">		x, _ = l.shared.popHead()</span><br><span class="line">		<span class="keyword">if</span> x == <span class="literal">nil</span> &#123;</span><br><span class="line">			x = p.getSlow(pid)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	runtime_procUnpin()</span><br><span class="line">	......</span><br><span class="line">	<span class="keyword">if</span> x == <span class="literal">nil</span> &amp;&amp; p.New != <span class="literal">nil</span> &#123;</span><br><span class="line">		x = p.New()</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> x</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Pool)</span> <span class="title">getSlow</span><span class="params">(pid <span class="keyword">int</span>)</span> <span class="title">interface</span></span>&#123;&#125; &#123;</span><br><span class="line">	<span class="comment">// See the comment in pin regarding ordering of the loads.</span></span><br><span class="line">	size := atomic.LoadUintptr(&amp;p.localSize) <span class="comment">// load-acquire</span></span><br><span class="line">	locals := p.local                        <span class="comment">// load-consume</span></span><br><span class="line">	<span class="comment">// Try to steal one element from other procs.</span></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="keyword">int</span>(size); i++ &#123;</span><br><span class="line">		l := indexLocal(locals, (pid+i+<span class="number">1</span>)%<span class="keyword">int</span>(size))</span><br><span class="line">		<span class="keyword">if</span> x, _ := l.shared.popTail(); x != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> x</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Try the victim cache. We do this after attempting to steal</span></span><br><span class="line">	<span class="comment">// from all primary caches because we want objects in the</span></span><br><span class="line">	<span class="comment">// victim cache to age out if at all possible.</span></span><br><span class="line">	size = atomic.LoadUintptr(&amp;p.victimSize)</span><br><span class="line">	<span class="keyword">if</span> <span class="keyword">uintptr</span>(pid) &gt;= size &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line">	locals = p.victim</span><br><span class="line">	l := indexLocal(locals, pid)</span><br><span class="line">	<span class="keyword">if</span> x := l.private; x != <span class="literal">nil</span> &#123;</span><br><span class="line">		l.private = <span class="literal">nil</span></span><br><span class="line">		<span class="keyword">return</span> x</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="keyword">int</span>(size); i++ &#123;</span><br><span class="line">		l := indexLocal(locals, (pid+i)%<span class="keyword">int</span>(size))</span><br><span class="line">		<span class="keyword">if</span> x, _ := l.shared.popTail(); x != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> x</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Mark the victim cache as empty for future gets don&#x27;t bother</span></span><br><span class="line">	<span class="comment">// with it.</span></span><br><span class="line">	atomic.StoreUintptr(&amp;p.victimSize, <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我去掉了其中一些竞态分析的代码，Get的逻辑其实非常清晰。</p>
+<ul>
+<li>如果 private 不是空的，那就直接拿来用</li>
+<li>如果 private 是空的，那就先去本地的shared队列里面从头 pop 一个</li>
+<li>如果本地的 shared 也没有了，那 getSlow 去拿，其实就是去别的P的 shared 里面偷，偷不到回去 victim 幸存者里面找</li>
+<li>如果最后都没有，那就只能调用 New 方法创建一个了</li>
+</ul>
+<p>我随手画了一下，可能不是特别准确，意思到位了</p>
+<p><img src="http://blog.linkinstars.com/mweb/15732709504973.jpg" alt="-w566"></p>
+<h3 id="Put"><a href="#Put" class="headerlink" title="Put"></a>Put</h3><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Put adds x to the pool.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Pool)</span> <span class="title">Put</span><span class="params">(x <span class="keyword">interface</span>&#123;&#125;)</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> x == <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	......</span><br><span class="line">	l, _ := p.pin()</span><br><span class="line">	<span class="keyword">if</span> l.private == <span class="literal">nil</span> &#123;</span><br><span class="line">		l.private = x</span><br><span class="line">		x = <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> x != <span class="literal">nil</span> &#123;</span><br><span class="line">		l.shared.pushHead(x)</span><br><span class="line">	&#125;</span><br><span class="line">	runtime_procUnpin()</span><br><span class="line">	......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>看完Get其实Put就很简单了</p>
+<ul>
+<li>如果 private 没有，就放在 private</li>
+<li>如果 private 有了，那么就放到 shared 队列的头部</li>
+</ul>
+<h2 id="实际测试"><a href="#实际测试" class="headerlink" title="实际测试"></a>实际测试</h2><p>让我们实际写个测试的案例来测测具体使用时会有什么样的变化</p>
+<h3 id="Put之后马上Get"><a href="#Put之后马上Get" class="headerlink" title="Put之后马上Get"></a>Put之后马上Get</h3><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> pool = sync.Pool&#123;</span><br><span class="line">    New: <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="title">interface</span></span>&#123;&#125; &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;123&quot;</span></span><br><span class="line">    &#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    t := pool.Get().(<span class="keyword">string</span>)</span><br><span class="line">    fmt.Println(t)</span><br><span class="line"></span><br><span class="line">    pool.Put(<span class="string">&quot;321&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    t2 := pool.Get().(<span class="keyword">string</span>)</span><br><span class="line">    fmt.Println(t2)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出：<br>123<br>321</p>
+<h3 id="Put之后GC后Get"><a href="#Put之后GC后Get" class="headerlink" title="Put之后GC后Get"></a>Put之后GC后Get</h3><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> pool = sync.Pool&#123;</span><br><span class="line">    New: <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="title">interface</span></span>&#123;&#125; &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;123&quot;</span></span><br><span class="line">    &#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    t := pool.Get().(<span class="keyword">string</span>)</span><br><span class="line">    fmt.Println(t)</span><br><span class="line"></span><br><span class="line">    pool.Put(<span class="string">&quot;321&quot;</span>)</span><br><span class="line">    pool.Put(<span class="string">&quot;321&quot;</span>)</span><br><span class="line">    pool.Put(<span class="string">&quot;321&quot;</span>)</span><br><span class="line">    pool.Put(<span class="string">&quot;321&quot;</span>)</span><br><span class="line"></span><br><span class="line">    runtime.GC()</span><br><span class="line">    time.Sleep(<span class="number">1</span> * time.Second)</span><br><span class="line"></span><br><span class="line">    t2 := pool.Get().(<span class="keyword">string</span>)</span><br><span class="line">    fmt.Println(t2)</span><br><span class="line"></span><br><span class="line">    runtime.GC()</span><br><span class="line">    time.Sleep(<span class="number">1</span> * time.Second)</span><br><span class="line"></span><br><span class="line">    t2 = pool.Get().(<span class="keyword">string</span>)</span><br><span class="line">    fmt.Println(t2)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出：<br>123<br>321<br>123</p>
+<p>你知道为什么吗？</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这次总结来点不一样的，提几个问题吧。</p>
+<ol>
+<li>什么情况下适合使用sync.Pool呢？</li>
+<li>sync.Pool的对象什么时候会被回收呢？</li>
+<li>sync.Pool是如何实现线程安全的？<br>如果你能回答上面的问题，证明你对它已经足够了解了，那么就可以尝试在具体的情况下使用它来玩玩了。试试吧~</li>
+</ol>
+]]></content>
+      <categories>
+        <category>golang源码解析</category>
+      </categories>
+      <tags>
+        <tag>sync.Pool</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Golang 之 WaitGroup 源码解析</title>
     <url>/post/a0cda732.html</url>
     <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><p>如果我们有一个大的任务要做，我们会尝试将这个任务分解，分解完成之后并发交由 goroutine 去做，并且我需要当全部的任务完成之后再进行下面的步骤，在 sync 包下，就有这样一个东西适合上述情况，WaitGroup，今天我们来看看具体它是怎么实现的。</p>
@@ -2578,86 +2658,6 @@
       </categories>
       <tags>
         <tag>sync.WaitGroup</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>golang中神奇的sync.Pool</title>
-    <url>/post/71525482.html</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><p>在 golang 中有一个池，它特别神奇，你只要和它有个约定，你要什么它就给什么，你用完了还可以还回去，但是下次拿的时候呢，确不一定是你上次存的那个，这个池就是 sync.Pool</p>
-<p>说实话第一次看到这个东西的时候，真的想不到这个东西有啥用啊，为什么要有这个东西呢？等我看完之后，嗯，还有有点用的；等到有一次优化经历的时候，嗯，这个有点意思了。今天我们就来看看这个神奇的 sync.Pool</p>
-<span id="more"></span>
-<h2 id="简单案例"><a href="#简单案例" class="headerlink" title="简单案例"></a>简单案例</h2><p>首先我们来看看这个 sync.Pool 是如何使用的，其实非常的简单。<br>它一共只有三个方法我们需要知道的：New、Put、Get</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">&quot;fmt&quot;</span></span><br><span class="line">    <span class="string">&quot;sync&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> strPool = sync.Pool&#123;</span><br><span class="line">    New: <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="title">interface</span></span>&#123;&#125; &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;test str&quot;</span></span><br><span class="line">    &#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    str := strPool.Get()</span><br><span class="line">    fmt.Println(str)</span><br><span class="line">    strPool.Put(str)</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<ul>
-<li>通过<code>New</code>去定义你这个池子里面放的究竟是什么东西，在这个池子里面你只能放一种类型的东西。比如在上面的例子中我就在池子里面放了字符串。</li>
-<li>我们随时可以通过<code>Get</code>方法从池子里面获取我们之前在New里面定义类型的数据。</li>
-<li>当我们用完了之后可以通过<code>Put</code>方法放回去，或者放别的同类型的数据进去。</li>
-</ul>
-<h2 id="目的"><a href="#目的" class="headerlink" title="目的"></a>目的</h2><p>那么这个池子的目的是什么呢？其实一句话就可以说明白，就是为了复用已经使用过的对象，来达到优化内存使用和回收的目的。说白了，一开始这个池子会初始化一些对象供你使用，如果不够了呢，自己会通过new产生一些，当你放回去了之后这些对象会被别人进行复用，当对象特别大并且使用非常频繁的时候可以大大的减少对象的创建和回收的时间。</p>
-<h2 id="来看看doc"><a href="#来看看doc" class="headerlink" title="来看看doc"></a>来看看doc</h2><p>其实官方文档里面给出了一些小细节让我们一起来看看</p>
-<ul>
-<li><a href="https://golang.google.cn/pkg/sync/#Pool">https://golang.google.cn/pkg/sync/#Pool</a></li>
-</ul>
-<p>A Pool is a set of <strong>temporary objects</strong> that may be individually saved and retrieved.</p>
-<p>Any item stored in the Pool may be <strong>removed automatically</strong> at any time without notification. <strong>If the Pool holds the only reference when this happens, the item might be deallocated.</strong></p>
-<p><strong>A Pool is safe for use by multiple goroutines simultaneously.</strong></p>
-<p>Pool’s purpose is to cache allocated but unused items for later reuse, <strong>relieving pressure on the garbage collector</strong>. That is, it makes it easy to build efficient, thread-safe free lists. However, it is not suitable for all free lists.</p>
-<p>An appropriate use of a Pool is to manage a group of temporary items silently shared among and potentially reused by concurrent independent clients of a package. Pool provides a way to amortize allocation overhead across many clients.</p>
-<p>An example of good use of a Pool is in the fmt package, which maintains a dynamically-sized store of temporary output buffers. <strong>The store scales under load (when many goroutines are actively printing) and shrinks when quiescent.</strong></p>
-<p>On the other hand, a free list maintained as part of a short-lived object is not a suitable use for a Pool, since the overhead does not amortize well in that scenario. It is more efficient to have such objects implement their own free list.</p>
-<p><strong>A Pool must not be copied after first use.</strong></p>
-<p>注意其中加粗的部分，我列一下其中的点，建议还是尝试去阅读doc里面的说明。</p>
-<ul>
-<li>临时对象</li>
-<li>自动移除</li>
-<li>当这个对象的引用只有sync.Pool持有时，这个对象内存会被释放</li>
-<li>多线程安全</li>
-<li>目的就是缓存并重用对象，减少GC的压力</li>
-<li>自动扩容、缩容</li>
-<li>不要去拷贝pool，也就是说最好单例</li>
-</ul>
-<h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><p>下面我们从源码层面来看看这个 sync.Pool；可能需要你有GPM模型和GC的相关知识。<br>使用golang版本： go version go1.13</p>
-<h3 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h3><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> Pool <span class="keyword">struct</span> &#123;</span><br><span class="line">	noCopy noCopy</span><br><span class="line"></span><br><span class="line">	local     unsafe.Pointer <span class="comment">// local fixed-size per-P pool, actual type is [P]poolLocal</span></span><br><span class="line">	localSize <span class="keyword">uintptr</span>        <span class="comment">// size of the local array</span></span><br><span class="line"></span><br><span class="line">	victim     unsafe.Pointer <span class="comment">// local from previous cycle</span></span><br><span class="line">	victimSize <span class="keyword">uintptr</span>        <span class="comment">// size of victims array</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// New optionally specifies a function to generate</span></span><br><span class="line">	<span class="comment">// a value when Get would otherwise return nil.</span></span><br><span class="line">	<span class="comment">// It may not be changed concurrently with calls to Get.</span></span><br><span class="line">	New <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="title">interface</span></span>&#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Local per-P Pool appendix.</span></span><br><span class="line"><span class="keyword">type</span> poolLocalInternal <span class="keyword">struct</span> &#123;</span><br><span class="line">	private <span class="keyword">interface</span>&#123;&#125; <span class="comment">// Can be used only by the respective P.</span></span><br><span class="line">	shared  poolChain   <span class="comment">// Local P can pushHead/popHead; any P can popTail.</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> poolLocal <span class="keyword">struct</span> &#123;</span><br><span class="line">	poolLocalInternal</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Prevents false sharing on widespread platforms with</span></span><br><span class="line">	<span class="comment">// 128 mod (cache line size) = 0 .</span></span><br><span class="line">	pad [<span class="number">128</span> - unsafe.Sizeof(poolLocalInternal&#123;&#125;)%<span class="number">128</span>]<span class="keyword">byte</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>我们可以看到其实结构并不复杂，但是如果自己看的话有点懵。注意几个细节就ok。</p>
-<ul>
-<li>local这里面真正的是[P]poolLocal其中P就是GPM模型中的P，有多少个P数组就有多大，也就是每个P维护了一个本地的poolLocal。</li>
-<li>poolLocal里面维护了一个private一个shared，看名字其实就很明显了，private是给自己用的，而shared的是一个队列，可以给别人用的。注释写的也很清楚，自己可以从队列的头部存然后从头部取，而别的P可以从尾部取。</li>
-<li>victim这个从字面上面也可以知道，幸存者嘛，当进行gc的stw时候，会将local中的对象移到victim中去，也就是说幸存了一次gc，</li>
-</ul>
-<h3 id="Get"><a href="#Get" class="headerlink" title="Get"></a>Get</h3><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Pool)</span> <span class="title">Get</span><span class="params">()</span> <span class="title">interface</span></span>&#123;&#125; &#123;</span><br><span class="line">	......</span><br><span class="line">	l, pid := p.pin()</span><br><span class="line">	x := l.private</span><br><span class="line">	l.private = <span class="literal">nil</span></span><br><span class="line">	<span class="keyword">if</span> x == <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="comment">// Try to pop the head of the local shard. We prefer</span></span><br><span class="line">		<span class="comment">// the head over the tail for temporal locality of</span></span><br><span class="line">		<span class="comment">// reuse.</span></span><br><span class="line">		x, _ = l.shared.popHead()</span><br><span class="line">		<span class="keyword">if</span> x == <span class="literal">nil</span> &#123;</span><br><span class="line">			x = p.getSlow(pid)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	runtime_procUnpin()</span><br><span class="line">	......</span><br><span class="line">	<span class="keyword">if</span> x == <span class="literal">nil</span> &amp;&amp; p.New != <span class="literal">nil</span> &#123;</span><br><span class="line">		x = p.New()</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> x</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Pool)</span> <span class="title">getSlow</span><span class="params">(pid <span class="keyword">int</span>)</span> <span class="title">interface</span></span>&#123;&#125; &#123;</span><br><span class="line">	<span class="comment">// See the comment in pin regarding ordering of the loads.</span></span><br><span class="line">	size := atomic.LoadUintptr(&amp;p.localSize) <span class="comment">// load-acquire</span></span><br><span class="line">	locals := p.local                        <span class="comment">// load-consume</span></span><br><span class="line">	<span class="comment">// Try to steal one element from other procs.</span></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="keyword">int</span>(size); i++ &#123;</span><br><span class="line">		l := indexLocal(locals, (pid+i+<span class="number">1</span>)%<span class="keyword">int</span>(size))</span><br><span class="line">		<span class="keyword">if</span> x, _ := l.shared.popTail(); x != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> x</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Try the victim cache. We do this after attempting to steal</span></span><br><span class="line">	<span class="comment">// from all primary caches because we want objects in the</span></span><br><span class="line">	<span class="comment">// victim cache to age out if at all possible.</span></span><br><span class="line">	size = atomic.LoadUintptr(&amp;p.victimSize)</span><br><span class="line">	<span class="keyword">if</span> <span class="keyword">uintptr</span>(pid) &gt;= size &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line">	locals = p.victim</span><br><span class="line">	l := indexLocal(locals, pid)</span><br><span class="line">	<span class="keyword">if</span> x := l.private; x != <span class="literal">nil</span> &#123;</span><br><span class="line">		l.private = <span class="literal">nil</span></span><br><span class="line">		<span class="keyword">return</span> x</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="keyword">int</span>(size); i++ &#123;</span><br><span class="line">		l := indexLocal(locals, (pid+i)%<span class="keyword">int</span>(size))</span><br><span class="line">		<span class="keyword">if</span> x, _ := l.shared.popTail(); x != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> x</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Mark the victim cache as empty for future gets don&#x27;t bother</span></span><br><span class="line">	<span class="comment">// with it.</span></span><br><span class="line">	atomic.StoreUintptr(&amp;p.victimSize, <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>我去掉了其中一些竞态分析的代码，Get的逻辑其实非常清晰。</p>
-<ul>
-<li>如果 private 不是空的，那就直接拿来用</li>
-<li>如果 private 是空的，那就先去本地的shared队列里面从头 pop 一个</li>
-<li>如果本地的 shared 也没有了，那 getSlow 去拿，其实就是去别的P的 shared 里面偷，偷不到回去 victim 幸存者里面找</li>
-<li>如果最后都没有，那就只能调用 New 方法创建一个了</li>
-</ul>
-<p>我随手画了一下，可能不是特别准确，意思到位了</p>
-<p><img src="http://blog.linkinstars.com/mweb/15732709504973.jpg" alt="-w566"></p>
-<h3 id="Put"><a href="#Put" class="headerlink" title="Put"></a>Put</h3><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Put adds x to the pool.</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Pool)</span> <span class="title">Put</span><span class="params">(x <span class="keyword">interface</span>&#123;&#125;)</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> x == <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	......</span><br><span class="line">	l, _ := p.pin()</span><br><span class="line">	<span class="keyword">if</span> l.private == <span class="literal">nil</span> &#123;</span><br><span class="line">		l.private = x</span><br><span class="line">		x = <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> x != <span class="literal">nil</span> &#123;</span><br><span class="line">		l.shared.pushHead(x)</span><br><span class="line">	&#125;</span><br><span class="line">	runtime_procUnpin()</span><br><span class="line">	......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>看完Get其实Put就很简单了</p>
-<ul>
-<li>如果 private 没有，就放在 private</li>
-<li>如果 private 有了，那么就放到 shared 队列的头部</li>
-</ul>
-<h2 id="实际测试"><a href="#实际测试" class="headerlink" title="实际测试"></a>实际测试</h2><p>让我们实际写个测试的案例来测测具体使用时会有什么样的变化</p>
-<h3 id="Put之后马上Get"><a href="#Put之后马上Get" class="headerlink" title="Put之后马上Get"></a>Put之后马上Get</h3><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> pool = sync.Pool&#123;</span><br><span class="line">    New: <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="title">interface</span></span>&#123;&#125; &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;123&quot;</span></span><br><span class="line">    &#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    t := pool.Get().(<span class="keyword">string</span>)</span><br><span class="line">    fmt.Println(t)</span><br><span class="line"></span><br><span class="line">    pool.Put(<span class="string">&quot;321&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    t2 := pool.Get().(<span class="keyword">string</span>)</span><br><span class="line">    fmt.Println(t2)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>输出：<br>123<br>321</p>
-<h3 id="Put之后GC后Get"><a href="#Put之后GC后Get" class="headerlink" title="Put之后GC后Get"></a>Put之后GC后Get</h3><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> pool = sync.Pool&#123;</span><br><span class="line">    New: <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="title">interface</span></span>&#123;&#125; &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;123&quot;</span></span><br><span class="line">    &#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    t := pool.Get().(<span class="keyword">string</span>)</span><br><span class="line">    fmt.Println(t)</span><br><span class="line"></span><br><span class="line">    pool.Put(<span class="string">&quot;321&quot;</span>)</span><br><span class="line">    pool.Put(<span class="string">&quot;321&quot;</span>)</span><br><span class="line">    pool.Put(<span class="string">&quot;321&quot;</span>)</span><br><span class="line">    pool.Put(<span class="string">&quot;321&quot;</span>)</span><br><span class="line"></span><br><span class="line">    runtime.GC()</span><br><span class="line">    time.Sleep(<span class="number">1</span> * time.Second)</span><br><span class="line"></span><br><span class="line">    t2 := pool.Get().(<span class="keyword">string</span>)</span><br><span class="line">    fmt.Println(t2)</span><br><span class="line"></span><br><span class="line">    runtime.GC()</span><br><span class="line">    time.Sleep(<span class="number">1</span> * time.Second)</span><br><span class="line"></span><br><span class="line">    t2 = pool.Get().(<span class="keyword">string</span>)</span><br><span class="line">    fmt.Println(t2)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>输出：<br>123<br>321<br>123</p>
-<p>你知道为什么吗？</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这次总结来点不一样的，提几个问题吧。</p>
-<ol>
-<li>什么情况下适合使用sync.Pool呢？</li>
-<li>sync.Pool的对象什么时候会被回收呢？</li>
-<li>sync.Pool是如何实现线程安全的？<br>如果你能回答上面的问题，证明你对它已经足够了解了，那么就可以尝试在具体的情况下使用它来玩玩了。试试吧~</li>
-</ol>
-]]></content>
-      <categories>
-        <category>golang源码解析</category>
-      </categories>
-      <tags>
-        <tag>sync.Pool</tag>
       </tags>
   </entry>
   <entry>
@@ -3372,11 +3372,6 @@
       </tags>
   </entry>
   <entry>
-    <title>分类</title>
-    <url>/categories/index.html</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css">]]></content>
-  </entry>
-  <entry>
     <title>关于我的</title>
     <url>/about/index.html</url>
     <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h2 id="LinkinStar"><a href="#LinkinStar" class="headerlink" title="LinkinStar"></a>LinkinStar</h2><h3 id="个人情况"><a href="#个人情况" class="headerlink" title="个人情况"></a>个人情况</h3><ul>
@@ -3400,6 +3395,11 @@
 ]]></content>
   </entry>
   <entry>
+    <title>分类</title>
+    <url>/categories/index.html</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css">]]></content>
+  </entry>
+  <entry>
     <title></title>
     <url>/css/background.css</url>
     <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css">#site-title {
@@ -3418,11 +3418,6 @@ img {
   <entry>
     <title>标签</title>
     <url>/tags/index.html</url>
-    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css">]]></content>
-  </entry>
-  <entry>
-    <title></title>
-    <url>/js/https_redirect.js</url>
     <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css">]]></content>
   </entry>
 </search>
