@@ -1,3 +1,10 @@
+var targetProtocol = "http:";
+if (window.location.protocol != targetProtocol) {
+  window.location.href =
+    targetProtocol +
+    window.location.href.substring(window.location.protocol.length);
+}
+
 // 注意：live2d_path 参数应使用绝对路径
 const live2d_path = "https://cdn.jsdelivr.net/npm/akilar-live2d-widget/";
 //const live2d_path = "/live2d-widget/";
