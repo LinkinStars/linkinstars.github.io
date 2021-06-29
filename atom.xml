@@ -6,7 +6,7 @@
   <link href="https://www.linkinstar.wiki/atom.xml" rel="self"/>
   
   <link href="https://www.linkinstar.wiki/"/>
-  <updated>2021-05-19T15:51:06.148Z</updated>
+  <updated>2021-06-29T16:20:43.318Z</updated>
   <id>https://www.linkinstar.wiki/</id>
   
   <author>
@@ -15,6 +15,26 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>GopherChina2021 个人总结</title>
+    <link href="https://www.linkinstar.wiki/post/5f9b9e64.html"/>
+    <id>https://www.linkinstar.wiki/post/5f9b9e64.html</id>
+    <published>2021-06-27T16:00:00.000Z</published>
+    <updated>2021-06-29T16:20:43.318Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;今年本来没想着要去的，因为确实有点远，加上疫情之下不太方便，但是意料之外来了一张门票，那就必须去一下了，这次收获也不少，有了上次的经验，这次就听得很舒服，不像上次那样那么累了，这次能准确的知道什么应该仔细听，什么应该略过，所以这次的笔记就相对来说少一些，精炼一点。&lt;/p&gt;
+&lt;p&gt;这次去也面基了大佬，果然北京的都是大佬，都比我卷的厉害，以后还要多学习，哈哈哈，膜拜膜拜~&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="GopherChina" scheme="https://www.linkinstar.wiki/categories/GopherChina/"/>
+    
+    
+    <category term="GopherChina" scheme="https://www.linkinstar.wiki/tags/GopherChina/"/>
+    
+  </entry>
   
   <entry>
     <title>轻量级 k8s 应用日志收集方案 loki</title>
@@ -388,25 +408,6 @@
     
     
     <category term="nat" scheme="https://www.linkinstar.wiki/tags/nat/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>将版本信息打包到go的二进制中</title>
-    <link href="https://www.linkinstar.wiki/post/f83d929.html"/>
-    <id>https://www.linkinstar.wiki/post/f83d929.html</id>
-    <published>2020-04-17T16:00:00.000Z</published>
-    <updated>2021-05-19T15:51:06.154Z</updated>
-    
-    
-    <summary type="html">&lt;p&gt;很多时候对于go打包后的二进制文件，我们是无法知道这个二进制是什么当前什么版本、什么时候打包的，而很多软件的命令行都会有一个 -version 的选项来打印出当前程序的版本号，当然你可以直接在程序里面写死这个版本号，但是还有更加优雅的解决方式。&lt;/p&gt;</summary>
-    
-    
-    
-    <category term="golang基础" scheme="https://www.linkinstar.wiki/categories/golang%E5%9F%BA%E7%A1%80/"/>
-    
-    
-    <category term="gobuild" scheme="https://www.linkinstar.wiki/tags/gobuild/"/>
     
   </entry>
   
