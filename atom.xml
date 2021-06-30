@@ -3,11 +3,11 @@
   <title>LinkinStar&#39;s Blog</title>
   
   
-  <link href="https://www.linkinstar.wiki/atom.xml" rel="self"/>
+  <link href="https://www.linkinstars.com/atom.xml" rel="self"/>
   
-  <link href="https://www.linkinstar.wiki/"/>
+  <link href="https://www.linkinstars.com/"/>
   <updated>2021-06-29T16:20:43.318Z</updated>
-  <id>https://www.linkinstar.wiki/</id>
+  <id>https://www.linkinstars.com/</id>
   
   <author>
     <name>LinkinStar</name>
@@ -18,8 +18,8 @@
   
   <entry>
     <title>GopherChina2021 个人总结</title>
-    <link href="https://www.linkinstar.wiki/post/5f9b9e64.html"/>
-    <id>https://www.linkinstar.wiki/post/5f9b9e64.html</id>
+    <link href="https://www.linkinstars.com/post/5f9b9e64.html"/>
+    <id>https://www.linkinstars.com/post/5f9b9e64.html</id>
     <published>2021-06-27T16:00:00.000Z</published>
     <updated>2021-06-29T16:20:43.318Z</updated>
     
@@ -29,17 +29,17 @@
     
     
     
-    <category term="GopherChina" scheme="https://www.linkinstar.wiki/categories/GopherChina/"/>
+    <category term="GopherChina" scheme="https://www.linkinstars.com/categories/GopherChina/"/>
     
     
-    <category term="GopherChina" scheme="https://www.linkinstar.wiki/tags/GopherChina/"/>
+    <category term="GopherChina" scheme="https://www.linkinstars.com/tags/GopherChina/"/>
     
   </entry>
   
   <entry>
     <title>轻量级 k8s 应用日志收集方案 loki</title>
-    <link href="https://www.linkinstar.wiki/post/da4cf864.html"/>
-    <id>https://www.linkinstar.wiki/post/da4cf864.html</id>
+    <link href="https://www.linkinstars.com/post/da4cf864.html"/>
+    <id>https://www.linkinstars.com/post/da4cf864.html</id>
     <published>2021-04-19T16:00:00.000Z</published>
     <updated>2021-05-19T15:51:06.148Z</updated>
     
@@ -48,17 +48,17 @@
     
     
     
-    <category term="loki" scheme="https://www.linkinstar.wiki/categories/loki/"/>
+    <category term="loki" scheme="https://www.linkinstars.com/categories/loki/"/>
     
     
-    <category term="loki" scheme="https://www.linkinstar.wiki/tags/loki/"/>
+    <category term="loki" scheme="https://www.linkinstars.com/tags/loki/"/>
     
   </entry>
   
   <entry>
     <title>monitoror/monitoror 最轻量的监控大屏</title>
-    <link href="https://www.linkinstar.wiki/post/94902806.html"/>
-    <id>https://www.linkinstar.wiki/post/94902806.html</id>
+    <link href="https://www.linkinstars.com/post/94902806.html"/>
+    <id>https://www.linkinstars.com/post/94902806.html</id>
     <published>2021-04-11T16:00:00.000Z</published>
     <updated>2021-05-19T15:51:06.148Z</updated>
     
@@ -68,17 +68,17 @@
     
     
     
-    <category term="monitoror" scheme="https://www.linkinstar.wiki/categories/monitoror/"/>
+    <category term="monitoror" scheme="https://www.linkinstars.com/categories/monitoror/"/>
     
     
-    <category term="monitoror" scheme="https://www.linkinstar.wiki/tags/monitoror/"/>
+    <category term="monitoror" scheme="https://www.linkinstars.com/tags/monitoror/"/>
     
   </entry>
   
   <entry>
     <title>k8s 意外集锦 - oom 的连锁反应</title>
-    <link href="https://www.linkinstar.wiki/post/b817d222.html"/>
-    <id>https://www.linkinstar.wiki/post/b817d222.html</id>
+    <link href="https://www.linkinstars.com/post/b817d222.html"/>
+    <id>https://www.linkinstars.com/post/b817d222.html</id>
     <published>2021-03-11T16:00:00.000Z</published>
     <updated>2021-05-19T15:51:06.136Z</updated>
     
@@ -87,17 +87,17 @@
     
     
     
-    <category term="accident" scheme="https://www.linkinstar.wiki/categories/accident/"/>
+    <category term="accident" scheme="https://www.linkinstars.com/categories/accident/"/>
     
     
-    <category term="k8s-accident" scheme="https://www.linkinstar.wiki/tags/k8s-accident/"/>
+    <category term="k8s-accident" scheme="https://www.linkinstars.com/tags/k8s-accident/"/>
     
   </entry>
   
   <entry>
     <title>k8s 意外集锦 - configmap 挂载 目录 只读</title>
-    <link href="https://www.linkinstar.wiki/post/c86fbf9f.html"/>
-    <id>https://www.linkinstar.wiki/post/c86fbf9f.html</id>
+    <link href="https://www.linkinstars.com/post/c86fbf9f.html"/>
+    <id>https://www.linkinstars.com/post/c86fbf9f.html</id>
     <published>2021-02-01T16:00:00.000Z</published>
     <updated>2021-05-19T15:51:06.133Z</updated>
     
@@ -107,17 +107,17 @@
     
     
     
-    <category term="accident" scheme="https://www.linkinstar.wiki/categories/accident/"/>
+    <category term="accident" scheme="https://www.linkinstars.com/categories/accident/"/>
     
     
-    <category term="k8s-accident" scheme="https://www.linkinstar.wiki/tags/k8s-accident/"/>
+    <category term="k8s-accident" scheme="https://www.linkinstars.com/tags/k8s-accident/"/>
     
   </entry>
   
   <entry>
     <title>k8s 小技巧</title>
-    <link href="https://www.linkinstar.wiki/post/9ef22657.html"/>
-    <id>https://www.linkinstar.wiki/post/9ef22657.html</id>
+    <link href="https://www.linkinstars.com/post/9ef22657.html"/>
+    <id>https://www.linkinstars.com/post/9ef22657.html</id>
     <published>2021-01-22T16:00:00.000Z</published>
     <updated>2021-05-19T15:51:06.137Z</updated>
     
@@ -126,17 +126,17 @@
     
     
     
-    <category term="tips" scheme="https://www.linkinstar.wiki/categories/tips/"/>
+    <category term="tips" scheme="https://www.linkinstars.com/categories/tips/"/>
     
     
-    <category term="k8s-tips" scheme="https://www.linkinstar.wiki/tags/k8s-tips/"/>
+    <category term="k8s-tips" scheme="https://www.linkinstars.com/tags/k8s-tips/"/>
     
   </entry>
   
   <entry>
     <title>Weave Scope 监控 k8s 集群</title>
-    <link href="https://www.linkinstar.wiki/post/2580a453.html"/>
-    <id>https://www.linkinstar.wiki/post/2580a453.html</id>
+    <link href="https://www.linkinstars.com/post/2580a453.html"/>
+    <id>https://www.linkinstars.com/post/2580a453.html</id>
     <published>2021-01-11T16:00:00.000Z</published>
     <updated>2021-05-19T15:51:06.150Z</updated>
     
@@ -145,17 +145,17 @@
     
     
     
-    <category term="Weave-Scope" scheme="https://www.linkinstar.wiki/categories/Weave-Scope/"/>
+    <category term="Weave-Scope" scheme="https://www.linkinstars.com/categories/Weave-Scope/"/>
     
     
-    <category term="Weave-Scope" scheme="https://www.linkinstar.wiki/tags/Weave-Scope/"/>
+    <category term="Weave-Scope" scheme="https://www.linkinstars.com/tags/Weave-Scope/"/>
     
   </entry>
   
   <entry>
     <title>GopherChina2020 个人总结</title>
-    <link href="https://www.linkinstar.wiki/post/c2947f12.html"/>
-    <id>https://www.linkinstar.wiki/post/c2947f12.html</id>
+    <link href="https://www.linkinstars.com/post/c2947f12.html"/>
+    <id>https://www.linkinstars.com/post/c2947f12.html</id>
     <published>2020-11-22T16:00:00.000Z</published>
     <updated>2021-05-19T15:51:06.166Z</updated>
     
@@ -166,17 +166,17 @@
     
     
     
-    <category term="GopherChina" scheme="https://www.linkinstar.wiki/categories/GopherChina/"/>
+    <category term="GopherChina" scheme="https://www.linkinstars.com/categories/GopherChina/"/>
     
     
-    <category term="GopherChina" scheme="https://www.linkinstar.wiki/tags/GopherChina/"/>
+    <category term="GopherChina" scheme="https://www.linkinstars.com/tags/GopherChina/"/>
     
   </entry>
   
   <entry>
     <title>下一个 nginx？caddy 自动 https 真香</title>
-    <link href="https://www.linkinstar.wiki/post/51c3059c.html"/>
-    <id>https://www.linkinstar.wiki/post/51c3059c.html</id>
+    <link href="https://www.linkinstars.com/post/51c3059c.html"/>
+    <id>https://www.linkinstars.com/post/51c3059c.html</id>
     <published>2020-11-13T16:00:00.000Z</published>
     <updated>2021-05-19T15:51:06.144Z</updated>
     
@@ -185,17 +185,17 @@
     
     
     
-    <category term="caddy" scheme="https://www.linkinstar.wiki/categories/caddy/"/>
+    <category term="caddy" scheme="https://www.linkinstars.com/categories/caddy/"/>
     
     
-    <category term="caddy" scheme="https://www.linkinstar.wiki/tags/caddy/"/>
+    <category term="caddy" scheme="https://www.linkinstars.com/tags/caddy/"/>
     
   </entry>
   
   <entry>
     <title>openfaas/faas 环境搭建和开发使用</title>
-    <link href="https://www.linkinstar.wiki/post/f7a42ef3.html"/>
-    <id>https://www.linkinstar.wiki/post/f7a42ef3.html</id>
+    <link href="https://www.linkinstars.com/post/f7a42ef3.html"/>
+    <id>https://www.linkinstars.com/post/f7a42ef3.html</id>
     <published>2020-10-18T16:00:00.000Z</published>
     <updated>2021-05-19T15:51:06.149Z</updated>
     
@@ -204,17 +204,17 @@
     
     
     
-    <category term="云原生" scheme="https://www.linkinstar.wiki/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/"/>
+    <category term="云原生" scheme="https://www.linkinstars.com/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/"/>
     
     
-    <category term="faas" scheme="https://www.linkinstar.wiki/tags/faas/"/>
+    <category term="faas" scheme="https://www.linkinstars.com/tags/faas/"/>
     
   </entry>
   
   <entry>
     <title>Golang Mutex 到底是否应该使用指针</title>
-    <link href="https://www.linkinstar.wiki/post/e360d978.html"/>
-    <id>https://www.linkinstar.wiki/post/e360d978.html</id>
+    <link href="https://www.linkinstars.com/post/e360d978.html"/>
+    <id>https://www.linkinstars.com/post/e360d978.html</id>
     <published>2020-07-17T16:00:00.000Z</published>
     <updated>2021-05-19T15:51:06.155Z</updated>
     
@@ -224,17 +224,17 @@
     
     
     
-    <category term="golang基础" scheme="https://www.linkinstar.wiki/categories/golang%E5%9F%BA%E7%A1%80/"/>
+    <category term="golang基础" scheme="https://www.linkinstars.com/categories/golang%E5%9F%BA%E7%A1%80/"/>
     
     
-    <category term="Mutex" scheme="https://www.linkinstar.wiki/tags/Mutex/"/>
+    <category term="Mutex" scheme="https://www.linkinstars.com/tags/Mutex/"/>
     
   </entry>
   
   <entry>
     <title>Linux 图形化监控工具</title>
-    <link href="https://www.linkinstar.wiki/post/a4957565.html"/>
-    <id>https://www.linkinstar.wiki/post/a4957565.html</id>
+    <link href="https://www.linkinstars.com/post/a4957565.html"/>
+    <id>https://www.linkinstars.com/post/a4957565.html</id>
     <published>2020-07-10T16:00:00.000Z</published>
     <updated>2021-05-19T15:51:06.139Z</updated>
     
@@ -243,17 +243,17 @@
     
     
     
-    <category term="linux" scheme="https://www.linkinstar.wiki/categories/linux/"/>
+    <category term="linux" scheme="https://www.linkinstars.com/categories/linux/"/>
     
     
-    <category term="monitor" scheme="https://www.linkinstar.wiki/tags/monitor/"/>
+    <category term="monitor" scheme="https://www.linkinstars.com/tags/monitor/"/>
     
   </entry>
   
   <entry>
     <title>你的网络还好吗</title>
-    <link href="https://www.linkinstar.wiki/post/8fbd221e.html"/>
-    <id>https://www.linkinstar.wiki/post/8fbd221e.html</id>
+    <link href="https://www.linkinstars.com/post/8fbd221e.html"/>
+    <id>https://www.linkinstars.com/post/8fbd221e.html</id>
     <published>2020-07-03T16:00:00.000Z</published>
     <updated>2021-05-19T15:51:06.140Z</updated>
     
@@ -263,17 +263,17 @@
     
     
     
-    <category term="linux" scheme="https://www.linkinstar.wiki/categories/linux/"/>
+    <category term="linux" scheme="https://www.linkinstars.com/categories/linux/"/>
     
     
-    <category term="network" scheme="https://www.linkinstar.wiki/tags/network/"/>
+    <category term="network" scheme="https://www.linkinstars.com/tags/network/"/>
     
   </entry>
   
   <entry>
     <title>你的 IO 还好吗</title>
-    <link href="https://www.linkinstar.wiki/post/f0943d44.html"/>
-    <id>https://www.linkinstar.wiki/post/f0943d44.html</id>
+    <link href="https://www.linkinstars.com/post/f0943d44.html"/>
+    <id>https://www.linkinstars.com/post/f0943d44.html</id>
     <published>2020-06-26T16:00:00.000Z</published>
     <updated>2021-05-19T15:51:06.138Z</updated>
     
@@ -283,17 +283,17 @@
     
     
     
-    <category term="linux" scheme="https://www.linkinstar.wiki/categories/linux/"/>
+    <category term="linux" scheme="https://www.linkinstars.com/categories/linux/"/>
     
     
-    <category term="io" scheme="https://www.linkinstar.wiki/tags/io/"/>
+    <category term="io" scheme="https://www.linkinstars.com/tags/io/"/>
     
   </entry>
   
   <entry>
     <title>快速上手 dubbo-go</title>
-    <link href="https://www.linkinstar.wiki/post/81d69338.html"/>
-    <id>https://www.linkinstar.wiki/post/81d69338.html</id>
+    <link href="https://www.linkinstars.com/post/81d69338.html"/>
+    <id>https://www.linkinstars.com/post/81d69338.html</id>
     <published>2020-06-19T16:00:00.000Z</published>
     <updated>2021-05-19T15:51:06.145Z</updated>
     
@@ -302,17 +302,17 @@
     
     
     
-    <category term="dubbo-go" scheme="https://www.linkinstar.wiki/categories/dubbo-go/"/>
+    <category term="dubbo-go" scheme="https://www.linkinstars.com/categories/dubbo-go/"/>
     
     
-    <category term="dubbo-go" scheme="https://www.linkinstar.wiki/tags/dubbo-go/"/>
+    <category term="dubbo-go" scheme="https://www.linkinstars.com/tags/dubbo-go/"/>
     
   </entry>
   
   <entry>
     <title>你的内存还好吗</title>
-    <link href="https://www.linkinstar.wiki/post/14f810f7.html"/>
-    <id>https://www.linkinstar.wiki/post/14f810f7.html</id>
+    <link href="https://www.linkinstars.com/post/14f810f7.html"/>
+    <id>https://www.linkinstars.com/post/14f810f7.html</id>
     <published>2020-06-13T16:00:00.000Z</published>
     <updated>2021-05-19T15:51:06.140Z</updated>
     
@@ -321,17 +321,17 @@
     
     
     
-    <category term="linux" scheme="https://www.linkinstar.wiki/categories/linux/"/>
+    <category term="linux" scheme="https://www.linkinstars.com/categories/linux/"/>
     
     
-    <category term="memory" scheme="https://www.linkinstar.wiki/tags/memory/"/>
+    <category term="memory" scheme="https://www.linkinstars.com/tags/memory/"/>
     
   </entry>
   
   <entry>
     <title>Golang 监控全局变量</title>
-    <link href="https://www.linkinstar.wiki/post/2dc2d3f5.html"/>
-    <id>https://www.linkinstar.wiki/post/2dc2d3f5.html</id>
+    <link href="https://www.linkinstars.com/post/2dc2d3f5.html"/>
+    <id>https://www.linkinstars.com/post/2dc2d3f5.html</id>
     <published>2020-06-12T16:00:00.000Z</published>
     <updated>2021-05-19T15:51:06.156Z</updated>
     
@@ -341,17 +341,17 @@
     
     
     
-    <category term="golang基础" scheme="https://www.linkinstar.wiki/categories/golang%E5%9F%BA%E7%A1%80/"/>
+    <category term="golang基础" scheme="https://www.linkinstars.com/categories/golang%E5%9F%BA%E7%A1%80/"/>
     
     
-    <category term="vars" scheme="https://www.linkinstar.wiki/tags/vars/"/>
+    <category term="vars" scheme="https://www.linkinstars.com/tags/vars/"/>
     
   </entry>
   
   <entry>
     <title>你的 CPU 还好吗</title>
-    <link href="https://www.linkinstar.wiki/post/49d36794.html"/>
-    <id>https://www.linkinstar.wiki/post/49d36794.html</id>
+    <link href="https://www.linkinstars.com/post/49d36794.html"/>
+    <id>https://www.linkinstars.com/post/49d36794.html</id>
     <published>2020-06-05T16:00:00.000Z</published>
     <updated>2021-05-19T15:51:06.138Z</updated>
     
@@ -362,17 +362,17 @@
     
     
     
-    <category term="linux" scheme="https://www.linkinstar.wiki/categories/linux/"/>
+    <category term="linux" scheme="https://www.linkinstars.com/categories/linux/"/>
     
     
-    <category term="cpu" scheme="https://www.linkinstar.wiki/tags/cpu/"/>
+    <category term="cpu" scheme="https://www.linkinstars.com/tags/cpu/"/>
     
   </entry>
   
   <entry>
     <title>python 基础语法笔记</title>
-    <link href="https://www.linkinstar.wiki/post/fb63c20b.html"/>
-    <id>https://www.linkinstar.wiki/post/fb63c20b.html</id>
+    <link href="https://www.linkinstars.com/post/fb63c20b.html"/>
+    <id>https://www.linkinstars.com/post/fb63c20b.html</id>
     <published>2020-05-08T16:00:00.000Z</published>
     <updated>2021-05-19T15:51:06.165Z</updated>
     
@@ -381,17 +381,17 @@
     
     
     
-    <category term="python" scheme="https://www.linkinstar.wiki/categories/python/"/>
+    <category term="python" scheme="https://www.linkinstars.com/categories/python/"/>
     
     
-    <category term="basic" scheme="https://www.linkinstar.wiki/tags/basic/"/>
+    <category term="basic" scheme="https://www.linkinstars.com/tags/basic/"/>
     
   </entry>
   
   <entry>
     <title>Golang用300行代码实现内网穿透</title>
-    <link href="https://www.linkinstar.wiki/post/34237eb6.html"/>
-    <id>https://www.linkinstar.wiki/post/34237eb6.html</id>
+    <link href="https://www.linkinstars.com/post/34237eb6.html"/>
+    <id>https://www.linkinstars.com/post/34237eb6.html</id>
     <published>2020-04-24T16:00:00.000Z</published>
     <updated>2021-05-19T15:51:06.141Z</updated>
     
@@ -404,10 +404,10 @@
     
     
     
-    <category term="network" scheme="https://www.linkinstar.wiki/categories/network/"/>
+    <category term="network" scheme="https://www.linkinstars.com/categories/network/"/>
     
     
-    <category term="nat" scheme="https://www.linkinstar.wiki/tags/nat/"/>
+    <category term="nat" scheme="https://www.linkinstars.com/tags/nat/"/>
     
   </entry>
   
