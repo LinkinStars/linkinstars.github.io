@@ -7,7 +7,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg">
 <meta property="article:published_time" content="2021-07-03T16:00:00.000Z">
-<meta property="article:modified_time" content="2021-07-04T16:26:52.516Z">
+<meta property="article:modified_time" content="2021-07-04T16:59:55.369Z">
 <meta property="article:author" content="LinkinStar">
 <meta property="article:tag" content="CGO">
 <meta name="twitter:card" content="summary">
@@ -65,7 +65,7 @@
   isHome: false,
   isHighlightShrink: false,
   isToc: true,
-  postUpdate: '2021-07-05 00:26:52'
+  postUpdate: '2021-07-05 00:59:55'
 }</script><noscript><style type="text/css">
   #nav {
     opacity: 1
@@ -201,7 +201,7 @@
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">before <span class="built_in">delete</span>: linkinstar</span><br><span class="line">after <span class="built_in">delete</span>: </span><br></pre></td></tr></table></figure>
 <p>至此我们就最简单的能通过 CGO 使用 STL 库了，那么相对应的，有了这个砖头，那么其他相关的 vector，set….你都可以使用了，甚至可以来个什么 algorithm 的 next_permutation 什么的，想想就有点刺激。</p>
 <blockquote>
-<p>当然以上只是个 demo，如果需要真的当缓存来用，还有很多需要优化的地方，比如调用过程中减少 key，value 的拷贝，缓存的并非访问等等…..</p>
+<p>当然以上只是个 demo，如果需要真的当缓存来用，还有很多需要优化的地方，比如调用过程中减少 key，value 的拷贝，缓存的并发访问等等…..</p>
 </blockquote>
 <h2 id="总结与延伸"><a href="#总结与延伸" class="headerlink" title="总结与延伸"></a>总结与延伸</h2><p>其实看着代码很容易，但是当我第一次写的时候碰到一堆的问题，一方面是 CGO 的资料不多，代码也不多，所以参考资料比较少，很多代码需要猜测怎么样写，基本上是照猫画虎，用过之后就好了很多了，基本上能知道大体的使用，剩下的就是细节了。</p>
 <p>CGO 的使用前提还需要你对 C 有一定的了解，如果完全没有接触过，可能也会觉得比较困难。很期待主动式缓存那个框架实现的开源，这样可以巴拉巴拉它的代码看看它是</p>
