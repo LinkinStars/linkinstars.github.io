@@ -3568,6 +3568,73 @@
       </tags>
   </entry>
   <entry>
+    <title>初识 CGO - 利用 CGO 使用 C++ STL</title>
+    <url>/post/19c0fd4e.html</url>
+    <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><p>之前我也了解过 CGO 相关的知识，但是当时给我的印象全部都是 “CGO 性能差” “完全没有必要，实际根本用不到”，但是这次听了大佬的一些分享发现 CGO 其实就是黑科技啊，<strong>有了它你在使用 go 的时候有了更多的想象力</strong>。本文将带你初步了解和使用 CGO，本文只是抛砖头，因为有关 CGO 的文档其实蛮少的，在其中也有很多坑，所以今天来踩一次，不知道会不会留下什么坑….</p>
+<blockquote>
+<p>有了 CGO，Go 就有机会继承 C/C++近半个世纪的遗产 by  曹大</p>
+</blockquote>
+<span id="more"></span>
+<h2 id="CGO-使用案例分享"><a href="#CGO-使用案例分享" class="headerlink" title="CGO 使用案例分享"></a>CGO 使用案例分享</h2><p> 首先来看一下最近我看到使用 CGO 的两个案例</p>
+<h3 id="案例-1-mosn"><a href="#案例-1-mosn" class="headerlink" title="案例 1 mosn"></a>案例 1 mosn</h3><p><img src="https://raw.githubusercontent.com/mosn/mosn/ab4ca053f4d9d907f4a5f9bcf9f30504ba3d142c/pkg/networkextention/docs/mosn-high-performance-network-framework.png" alt="mosn"></p>
+<p><a href="https://github.com/mosn/mosn">https://github.com/mosn/mosn</a></p>
+<p>其中 mosn 通过 CGO 的能力，想办法在 envoy 后面加了一层，使得其底层网络具备 C 同等的处理能力的同时，又能使上层业务可高效复用 mosn 的处理能力及 go 的高开发效率。</p>
+<h3 id="案例-2-主动式缓存"><a href="#案例-2-主动式缓存" class="headerlink" title="案例 2 主动式缓存"></a>案例 2 主动式缓存</h3><p><img src="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/active-cache.png" alt="active-cache"></p>
+<p>这个 GopherChina 上一个学而思网校的分享，主要讲的是如何设计一个主动式内存缓存，其中提到了 Go 的 GC 导致当有大量内存缓存的时候，对象数量过多，GC 扫描的时间会很长，所以将缓存对象存储到 C 中，然后利用 CGO 去访问缓存的对象，因为当对象在 C 中的时候就不参与 GC 了。当时我听到这个思路的时候也是觉得有点意思，原来 CGO 还可以有这样的操作。</p>
+<h2 id="理论存在，实践开始"><a href="#理论存在，实践开始" class="headerlink" title="理论存在，实践开始"></a>理论存在，实践开始</h2><h3 id="开胃小菜"><a href="#开胃小菜" class="headerlink" title="开胃小菜"></a>开胃小菜</h3><p>首先先来一个简单 hello world 让你没有用过 CGO 的同学来体验一下</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="comment">//#include &lt;stdio.h&gt;</span></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;C&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    C.puts(C.CString(<span class="string">&quot;Hello, World\n&quot;</span>))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>非常简单，这里有以下几点</p>
+<ul>
+<li>import C，有了它我们就能通过 C. 来使用 C 的一些方法，还引入了 &lt;stdio.h&gt;</li>
+<li>我们通过 C.CString 将 go 的字符串转换为了 c 的 “字符串”</li>
+<li>调用 C 里面的 puts 函数打印了这个字符串</li>
+</ul>
+<p>就是这么简单，一个 CGO 的代码就完成了，有了它你是不是觉得其实 CGO 很简单，可以为所欲为了？NoNo 其实还有下面几点需要注意</p>
+<h4 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h4><ol>
+<li>类型转换：Golang 里面类型不能拿出来直接给 C 使用，因为底层的存储方式不同，所以必须通过 C.CString 等类似的方法进行转换；同样的，C 返回的类型也无法在 Go 中直接使用，也需要做一次转换，如通过 C.GoString 将 c 的 *char 转换为 go 的 string</li>
+<li>内存：C 是没有 GC 的，所以 C 的内存需要手动管理，比如这里构造的字符串，在 C 里面是需要手动释放的，通过 C.free(unsafe.Pointer(s)) 可以进行 free；当然，反过来，当 C 要访问 go 的内存的时候也需要注意，Go 是有 GC 的，而 Go 的 Gc 是不知道当前这个对象在 C 里面是否还有在使用的，所以如果使用不当，C 中访问 go 的对象，这个对象可能已经被 GC 了</li>
+<li>性能损失：因为 Go 和 C 有着不同的内存模型和函数调用规约，所以显然在使用 CGO 的时候需要栈的切换工作，那么势必带来这性能的损失</li>
+</ol>
+<p>其他细节可以还查看   <a href="https://golang.org/cmd/cgo/">https://golang.org/cmd/cgo/</a>   <a href="https://golang.org/src/cmd/cgo/doc.go">https://golang.org/src/cmd/cgo/doc.go</a></p>
+<h3 id="正餐"><a href="#正餐" class="headerlink" title="正餐"></a>正餐</h3><p>基于我之前听到的分享案例二，主动式缓存，它想办法在 C 里面开辟了一片新天地，让它绕过了 GO 的 GC 扫描，于是我就想着实践一下，搞一个最小 demo 看看。</p>
+<h4 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h4><ul>
+<li>在 C 里面搞一个 map 当做缓存</li>
+<li>Go 通过 CGO 去访问这个 map 进行操作</li>
+</ul>
+<p>然后之前写 C++ 的时候就经常用到 STL 库嘛，那里面的 map 自然是耳熟能详，所以就想到了如果我能想办法搞定这个 STL 的库势必就能实现这个 demo 了，理论存在，实践开始。</p>
+<h4 id="my-map-h"><a href="#my-map-h" class="headerlink" title="my_map.h"></a>my_map.h</h4><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">MmPut</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* key, <span class="keyword">const</span> <span class="keyword">char</span>* value)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="title">MmGet</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* key)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">MmDelete</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* key)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>首先定义一个头文件 <code>my_map.h</code>，里面包含三个函数分别是 put，get，delete 对 map 的相关操作</p>
+<p>这里解释一下，因为在 C 里面你需要首先给出这个函数的定义，才能在下面使用这个函数并且实现它，所以就需要定这个。</p>
+<h4 id="my-map-cpp"><a href="#my-map-cpp" class="headerlink" title="my_map.cpp"></a>my_map.cpp</h4><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;map&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">extern</span> <span class="string">&quot;C&quot;</span> &#123;</span><br><span class="line">    <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;my_map.h&quot;</span></span></span><br><span class="line">    <span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">map&lt;string, string&gt; mm;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">MmPut</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* key, <span class="keyword">const</span> <span class="keyword">char</span>* value)</span> </span>&#123;</span><br><span class="line">    mm[key] = value;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">const</span> <span class="keyword">char</span>* <span class="title">MmGet</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* key)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> mm[key].<span class="built_in">data</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">MmDelete</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* key)</span> </span>&#123;</span><br><span class="line">    mm.<span class="built_in">erase</span>(key);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后定义我们的具体方法 <code>my_map.h</code> 这里写的很粗糙，就直接定义了一个 map 然后对它进行三个操作的实现，其中需要注点的是：</p>
+<ol>
+<li>STL 库里面的 map 实现是红黑树，有序，这里是偷懒，如果没有必要的话，需要 hashmap 的话可以使用 unordered_map</li>
+<li>这里 <code>using namespace std;</code> 也是偷懒，我不想每个都写一遍 <code>std::</code> 懂的都懂</li>
+<li>这里使用 <code>char*</code> 作为入参是因为将 go 的字符串转换过来的时候是这个类型</li>
+</ol>
+<h4 id="main-go"><a href="#main-go" class="headerlink" title="main.go"></a>main.go</h4><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="comment">//void MmPut(const char* key, const char* value);</span></span><br><span class="line"><span class="comment">//const char* MmGet(const char* key);</span></span><br><span class="line"><span class="comment">//void MmDelete(const char* key);</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">#include &lt;stdlib.h&gt;</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;C&quot;</span></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">   <span class="string">&quot;fmt&quot;</span></span><br><span class="line">   <span class="string">&quot;unsafe&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">   Put2MyMap(<span class="string">&quot;author&quot;</span>, <span class="string">&quot;linkinstar&quot;</span>)</span><br><span class="line">   </span><br><span class="line">   s := GetFromMyMap(<span class="string">&quot;author&quot;</span>)</span><br><span class="line">   fmt.Println(<span class="string">&quot;before delete:&quot;</span>, s)</span><br><span class="line"></span><br><span class="line">   DeleteFromMyMap(<span class="string">&quot;author&quot;</span>)</span><br><span class="line"></span><br><span class="line">   s = GetFromMyMap(<span class="string">&quot;author&quot;</span>)</span><br><span class="line">   fmt.Println(<span class="string">&quot;after delete:&quot;</span>, s)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Put2MyMap</span><span class="params">(key, value <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">   k := C.CString(key)</span><br><span class="line">   v := C.CString(value)</span><br><span class="line">   <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">      C.free(unsafe.Pointer(k))</span><br><span class="line">      C.free(unsafe.Pointer(v))  </span><br><span class="line">   &#125;()</span><br><span class="line">   C.MmPut(k, v)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GetFromMyMap</span><span class="params">(key <span class="keyword">string</span>)</span> <span class="params">(value <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">   k := C.CString(key)</span><br><span class="line">   <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">      C.free(unsafe.Pointer(k))  </span><br><span class="line">   &#125;()</span><br><span class="line">   v := C.MmGet(k)</span><br><span class="line">   value = C.GoString(v)</span><br><span class="line">   <span class="keyword">return</span> value</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DeleteFromMyMap</span><span class="params">(key <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">   k := C.CString(key)</span><br><span class="line">   <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">      C.free(unsafe.Pointer(k))</span><br><span class="line">   &#125;()</span><br><span class="line">   C.MmDelete(k)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后就是我们的 GO 代码了，封装了一下三个方法，在 main 中测试一下，完成~</p>
+<p>其中需要注意的是之前上面提到的手动 free 对应的内存，输出：</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line">before <span class="built_in">delete</span>: linkinstar</span><br><span class="line">after <span class="built_in">delete</span>: </span><br></pre></td></tr></table></figure>
+<p>至此我们就最简单的能通过 CGO 使用 STL 库了，那么相对应的，有了这个砖头，那么其他相关的 vector，set….你都可以使用了，甚至可以来个什么 algorithm 的 next_permutation 什么的，想想就有点刺激。</p>
+<blockquote>
+<p>当然以上只是个 demo，如果需要真的当缓存来用，还有很多需要优化的地方，比如调用过程中减少 key，value 的拷贝，缓存的并非访问等等…..</p>
+</blockquote>
+<h2 id="总结与延伸"><a href="#总结与延伸" class="headerlink" title="总结与延伸"></a>总结与延伸</h2><p>其实看着代码很容易，但是当我第一次写的时候碰到一堆的问题，一方面是 CGO 的资料不多，代码也不多，所以参考资料比较少，很多代码需要猜测怎么样写，基本上是照猫画虎，用过之后就好了很多了，基本上能知道大体的使用，剩下的就是细节了。</p>
+<p>CGO 的使用前提还需要你对 C 有一定的了解，如果完全没有接触过，可能也会觉得比较困难。很期待主动式缓存那个框架实现的开源，这样可以巴拉巴拉它的代码看看它是</p>
+<p>那么其实除了 STL 一个特别有意思的事情，<strong>就是 OC，没错 ObjectC</strong>。我们知道 Cocoa 是苹果官方 macOS 出的一个接口，那么其实可以通过 cgo 来调用其中的接口来做一些 macos 原生做的事情，这就非常有意思了。github 上其实有很多相关的库，这里就不再列举了。</p>
+<p><a href="https://coderwall.com/p/l9jr5a/accessing-cocoa-objective-c-from-go-with-cgo">https://coderwall.com/p/l9jr5a/accessing-cocoa-objective-c-from-go-with-cgo</a></p>
+<p><a href="https://github.com/alediaferia/gogoa">https://github.com/alediaferia/gogoa</a></p>
+<p>总的来说，CGO 就像一座桥，不仅让 Go 继承了 C 的遗产，而且<strong>连接更加广阔的空间，给了你更多的想象力</strong>。我觉得它并不是很多人所说的是 C++ 程序迁移到 Go 程序的一个中间态，我觉得它会一直存在，给我们带来更多的黑魔法。</p>
+]]></content>
+      <categories>
+        <category>golang基础</category>
+      </categories>
+      <tags>
+        <tag>CGO</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>关于我的</title>
     <url>/about/index.html</url>
     <content><![CDATA[<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><h2 id="LinkinStar"><a href="#LinkinStar" class="headerlink" title="LinkinStar"></a>LinkinStar</h2><h3 id="个人情况"><a href="#个人情况" class="headerlink" title="个人情况"></a>个人情况</h3><ul>

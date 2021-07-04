@@ -6,7 +6,7 @@
   <link href="https://www.linkinstars.com/atom.xml" rel="self"/>
   
   <link href="https://www.linkinstars.com/"/>
-  <updated>2021-07-02T17:05:19.314Z</updated>
+  <updated>2021-07-04T16:26:52.516Z</updated>
   <id>https://www.linkinstars.com/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>初识 CGO - 利用 CGO 使用 C++ STL</title>
+    <link href="https://www.linkinstars.com/post/19c0fd4e.html"/>
+    <id>https://www.linkinstars.com/post/19c0fd4e.html</id>
+    <published>2021-07-03T16:00:00.000Z</published>
+    <updated>2021-07-04T16:26:52.516Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;之前我也了解过 CGO 相关的知识，但是当时给我的印象全部都是 “CGO 性能差” “完全没有必要，实际根本用不到”，但是这次听了大佬的一些分享发现 CGO 其实就是黑科技啊，&lt;strong&gt;有了它你在使用 go 的时候有了更多的想象力&lt;/strong&gt;。本文将带你初步了解和使用 CGO，本文只是抛砖头，因为有关 CGO 的文档其实蛮少的，在其中也有很多坑，所以今天来踩一次，不知道会不会留下什么坑….&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;有了 CGO，Go 就有机会继承 C/C++近半个世纪的遗产 by  曹大&lt;/p&gt;
+&lt;/blockquote&gt;</summary>
+    
+    
+    
+    <category term="golang基础" scheme="https://www.linkinstars.com/categories/golang%E5%9F%BA%E7%A1%80/"/>
+    
+    
+    <category term="CGO" scheme="https://www.linkinstars.com/tags/CGO/"/>
+    
+  </entry>
   
   <entry>
     <title>Golang逃逸分析</title>
@@ -391,25 +413,6 @@
     
     
     <category term="cpu" scheme="https://www.linkinstars.com/tags/cpu/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>python 基础语法笔记</title>
-    <link href="https://www.linkinstars.com/post/fb63c20b.html"/>
-    <id>https://www.linkinstars.com/post/fb63c20b.html</id>
-    <published>2020-05-08T16:00:00.000Z</published>
-    <updated>2021-05-19T15:51:06.165Z</updated>
-    
-    
-    <summary type="html">&lt;p&gt;记录python的一些基础语法，用于查阅&lt;/p&gt;</summary>
-    
-    
-    
-    <category term="python" scheme="https://www.linkinstars.com/categories/python/"/>
-    
-    
-    <category term="basic" scheme="https://www.linkinstars.com/tags/basic/"/>
     
   </entry>
   
