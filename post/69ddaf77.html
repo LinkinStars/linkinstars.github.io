@@ -1,0 +1,222 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>k8s 部署 prometheus | LinkinStar's Blog</title><meta name="keywords" content="prometheus"><meta name="author" content="LinkinStar"><meta name="copyright" content="LinkinStar"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="看到很多部署 prometheus 到 k8s 集群的教程，发现都是非常麻烦的各种配置，懒人的我就想整个一键部署的，开箱即用的，既然有了 helm 那肯定只要一个 charts 就可以搞定了吧，想着就是这样，所以在网上找来找去，终于被我发现了。下面记录一下使用过程，方便以后进行部署。  PS: 本文适用于开发者单 k8s 集群部署 prometheus，如果是运维可建议进行独立部署，一方面不需要占">
+<meta property="og:type" content="article">
+<meta property="og:title" content="k8s 部署 prometheus">
+<meta property="og:url" content="https://www.linkinstars.com/post/69ddaf77.html">
+<meta property="og:site_name" content="LinkinStar&#39;s Blog">
+<meta property="og:description" content="看到很多部署 prometheus 到 k8s 集群的教程，发现都是非常麻烦的各种配置，懒人的我就想整个一键部署的，开箱即用的，既然有了 helm 那肯定只要一个 charts 就可以搞定了吧，想着就是这样，所以在网上找来找去，终于被我发现了。下面记录一下使用过程，方便以后进行部署。  PS: 本文适用于开发者单 k8s 集群部署 prometheus，如果是运维可建议进行独立部署，一方面不需要占">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg">
+<meta property="article:published_time" content="2021-07-21T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-08-15T15:28:50.289Z">
+<meta property="article:author" content="LinkinStar">
+<meta property="article:tag" content="prometheus">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg"><link rel="shortcut icon" href="/images/favicon-32x32.png"><link rel="canonical" href="https://www.linkinstars.com/post/69ddaf77"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?fdfc5a0657a5391841c109d653e9ce22";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'k8s 部署 prometheus',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-08-15 23:28:50'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const fontSizeVal = saveToLocal.get('global-font-size')
+    if (fontSizeVal !== undefined) {
+      document.documentElement.style.setProperty('--global-font-size', fontSizeVal + 'px')
+    }
+    })(window)</script><link rel="stylesheet" href="/css/background.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sviptzk/HexoStaticFile/Hexo/css/flink.min.css"><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="LinkinStar's Blog" type="application/atom+xml">
+</head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/LLX.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">57</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">50</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">21</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa-fw fa fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa-fw fa fa-list-ul"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa-fw fa fa-universal-access"></i><span> 我的</span></a></div><div class="menus_item"><a class="site-page" href="/comments/"><i class="fa-fw fa-fw fas fa-comment-dots"></i><span> 留言</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fa-fw fab fa-modx"></i><span> 兴趣</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/books/"><i class="fa-fw fa-fw fa fa-book"></i><span> 读书</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fa-fw fa fa-film"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa-fw fas fa-link"></i><span> 友链</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">LinkinStar's Blog</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa-fw fa fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa-fw fa fa-list-ul"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa-fw fa fa-universal-access"></i><span> 我的</span></a></div><div class="menus_item"><a class="site-page" href="/comments/"><i class="fa-fw fa-fw fas fa-comment-dots"></i><span> 留言</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fa-fw fab fa-modx"></i><span> 兴趣</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/books/"><i class="fa-fw fa-fw fa fa-book"></i><span> 读书</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fa-fw fa fa-film"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa-fw fas fa-link"></i><span> 友链</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">k8s 部署 prometheus</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2021-07-21T16:00:00.000Z" title="undefined 2021-07-22 00:00:00">2021-07-22</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/prometheus/">prometheus</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">424</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>1分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="k8s 部署 prometheus"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><p>看到很多部署 prometheus 到 k8s 集群的教程，发现都是非常麻烦的各种配置，懒人的我就想整个一键部署的，开箱即用的，既然有了 helm 那肯定只要一个 charts 就可以搞定了吧，想着就是这样，所以在网上找来找去，终于被我发现了。下面记录一下使用过程，方便以后进行部署。</p>
+<blockquote>
+<p>PS: 本文适用于开发者单 k8s 集群部署 prometheus，如果是运维可建议进行独立部署，一方面不需要占用集群内部资源并保证多活，另一方面可以支持多集群扩展。</p>
+</blockquote>
+<span id="more"></span>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> helm 添加对应 repo</span></span><br><span class="line">helm repo add prometheus-community https://prometheus-community.github.io/helm-charts</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> helm 安装 可以添加参数 --<span class="built_in">set</span> rbacEnable=<span class="literal">true</span>，-n 指定安装的 namespace</span></span><br><span class="line">helm install prometheus prometheus-community/kube-prometheus-stack -n monitoror</span><br></pre></td></tr></table></figure>
+<h2 id="默认用户名密码"><a href="#默认用户名密码" class="headerlink" title="默认用户名密码"></a>默认用户名密码</h2><p>admin/prom-operator</p>
+<p>也可以通过下面的命令进行查看</p>
+<p><code>kubectl get secret --namespace &lt;YOUR-NAMESPACE&gt; prometheus-grafana -o jsonpath=&quot;&#123;.data.admin-password&#125;&quot; | base64 --decode ; echo</code></p>
+<h2 id="展示"><a href="#展示" class="headerlink" title="展示"></a>展示</h2><p><img src="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/image-20210721180351209.png" alt="image-20210721180351209"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/image-20210721180302468.png" alt="image-20210721180302468"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/image-20210721180203931.png" alt="image-20210721180203931"></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>直接部署在 k8s 内部的 prometheus 能很容易获取到 k8s 中各种指标和参数，使用 helm 部署也非常方便，基本一个命令就搞定了</p>
+<p>但毕竟只能从外部监控，那么势必只能获取到 pod 的 cpu 和 memory 的使用情况，如何需要监控对应应用使用的内部情况，那就势必需要应用本身去暴露 matrix 接口并接入</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a target="_blank" rel="noopener" href="https://github.com/prometheus-community/helm-charts">https://github.com/prometheus-community/helm-charts</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/prometheus/prometheus">https://github.com/prometheus/prometheus</a></p>
+<p><a target="_blank" rel="noopener" href="https://dev.to/kaitoii11/deploy-prometheus-monitoring-stack-to-kubernetes-with-a-single-helm-chart-2fbd">https://dev.to/kaitoii11/deploy-prometheus-monitoring-stack-to-kubernetes-with-a-single-helm-chart-2fbd</a></p>
+<p>多集群部署参考：<a target="_blank" rel="noopener" href="https://www.servicemesher.com/blog/prometheus-monitor-k8s-1/">https://www.servicemesher.com/blog/prometheus-monitor-k8s-1/</a></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LinkinStar</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://www.linkinstars.com/post/69ddaf77.html">https://www.linkinstars.com/post/69ddaf77.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://www.linkinstars.com" target="_blank">LinkinStar's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/prometheus/">prometheus</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button button--animated"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/images/wechatpay.png" target="_blank"><img class="post-qr-code-img" src="/images/wechatpay.png" alt="wechat"/></a><div class="post-qr-code-desc">wechat</div></li><li class="reward-item"><a href="/images/alipay.png" target="_blank"><img class="post-qr-code-img" src="/images/alipay.png" alt="alipay"/></a><div class="post-qr-code-desc">alipay</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/bfc8f54a.html"><img class="prev-cover" src="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">k8s 基于角色的权限控制 RBAC</div></div></a></div><div class="next-post pull-right"><a href="/post/a2e80cee.html"><img class="next-cover" src="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">让你最快上手 go 的 pprof 性能分析大杀器</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-info-avatar is-center"><img class="avatar-img" src="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/LLX.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">LinkinStar</div><div class="author-info__description">No one but myself can do it.<br> Don't worry. Be happy!</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">57</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">50</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">21</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/LinkinStars"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/LinkinStars" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:linkinstar@foxmail.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://www.jianshu.com/u/dcc4b2396fc4" target="_blank" title="简书"><i class="fas fa-book"></i></a><a class="social-icon" href="https://www.cnblogs.com/linkstar" target="_blank" title="博客园"><i class="fas fa-link"></i></a><a class="social-icon" href="/atom.xml" target="_blank" title="RSS"><i class="fas fa-rss"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content"><a target='_blank' href='https://board.linkinstars.com/shared?id=6599a7ee-1a95-45eb-866f-2be055d3194c&v=b4791732-ba57-4a05-8db1-fb6330a7df34&r=d0581501-d6c6-449f-8761-c60046fa9db8'>点我查看“划水看板”，用于记录当前博客划水状态，催更可以直接fa邮件哒，看到上面👆邮件小图标了吗✉️</a><p style='color:red;font-weight:bold;'>本博客封面图可能来源于网络，无商用，侵删</p></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85"><span class="toc-number">1.</span> <span class="toc-text">安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%BB%98%E8%AE%A4%E7%94%A8%E6%88%B7%E5%90%8D%E5%AF%86%E7%A0%81"><span class="toc-number">2.</span> <span class="toc-text">默认用户名密码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B1%95%E7%A4%BA"><span class="toc-number">3.</span> <span class="toc-text">展示</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="toc-number">5.</span> <span class="toc-text">参考链接</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/8e25dde4.html" title="go 中没怎么用过的 sync.Map">go 中没怎么用过的 sync.Map</a><time datetime="2021-08-14T16:00:00.000Z" title="发表于 2021-08-15 00:00:00">2021-08-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/bfc8f54a.html" title="k8s 基于角色的权限控制 RBAC">k8s 基于角色的权限控制 RBAC</a><time datetime="2021-07-30T16:00:00.000Z" title="发表于 2021-07-31 00:00:00">2021-07-31</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/69ddaf77.html" title="k8s 部署 prometheus">k8s 部署 prometheus</a><time datetime="2021-07-21T16:00:00.000Z" title="发表于 2021-07-22 00:00:00">2021-07-22</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/a2e80cee.html" title="让你最快上手 go 的 pprof 性能分析大杀器">让你最快上手 go 的 pprof 性能分析大杀器</a><time datetime="2021-07-14T16:00:00.000Z" title="发表于 2021-07-15 00:00:00">2021-07-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/19c0fd4e.html" title="初识 CGO - 利用 CGO 使用 C++ STL">初识 CGO - 利用 CGO 使用 C++ STL</a><time datetime="2021-07-03T16:00:00.000Z" title="发表于 2021-07-04 00:00:00">2021-07-04</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg')"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2021 By LinkinStar</div><div class="footer_custom_text"><p><a style="margin-inline:5px" target="_blank" href="https://hexo.io/"><img src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&logo=hexo" title="博客框架为Hexo"></a><a style="margin-inline:5px" target="_blank" href="https://butterfly.js.org/"><img src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&logo=bitdefender" title="主题采用butterfly"></a><a style="margin-inline:5px" target="_blank" href="https://www.jsdelivr.com/"><img src="https://img.shields.io/badge/CDN-jsDelivr-orange?style=flat&logo=jsDelivr" title="本站使用JsDelivr为静态资源提供CDN加速"></a><a style="margin-inline:5px" target="_blank" href="https://github.com/LinkinStars/linkinstars.github.io"><img src="https://img.shields.io/badge/Source-Github-d021d6?style=flat&logo=GitHub" title="本站项目由Gtihub托管"></a><a style="margin-inline:5px" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&logo=Claris" title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"></a><br><a href="https://beian.miit.gov.cn/" target="_blank">浙B2-20080101</a></p></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font-plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font-minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>function addGitalkSource () {
+  const ele = document.createElement('link')
+  ele.rel = 'stylesheet'
+  ele.href= 'https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css'
+  document.getElementsByTagName('head')[0].appendChild(ele)
+}
+
+function loadGitalk () {
+  function initGitalk () {
+    var gitalk = new Gitalk(Object.assign({
+      clientID: 'fb1c6a994a1f26c2655e',
+      clientSecret: '512d1338f3c8e48f1be73caf0661c005bf1c0425',
+      repo: 'linkinstars.github.io',
+      owner: 'LinkinStars',
+      admin: ['LinkinStars'],
+      id: '1f28bc65aaacf9a4f42ab9de1c831270',
+      language: 'zh-CN',
+      perPage: 50,
+      distractionFreeMode: true,
+      pagerDirection: 'last',
+      createIssueManually: false,
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  if (typeof Gitalk === 'function') initGitalk()
+  else {
+    addGitalkSource()
+    getScript('https://cdn.jsdelivr.net/npm/gitalk@latest/dist/gitalk.min.js').then(initGitalk)
+  }
+}
+
+function commentCount(n){
+  let isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+  if (isCommentCount) {
+    isCommentCount.innerHTML= n
+  }
+}
+
+if ('Gitalk' === 'Gitalk' || !false) {
+  if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+  else loadGitalk()
+} else {
+  function loadOtherComment () {
+    loadGitalk()
+  }
+}</script></div><script defer src="/live2d-widget/autoload.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

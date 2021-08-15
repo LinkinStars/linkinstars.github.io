@@ -6,7 +6,7 @@
   <link href="https://www.linkinstars.com/atom.xml" rel="self"/>
   
   <link href="https://www.linkinstars.com/"/>
-  <updated>2021-07-04T16:59:55.369Z</updated>
+  <updated>2021-08-15T15:28:50.292Z</updated>
   <id>https://www.linkinstars.com/</id>
   
   <author>
@@ -17,11 +17,99 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>go 中没怎么用过的 sync.Map</title>
+    <link href="https://www.linkinstars.com/post/8e25dde4.html"/>
+    <id>https://www.linkinstars.com/post/8e25dde4.html</id>
+    <published>2021-08-14T16:00:00.000Z</published>
+    <updated>2021-08-15T15:28:50.292Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;我们知道 golang 的 map 并发会有问题，所以 go 官方在 sync 包中加入了一个 sync.map 来作为一个官方的并发安全的 map 实现。&lt;/p&gt;
+&lt;p&gt;如果你了解过 java 中常用的一个并发安全的 map 叫做 &lt;code&gt;ConcurrentHashMap&lt;/code&gt; 就会知道它有两个亮点设计：一是当链表长度过长的时候会转换为红黑树的实现，还有一个就是分段锁。得益于这两个设计也导致 java 中实现的代码非常复杂，偷笑。&lt;/p&gt;
+&lt;p&gt;那么 go 里面是如何设计的呢？今天我们就来看看它是怎么实现的。&lt;/p&gt;
+&lt;p&gt;PS: 本文 go 源码基于版本1.16.2，我觉得当有了泛型之后这个库十有八九是要改的….&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="golang源码解析" scheme="https://www.linkinstars.com/categories/golang%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/"/>
+    
+    
+    <category term="sync.Map" scheme="https://www.linkinstars.com/tags/sync-Map/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>k8s 基于角色的权限控制 RBAC</title>
+    <link href="https://www.linkinstars.com/post/bfc8f54a.html"/>
+    <id>https://www.linkinstars.com/post/bfc8f54a.html</id>
+    <published>2021-07-30T16:00:00.000Z</published>
+    <updated>2021-08-15T15:28:50.287Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;RBAC 之所以一直没有写这个，一方面是因为它确实并不复杂，二来平常确实接触不多，今天就来顺路讲讲它&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="kubernetes" scheme="https://www.linkinstars.com/categories/kubernetes/"/>
+    
+    
+    <category term="kubernetes" scheme="https://www.linkinstars.com/tags/kubernetes/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>k8s 部署 prometheus</title>
+    <link href="https://www.linkinstars.com/post/69ddaf77.html"/>
+    <id>https://www.linkinstars.com/post/69ddaf77.html</id>
+    <published>2021-07-21T16:00:00.000Z</published>
+    <updated>2021-08-15T15:28:50.289Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;看到很多部署 prometheus 到 k8s 集群的教程，发现都是非常麻烦的各种配置，懒人的我就想整个一键部署的，开箱即用的，既然有了 helm 那肯定只要一个 charts 就可以搞定了吧，想着就是这样，所以在网上找来找去，终于被我发现了。下面记录一下使用过程，方便以后进行部署。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;PS: 本文适用于开发者单 k8s 集群部署 prometheus，如果是运维可建议进行独立部署，一方面不需要占用集群内部资源并保证多活，另一方面可以支持多集群扩展。&lt;/p&gt;
+&lt;/blockquote&gt;</summary>
+    
+    
+    
+    <category term="prometheus" scheme="https://www.linkinstars.com/categories/prometheus/"/>
+    
+    
+    <category term="prometheus" scheme="https://www.linkinstars.com/tags/prometheus/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>让你最快上手 go 的 pprof 性能分析大杀器</title>
+    <link href="https://www.linkinstars.com/post/a2e80cee.html"/>
+    <id>https://www.linkinstars.com/post/a2e80cee.html</id>
+    <published>2021-07-14T16:00:00.000Z</published>
+    <updated>2021-08-15T15:28:50.291Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;前言，发现一直没有记录过 pprof 分析的博客，其实在实际的业务场景中已经使用它很多次了，对于性能分析来说它真的是一大杀器，基本上有了它，80% 的性能问题都能被一目了然。每次出现性能问题，总是下面几个步骤，测试环境开 pprof，启动，流量重放，火焰图生成，一看，仔细分析一下，问题就浮于水面。&lt;/p&gt;
+&lt;p&gt;今天来用最简单的一个案例，来让你快速上手 pprof，所以本博客包含以下内容&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;最快能让你用上 pprof&lt;/li&gt;
+&lt;li&gt;能让你最快学会认识火焰图&lt;/li&gt;
+&lt;li&gt;学会了之后其他剩下的功能你就可以慢慢自己摸索了&lt;/li&gt;
+&lt;/ul&gt;</summary>
+    
+    
+    
+    <category term="golang基础" scheme="https://www.linkinstars.com/categories/golang%E5%9F%BA%E7%A1%80/"/>
+    
+    
+    <category term="pprof" scheme="https://www.linkinstars.com/tags/pprof/"/>
+    
+  </entry>
+  
+  <entry>
     <title>初识 CGO - 利用 CGO 使用 C++ STL</title>
     <link href="https://www.linkinstars.com/post/19c0fd4e.html"/>
     <id>https://www.linkinstars.com/post/19c0fd4e.html</id>
     <published>2021-07-03T16:00:00.000Z</published>
-    <updated>2021-07-04T16:59:55.369Z</updated>
+    <updated>2021-08-13T13:45:24.366Z</updated>
     
     
     <summary type="html">&lt;p&gt;之前我也了解过 CGO 相关的知识，但是当时给我的印象全部都是 “CGO 性能差” “完全没有必要，实际根本用不到”，但是这次听了大佬的一些分享发现 CGO 其实就是黑科技啊，&lt;strong&gt;有了它你在使用 go 的时候有了更多的想象力&lt;/strong&gt;。本文将带你初步了解和使用 CGO，本文只是抛砖头，因为有关 CGO 的文档其实蛮少的，在其中也有很多坑，所以今天来踩一次，不知道会不会留下什么坑….&lt;/p&gt;
@@ -127,14 +215,14 @@
     <link href="https://www.linkinstars.com/post/b817d222.html"/>
     <id>https://www.linkinstars.com/post/b817d222.html</id>
     <published>2021-03-11T16:00:00.000Z</published>
-    <updated>2021-05-19T15:51:06.136Z</updated>
+    <updated>2021-08-15T15:00:12.263Z</updated>
     
     
     <summary type="html">&lt;p&gt;一开始觉得 oom 是一个常见问题，应该没有什么大问题，反正 k8s 集群会调度的，但其实它造成的连锁反应很恐怖。&lt;/p&gt;</summary>
     
     
     
-    <category term="accident" scheme="https://www.linkinstars.com/categories/accident/"/>
+    <category term="kubernetes" scheme="https://www.linkinstars.com/categories/kubernetes/"/>
     
     
     <category term="k8s-accident" scheme="https://www.linkinstars.com/tags/k8s-accident/"/>
@@ -146,7 +234,7 @@
     <link href="https://www.linkinstars.com/post/c86fbf9f.html"/>
     <id>https://www.linkinstars.com/post/c86fbf9f.html</id>
     <published>2021-02-01T16:00:00.000Z</published>
-    <updated>2021-05-19T15:51:06.133Z</updated>
+    <updated>2021-08-15T15:00:32.453Z</updated>
     
     
     <summary type="html">&lt;p&gt; OCI runtime create failed:&lt;/p&gt;
@@ -154,7 +242,7 @@
     
     
     
-    <category term="accident" scheme="https://www.linkinstars.com/categories/accident/"/>
+    <category term="kubernetes" scheme="https://www.linkinstars.com/categories/kubernetes/"/>
     
     
     <category term="k8s-accident" scheme="https://www.linkinstars.com/tags/k8s-accident/"/>
@@ -166,14 +254,14 @@
     <link href="https://www.linkinstars.com/post/9ef22657.html"/>
     <id>https://www.linkinstars.com/post/9ef22657.html</id>
     <published>2021-01-22T16:00:00.000Z</published>
-    <updated>2021-05-19T15:51:06.137Z</updated>
+    <updated>2021-08-15T15:00:18.375Z</updated>
     
     
     <summary type="html">&lt;p&gt;本博客持续更新…用于记录 k8s 使用过程中的很多的小技巧，也希望你能提供更多的小技巧来~&lt;/p&gt;</summary>
     
     
     
-    <category term="tips" scheme="https://www.linkinstars.com/categories/tips/"/>
+    <category term="kubernetes" scheme="https://www.linkinstars.com/categories/kubernetes/"/>
     
     
     <category term="k8s-tips" scheme="https://www.linkinstars.com/tags/k8s-tips/"/>
@@ -334,85 +422,6 @@
     
     
     <category term="io" scheme="https://www.linkinstars.com/tags/io/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>快速上手 dubbo-go</title>
-    <link href="https://www.linkinstars.com/post/81d69338.html"/>
-    <id>https://www.linkinstars.com/post/81d69338.html</id>
-    <published>2020-06-19T16:00:00.000Z</published>
-    <updated>2021-05-19T15:51:06.145Z</updated>
-    
-    
-    <summary type="html">&lt;p&gt;每次技术调研总会发现自己学不动了怎么办？用已有的知识来拓展要学习的新知识就好了~ by LinkinStar&lt;br&gt;最近需要调研使用 dubbo，之前完全是 0 基础，对于 dubbo 只存在于听说，今天上手实战一把，告诉你如何快速用 go 上手 dubbo&lt;br&gt;PS：以下的学习方式适用于很多新技术  &lt;/p&gt;</summary>
-    
-    
-    
-    <category term="dubbo-go" scheme="https://www.linkinstars.com/categories/dubbo-go/"/>
-    
-    
-    <category term="dubbo-go" scheme="https://www.linkinstars.com/tags/dubbo-go/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>你的内存还好吗</title>
-    <link href="https://www.linkinstars.com/post/14f810f7.html"/>
-    <id>https://www.linkinstars.com/post/14f810f7.html</id>
-    <published>2020-06-13T16:00:00.000Z</published>
-    <updated>2021-05-19T15:51:06.140Z</updated>
-    
-    
-    <summary type="html">&lt;p&gt;内存问题往往是线上环境最容易导致的问题，因为其实对于程序来说，内存总是不够用的。而大多数我们在线上遇到的问题总是一个叫 OOM 的，导致这个问题的原因也有很多，今天我们就来看看，如何在线上定位或者排查这样的问题。&lt;/p&gt;</summary>
-    
-    
-    
-    <category term="linux" scheme="https://www.linkinstars.com/categories/linux/"/>
-    
-    
-    <category term="memory" scheme="https://www.linkinstars.com/tags/memory/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Golang 监控全局变量</title>
-    <link href="https://www.linkinstars.com/post/2dc2d3f5.html"/>
-    <id>https://www.linkinstars.com/post/2dc2d3f5.html</id>
-    <published>2020-06-12T16:00:00.000Z</published>
-    <updated>2021-05-19T15:51:06.156Z</updated>
-    
-    
-    <summary type="html">&lt;p&gt;你是否曾经遇到过这样的情况，在开发环境排查问题，因为一些数据保存在了一些全局变量中，这些变量往往是一个 map 或者是一个数组，想看看在运行过程中，这里面究竟存放了什么数据，有时不得不在运行的时候将它输出到日志中，那么如果我想实时看到这些数据的情况又怎么办呢？&lt;/p&gt;
-&lt;p&gt;其实 golang 中已经存在这样的库，就是来做这个事情的 &lt;code&gt;expvar&lt;/code&gt;&lt;/p&gt;</summary>
-    
-    
-    
-    <category term="golang基础" scheme="https://www.linkinstars.com/categories/golang%E5%9F%BA%E7%A1%80/"/>
-    
-    
-    <category term="vars" scheme="https://www.linkinstars.com/tags/vars/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>你的 CPU 还好吗</title>
-    <link href="https://www.linkinstars.com/post/49d36794.html"/>
-    <id>https://www.linkinstars.com/post/49d36794.html</id>
-    <published>2020-06-05T16:00:00.000Z</published>
-    <updated>2021-05-19T15:51:06.138Z</updated>
-    
-    
-    <summary type="html">&lt;p&gt;最近经常在线上排查一些问题，在大多数情况下，都是代码写的业务逻辑有问题；还有一些情况是内存上导致的问题，如 OOM 或者由于数据量大导致的一些问题；但是很少会关注，但常常又会瞟一眼的，这个关注点就是 CPU。&lt;/p&gt;
-&lt;p&gt;在说到 CPU 的时候往往除了 &lt;code&gt;top&lt;/code&gt; 看一下 CPU 使用率之外，你还会关注别的什么吗？好像也不会。&lt;/p&gt;
-&lt;p&gt;但是其实当真正出现问题的时候，很多 CPU 相关的指标都会反映出一些问题，经过之前的学习今天就来总结记录一下。&lt;/p&gt;</summary>
-    
-    
-    
-    <category term="linux" scheme="https://www.linkinstars.com/categories/linux/"/>
-    
-    
-    <category term="cpu" scheme="https://www.linkinstars.com/tags/cpu/"/>
     
   </entry>
   
