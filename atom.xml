@@ -6,7 +6,7 @@
   <link href="https://www.linkinstars.com/atom.xml" rel="self"/>
   
   <link href="https://www.linkinstars.com/"/>
-  <updated>2021-08-15T15:28:50.292Z</updated>
+  <updated>2021-08-15T15:44:10.146Z</updated>
   <id>https://www.linkinstars.com/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="https://www.linkinstars.com/post/8e25dde4.html"/>
     <id>https://www.linkinstars.com/post/8e25dde4.html</id>
     <published>2021-08-14T16:00:00.000Z</published>
-    <updated>2021-08-15T15:28:50.292Z</updated>
+    <updated>2021-08-15T15:44:10.146Z</updated>
     
     
     <summary type="html">&lt;p&gt;我们知道 golang 的 map 并发会有问题，所以 go 官方在 sync 包中加入了一个 sync.map 来作为一个官方的并发安全的 map 实现。&lt;/p&gt;
