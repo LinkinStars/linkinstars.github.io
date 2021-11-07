@@ -6,7 +6,7 @@
   <link href="https://www.linkinstars.com/atom.xml" rel="self"/>
   
   <link href="https://www.linkinstars.com/"/>
-  <updated>2021-10-31T16:25:26.293Z</updated>
+  <updated>2021-11-07T15:14:26.463Z</updated>
   <id>https://www.linkinstars.com/</id>
   
   <author>
@@ -17,11 +17,31 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>go 函数调用规约</title>
+    <link href="https://www.linkinstars.com/post/fecd400.html"/>
+    <id>https://www.linkinstars.com/post/fecd400.html</id>
+    <published>2021-10-19T16:00:00.000Z</published>
+    <updated>2021-11-07T15:14:26.463Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;函数调用规约？如果你是第一次听到这个名词可能会有疑惑，这是在说什么？难道两个函数之间调用还需要约定什么吗？难道不是定好入参出参就可以了吗？没错函数的调用规约其实就是：我在调用其他函数的时候我的参数和返回值要如何分布？&lt;/p&gt;
+&lt;p&gt;那么其实在 golang 底层函数的调用还是有很多细节的，比如你的入参放在哪里？返回值存放在哪里？相信看完这篇你就都明白了。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="golang基础" scheme="https://www.linkinstars.com/categories/golang%E5%9F%BA%E7%A1%80/"/>
+    
+    
+    <category term="func-call" scheme="https://www.linkinstars.com/tags/func-call/"/>
+    
+  </entry>
+  
+  <entry>
     <title>go 中其实不复杂的 timer</title>
     <link href="https://www.linkinstars.com/post/efe08c85.html"/>
     <id>https://www.linkinstars.com/post/efe08c85.html</id>
     <published>2021-10-10T16:00:00.000Z</published>
-    <updated>2021-10-31T16:25:26.293Z</updated>
+    <updated>2021-10-31T16:25:45.533Z</updated>
     
     
     <summary type="html">&lt;p&gt;在 go 中当我们需要延迟一段时间后执行，或者需要间隔固定时间去执行某个行为的时候就需要使用到 timer，那么 timer 到底是如何实现的呢？我们今天就来看看 timer 里面是什么样的。&lt;/p&gt;
@@ -415,25 +435,6 @@
     
     
     <category term="GopherChina" scheme="https://www.linkinstars.com/tags/GopherChina/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>下一个 nginx？caddy 自动 https 真香</title>
-    <link href="https://www.linkinstars.com/post/51c3059c.html"/>
-    <id>https://www.linkinstars.com/post/51c3059c.html</id>
-    <published>2020-11-13T16:00:00.000Z</published>
-    <updated>2021-05-19T15:51:06.144Z</updated>
-    
-    
-    <summary type="html">&lt;p&gt;我们通常在部署 web 服务的时候往往会选择 nginx 作为最前面的一个狠角色，它的性能和能力大家也是有目共睹的，反向代理负载均衡等等。而作为后起之秀 caddy 却不被人所熟知，不过渐渐的也开始展露头角。&lt;br&gt;今天我就来介绍这个 caddy ，为什么我会称它有可能成为下一个 nginx。&lt;/p&gt;</summary>
-    
-    
-    
-    <category term="caddy" scheme="https://www.linkinstars.com/categories/caddy/"/>
-    
-    
-    <category term="caddy" scheme="https://www.linkinstars.com/tags/caddy/"/>
     
   </entry>
   
