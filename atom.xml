@@ -6,7 +6,7 @@
   <link href="https://www.linkinstars.com/atom.xml" rel="self"/>
   
   <link href="https://www.linkinstars.com/"/>
-  <updated>2021-11-14T14:35:37.475Z</updated>
+  <updated>2021-11-24T14:58:35.146Z</updated>
   <id>https://www.linkinstars.com/</id>
   
   <author>
@@ -17,11 +17,31 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>go 应用在 k8s 中如何优雅停止</title>
+    <link href="https://www.linkinstars.com/post/12666403.html"/>
+    <id>https://www.linkinstars.com/post/12666403.html</id>
+    <published>2021-11-21T16:00:00.000Z</published>
+    <updated>2021-11-24T14:58:35.146Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;每次当我们发布新版本的时候总是慌兮兮，一方面是担心有 bug，另一方面其实重启应用会带来一些抖动，可能有几秒钟或者几个请求的不正常，从而担心用户在这段时间内的操作。那么如何在应用重启的过程中尽可能的保证不会带来抖动，从而平滑又优雅的重启呢？&lt;/p&gt;
+&lt;p&gt;本文只针对于应用版本更新时，进行版本发布时进行的重启操作，从而导致的相关问题的解决。不涉及由于应用本身 panic 导致的重启，也不涉及蓝绿发布或回滚等操作。当前版本更新是在 k8s 中进行的重启操作，访问负载均衡交由 k8s 的 service 处理，再上层的网关层面的负载则不在本次讨论范围内。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="architecture" scheme="https://www.linkinstars.com/categories/architecture/"/>
+    
+    
+    <category term="graceful-shutdown" scheme="https://www.linkinstars.com/tags/graceful-shutdown/"/>
+    
+  </entry>
+  
+  <entry>
     <title>defer 原理分析</title>
     <link href="https://www.linkinstars.com/post/4dba76d6.html"/>
     <id>https://www.linkinstars.com/post/4dba76d6.html</id>
     <published>2021-11-10T16:00:00.000Z</published>
-    <updated>2021-11-14T14:35:37.475Z</updated>
+    <updated>2021-11-14T14:36:12.198Z</updated>
     
     
     <summary type="html">&lt;p&gt;很早之前我有写过有关 defer 的博客，现在看来起标题的时候有点蠢，有点标题党，(&lt;a href=&quot;https://www.linkinstars.com/post/48e6221e.html&quot;&gt;https://www.linkinstars.com/post/48e6221e.html&lt;/a&gt;) 其中主要是注重与 defer 的使用，避免使用上的问题，对于 defer 具体实现其实只是点了一下，而今天就让我们详细看看 defer 究竟是如何实现的。&lt;/p&gt;</summary>
@@ -211,7 +231,7 @@
     <link href="https://www.linkinstars.com/post/69ddaf77.html"/>
     <id>https://www.linkinstars.com/post/69ddaf77.html</id>
     <published>2021-07-21T16:00:00.000Z</published>
-    <updated>2021-08-15T15:28:50.289Z</updated>
+    <updated>2021-11-24T14:48:09.122Z</updated>
     
     
     <summary type="html">&lt;p&gt;看到很多部署 prometheus 到 k8s 集群的教程，发现都是非常麻烦的各种配置，懒人的我就想整个一键部署的，开箱即用的，既然有了 helm 那肯定只要一个 charts 就可以搞定了吧，想着就是这样，所以在网上找来找去，终于被我发现了。下面记录一下使用过程，方便以后进行部署。&lt;/p&gt;
@@ -414,25 +434,6 @@
     
     
     <category term="k8s-tips" scheme="https://www.linkinstars.com/tags/k8s-tips/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Weave Scope 监控 k8s 集群</title>
-    <link href="https://www.linkinstars.com/post/2580a453.html"/>
-    <id>https://www.linkinstars.com/post/2580a453.html</id>
-    <published>2021-01-11T16:00:00.000Z</published>
-    <updated>2021-05-19T15:51:06.150Z</updated>
-    
-    
-    <summary type="html">&lt;p&gt;之前一直在寻找一个 k8s 监控的工具，因为一直使用的是本地的 lens 的客户端，虽然使用上已经非常方便了，但是其实对于资源消耗的监控少了一点，有些资源消耗并不是能容易看到，并且服务间依赖是没有办法表现出来的，后来发现了 Weave Scope 满足了我的需求。&lt;/p&gt;</summary>
-    
-    
-    
-    <category term="Weave-Scope" scheme="https://www.linkinstars.com/categories/Weave-Scope/"/>
-    
-    
-    <category term="Weave-Scope" scheme="https://www.linkinstars.com/tags/Weave-Scope/"/>
     
   </entry>
   

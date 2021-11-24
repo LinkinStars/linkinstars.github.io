@@ -1,0 +1,266 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>go 应用在 k8s 中如何优雅停止 | LinkinStar's Blog</title><meta name="keywords" content="graceful-shutdown"><meta name="author" content="LinkinStar"><meta name="copyright" content="LinkinStar"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="每次当我们发布新版本的时候总是慌兮兮，一方面是担心有 bug，另一方面其实重启应用会带来一些抖动，可能有几秒钟或者几个请求的不正常，从而担心用户在这段时间内的操作。那么如何在应用重启的过程中尽可能的保证不会带来抖动，从而平滑又优雅的重启呢？ 本文只针对于应用版本更新时，进行版本发布时进行的重启操作，从而导致的相关问题的解决。不涉及由于应用本身 panic 导致的重启，也不涉及蓝绿发布或回滚等操作。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go 应用在 k8s 中如何优雅停止">
+<meta property="og:url" content="https://www.linkinstars.com/post/12666403.html">
+<meta property="og:site_name" content="LinkinStar&#39;s Blog">
+<meta property="og:description" content="每次当我们发布新版本的时候总是慌兮兮，一方面是担心有 bug，另一方面其实重启应用会带来一些抖动，可能有几秒钟或者几个请求的不正常，从而担心用户在这段时间内的操作。那么如何在应用重启的过程中尽可能的保证不会带来抖动，从而平滑又优雅的重启呢？ 本文只针对于应用版本更新时，进行版本发布时进行的重启操作，从而导致的相关问题的解决。不涉及由于应用本身 panic 导致的重启，也不涉及蓝绿发布或回滚等操作。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg">
+<meta property="article:published_time" content="2021-11-21T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-11-24T14:58:35.146Z">
+<meta property="article:author" content="LinkinStar">
+<meta property="article:tag" content="graceful-shutdown">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg"><link rel="shortcut icon" href="/images/favicon-32x32.png"><link rel="canonical" href="https://www.linkinstars.com/post/12666403"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?fdfc5a0657a5391841c109d653e9ce22";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    jQuery: 'https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js',
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+    },
+    fancybox: {
+      js: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'go 应用在 k8s 中如何优雅停止',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-11-24 22:58:35'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const fontSizeVal = saveToLocal.get('global-font-size')
+    if (fontSizeVal !== undefined) {
+      document.documentElement.style.setProperty('--global-font-size', fontSizeVal + 'px')
+    }
+    })(window)</script><link rel="stylesheet" href="/css/background.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sviptzk/HexoStaticFile/Hexo/css/flink.min.css"><meta name="generator" content="Hexo 5.4.0"><link rel="alternate" href="/atom.xml" title="LinkinStar's Blog" type="application/atom+xml">
+</head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/LLX.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">65</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">57</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">22</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa-fw fa fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa-fw fa fa-list-ul"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa-fw fa fa-universal-access"></i><span> 我的</span></a></div><div class="menus_item"><a class="site-page" href="/comments/"><i class="fa-fw fa-fw fas fa-comment-dots"></i><span> 留言</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fa-fw fab fa-modx"></i><span> 兴趣</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/books/"><i class="fa-fw fa-fw fa fa-book"></i><span> 读书</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fa-fw fa fa-film"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa-fw fas fa-link"></i><span> 友链</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">LinkinStar's Blog</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa-fw fa fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa-fw fa fa-list-ul"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fa-fw fa fa-universal-access"></i><span> 我的</span></a></div><div class="menus_item"><a class="site-page" href="/comments/"><i class="fa-fw fa-fw fas fa-comment-dots"></i><span> 留言</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fa-fw fab fa-modx"></i><span> 兴趣</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/books/"><i class="fa-fw fa-fw fa fa-book"></i><span> 读书</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fa-fw fa fa-film"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa-fw fas fa-link"></i><span> 友链</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">go 应用在 k8s 中如何优雅停止</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="fa-fw post-meta-icon far fa-calendar-alt"></i><span class="post-meta-label">发表于</span><time datetime="2021-11-21T16:00:00.000Z" title="undefined 2021-11-22 00:00:00">2021-11-22</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/architecture/">architecture</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">3k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>10分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="go 应用在 k8s 中如何优雅停止"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/hint.css/2.4.1/hint.min.css"><p>每次当我们发布新版本的时候总是慌兮兮，一方面是担心有 bug，另一方面其实重启应用会带来一些抖动，可能有几秒钟或者几个请求的不正常，从而担心用户在这段时间内的操作。那么如何在应用重启的过程中尽可能的保证不会带来抖动，从而平滑又优雅的重启呢？</p>
+<p>本文只针对于应用版本更新时，进行版本发布时进行的重启操作，从而导致的相关问题的解决。不涉及由于应用本身 panic 导致的重启，也不涉及蓝绿发布或回滚等操作。当前版本更新是在 k8s 中进行的重启操作，访问负载均衡交由 k8s 的 service 处理，再上层的网关层面的负载则不在本次讨论范围内。</p>
+<span id="more"></span>
+<p>通过本文你可以学到：</p>
+<ul>
+<li>go 应用优雅退出所需要做的事情</li>
+<li>go 应用优雅退出 k8s 所需要的配置</li>
+<li>k8s 应用关闭时 pod 的生命周期</li>
+</ul>
+<h2 id="测试程序"><a href="#测试程序" class="headerlink" title="测试程序"></a>测试程序</h2><p>先写一个最简单的测试程序（当然有很多压测工具都能满足需求，但是我还是想自己弄个最简单的，不想搞复杂），当然这个测试程序不能满足所有使用场景和情况，如并发的一些场景等，只是为了展现出固定的问题。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">   <span class="string">&quot;fmt&quot;</span></span><br><span class="line">   <span class="string">&quot;sync&quot;</span></span><br><span class="line">   <span class="string">&quot;time&quot;</span></span><br><span class="line"></span><br><span class="line">   <span class="string">&quot;github.com/go-resty/resty/v2&quot;</span></span><br><span class="line">   <span class="string">&quot;go.uber.org/atomic&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">   <span class="keyword">var</span> success, failed atomic.Int64</span><br><span class="line">   <span class="keyword">for</span> &#123;</span><br><span class="line">      time.Sleep(<span class="number">500</span>*time.Millisecond)</span><br><span class="line">      startTime := time.Now()</span><br><span class="line">      response, err := resty.New().R().Get(<span class="string">&quot;http://1.1.1.1:8080/health&quot;</span>)</span><br><span class="line">      <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">         failed.Inc()</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">         <span class="keyword">if</span> response.IsSuccess() &#123;</span><br><span class="line">            success.Inc()</span><br><span class="line">         &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            failed.Inc()</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      fmt.Printf(<span class="string">&quot;成功：%s，失败：%s, 耗时：%ds\n&quot;</span>, success.String(), failed.String(), time.Now().Unix()-startTime.Unix())</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>简单的说就是每间隔一段时间请求一次，计数成功和失败的次数</p>
+<h2 id="问题-1：重启后初始化时间长"><a href="#问题-1：重启后初始化时间长" class="headerlink" title="问题 1：重启后初始化时间长"></a>问题 1：重启后初始化时间长</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 模拟延迟初始化</span></span><br><span class="line">	time.Sleep(<span class="number">5</span> * time.Second)</span><br><span class="line">	s := gin.New()</span><br><span class="line">	s.GET(<span class="string">&quot;/health&quot;</span>, <span class="function"><span class="keyword">func</span><span class="params">(ctx *gin.Context)</span></span> &#123;</span><br><span class="line">		ctx.String(<span class="number">200</span>, <span class="string">&quot;OK&quot;</span>)</span><br><span class="line">	&#125;)</span><br><span class="line">	s.Run(<span class="string">&quot;:8080&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">成功：<span class="number">34</span>，失败：<span class="number">0</span>, 耗时：<span class="number">0</span>s</span><br><span class="line">成功：<span class="number">35</span>，失败：<span class="number">0</span>, 耗时：<span class="number">0</span>s</span><br><span class="line">成功：<span class="number">35</span>，失败：<span class="number">1</span>, 耗时：<span class="number">0</span>s</span><br><span class="line">成功：<span class="number">35</span>，失败：<span class="number">2</span>, 耗时：<span class="number">0</span>s</span><br><span class="line">成功：<span class="number">35</span>，失败：<span class="number">3</span>, 耗时：<span class="number">0</span>s</span><br><span class="line">成功：<span class="number">35</span>，失败：<span class="number">4</span>, 耗时：<span class="number">0</span>s</span><br><span class="line">成功：<span class="number">35</span>，失败：<span class="number">5</span>, 耗时：<span class="number">0</span>s</span><br><span class="line">成功：<span class="number">35</span>，失败：<span class="number">6</span>, 耗时：<span class="number">0</span>s</span><br><span class="line">成功：<span class="number">35</span>，失败：<span class="number">7</span>, 耗时：<span class="number">0</span>s</span><br><span class="line">成功：<span class="number">35</span>，失败：<span class="number">8</span>, 耗时：<span class="number">0</span>s</span><br><span class="line">成功：<span class="number">36</span>，失败：<span class="number">8</span>, 耗时：<span class="number">0</span>s</span><br><span class="line">成功：<span class="number">37</span>，失败：<span class="number">8</span>, 耗时：<span class="number">0</span>s</span><br></pre></td></tr></table></figure>
+<p>很明显中间初始化的时间用户没有办法正常访问接口</p>
+<h3 id="解决方式"><a href="#解决方式" class="headerlink" title="解决方式"></a>解决方式</h3><p>添加健康检查接口，添加 <code>readinessProbe</code> 配置</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 模拟延迟初始化</span></span><br><span class="line">	time.Sleep(<span class="number">5</span> * time.Second)</span><br><span class="line">	s := gin.New()</span><br><span class="line">  s.GET(<span class="string">&quot;/healthz&quot;</span>, <span class="function"><span class="keyword">func</span><span class="params">(ctx *gin.Context)</span></span> &#123;ctx.String(<span class="number">200</span>, <span class="string">&quot;OK&quot;</span>)&#125;)</span><br><span class="line">	s.GET(<span class="string">&quot;/health&quot;</span>, <span class="function"><span class="keyword">func</span><span class="params">(ctx *gin.Context)</span></span> &#123;</span><br><span class="line">		ctx.String(<span class="number">200</span>, <span class="string">&quot;OK&quot;</span>)</span><br><span class="line">	&#125;)</span><br><span class="line">	s.Run(<span class="string">&quot;:8080&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">readinessProbe:</span></span><br><span class="line">  <span class="attr">httpGet:</span></span><br><span class="line">    <span class="attr">path:</span> <span class="string">/healthz</span></span><br><span class="line">    <span class="attr">port:</span> <span class="number">8080</span></span><br><span class="line">  <span class="attr">initialDelaySeconds:</span> <span class="number">3</span></span><br><span class="line">  <span class="attr">periodSeconds:</span> <span class="number">3</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">成功：<span class="number">34</span>，失败：<span class="number">0</span>, 耗时：<span class="number">0</span>s</span><br><span class="line">成功：<span class="number">35</span>，失败：<span class="number">0</span>, 耗时：<span class="number">0</span>s</span><br><span class="line">成功：<span class="number">36</span>，失败：<span class="number">0</span>, 耗时：<span class="number">0</span>s</span><br><span class="line">成功：<span class="number">37</span>，失败：<span class="number">0</span>, 耗时：<span class="number">0</span>s</span><br></pre></td></tr></table></figure>
+<p>可以看到重启过程中已经完成正常</p>
+<p>当然 <code>readinessProbe</code> 只会将你的应用从你的 service 里面摘除，但是不会重启，如果需要监控应用不能正常服务就进行重启的话需要配置 <code>livenessProbe</code> 具体可以参考 <a target="_blank" rel="noopener" href="https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#define-a-liveness-http-request">https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#define-a-liveness-http-request</a></p>
+<h2 id="问题-2：正在运行中的请求"><a href="#问题-2：正在运行中的请求" class="headerlink" title="问题 2：正在运行中的请求"></a>问题 2：正在运行中的请求</h2><p>在我们之前改动完成的基础之上，我们来看看当我们的单个请求时间较长的时候会发生什么</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 模拟延迟初始化</span></span><br><span class="line">	time.Sleep(<span class="number">10</span> * time.Second)</span><br><span class="line">	s := gin.New()</span><br><span class="line">	s.GET(<span class="string">&quot;/healthz&quot;</span>, <span class="function"><span class="keyword">func</span><span class="params">(ctx *gin.Context)</span></span> &#123;ctx.String(<span class="number">200</span>, <span class="string">&quot;OK&quot;</span>)&#125;)</span><br><span class="line">	s.GET(<span class="string">&quot;/health&quot;</span>, <span class="function"><span class="keyword">func</span><span class="params">(ctx *gin.Context)</span></span> &#123;</span><br><span class="line">		<span class="comment">// 模拟请求时间较长</span></span><br><span class="line">		time.Sleep(<span class="number">10</span>*time.Second)</span><br><span class="line">		ctx.String(<span class="number">200</span>, <span class="string">&quot;OK&quot;</span>)</span><br><span class="line">	&#125;)</span><br><span class="line">	s.Run(<span class="string">&quot;:8080&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">成功：<span class="number">1</span>，失败：<span class="number">0</span>, 耗时：<span class="number">10</span>s</span><br><span class="line">成功：<span class="number">2</span>，失败：<span class="number">0</span>, 耗时：<span class="number">10</span>s</span><br><span class="line">成功：<span class="number">2</span>，失败：<span class="number">1</span>, 耗时：<span class="number">6</span>s</span><br><span class="line">成功：<span class="number">3</span>，失败：<span class="number">1</span>, 耗时：<span class="number">10</span>s</span><br></pre></td></tr></table></figure>
+<p>可以看到，当我们请求时间较长的时候，就会出现，在重启的过程中请求失败的情况。</p>
+<p>这里我只是放大了问题，毕竟正常的请求时间很短，但是也就意味着我们的请求还是有可能在过程中被打断，从而导致请求失败，从而导致抖动。</p>
+<h3 id="解决方式-1"><a href="#解决方式-1" class="headerlink" title="解决方式"></a>解决方式</h3><p>所以我们的目标很明确，就是当我们重启的时候需要保证当前请求一定已经处理完成，如果还没有处理完成，需要等待请求处理完成之后再进行关闭，所以我们需要修改代码，捕获最终应用停止的对应信号，并在关闭时对请求做相关处理。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 模拟延迟初始化</span></span><br><span class="line">	time.Sleep(<span class="number">10</span> * time.Second)</span><br><span class="line">	s := gin.New()</span><br><span class="line">	s.GET(<span class="string">&quot;/healthz&quot;</span>, <span class="function"><span class="keyword">func</span><span class="params">(ctx *gin.Context)</span></span> &#123;ctx.String(<span class="number">200</span>, <span class="string">&quot;OK&quot;</span>)&#125;)</span><br><span class="line">	s.GET(<span class="string">&quot;/health&quot;</span>, <span class="function"><span class="keyword">func</span><span class="params">(ctx *gin.Context)</span></span> &#123;</span><br><span class="line">		<span class="comment">// 模拟请求时间较长</span></span><br><span class="line">		time.Sleep(<span class="number">10</span>*time.Second)</span><br><span class="line">		ctx.String(<span class="number">200</span>, <span class="string">&quot;OK&quot;</span>)</span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	srv := &amp;http.Server&#123;</span><br><span class="line">		Addr:    <span class="string">&quot;:8080&quot;</span>,</span><br><span class="line">		Handler: s,</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">if</span> err := srv.ListenAndServe(); err != <span class="literal">nil</span> &amp;&amp; errors.Is(err, http.ErrServerClosed) &#123;</span><br><span class="line">			log.Printf(<span class="string">&quot;listen: %s\n&quot;</span>, err)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;()</span><br><span class="line"></span><br><span class="line">	quit := <span class="built_in">make</span>(<span class="keyword">chan</span> os.Signal)</span><br><span class="line">	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)</span><br><span class="line">	&lt;-quit</span><br><span class="line">	log.Println(<span class="string">&quot;Shutting down server...&quot;</span>)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 此处设定为 15s 原因是当前模拟请求时间延迟设定时间较长，具体时间根据实际业务场景设定</span></span><br><span class="line">	ctx, cancel := context.WithTimeout(context.Background(), <span class="number">15</span>*time.Second)</span><br><span class="line">	<span class="keyword">defer</span> cancel()</span><br><span class="line">	<span class="keyword">if</span> err := srv.Shutdown(ctx); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatal(<span class="string">&quot;Server forced to shutdown:&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line">	log.Println(<span class="string">&quot;Server exiting&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后进行测试</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">成功：<span class="number">1</span>，失败：<span class="number">0</span>, 耗时：<span class="number">10</span>s</span><br><span class="line">成功：<span class="number">2</span>，失败：<span class="number">0</span>, 耗时：<span class="number">10</span>s</span><br><span class="line">成功：<span class="number">3</span>，失败：<span class="number">0</span>, 耗时：<span class="number">10</span>s</span><br><span class="line">成功：<span class="number">4</span>，失败：<span class="number">0</span>, 耗时：<span class="number">10</span>s</span><br><span class="line">成功：<span class="number">5</span>，失败：<span class="number">0</span>, 耗时：<span class="number">10</span>s</span><br></pre></td></tr></table></figure>
+<p>可以看到，即使在重启过程中，也能保证请求不断，正常关闭。其实主要的功劳是在 golang 的 <code>http.Server</code> 提供了 <code>Shutdown</code> 方法，能保证当前正在处理的请求能正常的处理完成，并正常的关闭。</p>
+<h2 id="问题-3：过长的关闭时间"><a href="#问题-3：过长的关闭时间" class="headerlink" title="问题 3：过长的关闭时间"></a>问题 3：过长的关闭时间</h2><p>场景 1：在我们的系统中，有时会跑着一些定时的任务，当这些定时任务在运行的过程中如果遇到应用需要重启的情况，如果之间重启，那么势必会遇到任务运行到一半，下次重启之后可能会导致任务重复执行或其他异常情况</p>
+<p>场景 2：有些时候我们可能需要在关闭应用的时候做大量的持久化工作来保存当前缓存的相关数据，这些数据我们不希望在重启的过程中导致丢失</p>
+<p>类似这样的场景总结就是在停止服务的时候会占用很多时间，并不是直接就能关闭的，故针对这样的场景我们来看看如何解决。</p>
+<h3 id="解决方式-2"><a href="#解决方式-2" class="headerlink" title="解决方式"></a>解决方式</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 模拟延迟初始化</span></span><br><span class="line">	time.Sleep(<span class="number">10</span> * time.Second)</span><br><span class="line">	s := gin.New()</span><br><span class="line">	s.GET(<span class="string">&quot;/healthz&quot;</span>, <span class="function"><span class="keyword">func</span><span class="params">(ctx *gin.Context)</span></span> &#123; ctx.String(<span class="number">200</span>, <span class="string">&quot;OK&quot;</span>) &#125;)</span><br><span class="line">	s.GET(<span class="string">&quot;/health&quot;</span>, <span class="function"><span class="keyword">func</span><span class="params">(ctx *gin.Context)</span></span> &#123;</span><br><span class="line">		<span class="comment">// 模拟请求时间较长</span></span><br><span class="line">		time.Sleep(<span class="number">10</span> * time.Second)</span><br><span class="line">		ctx.String(<span class="number">200</span>, <span class="string">&quot;OK&quot;</span>)</span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	srv := &amp;http.Server&#123;</span><br><span class="line">		Addr:    <span class="string">&quot;:8080&quot;</span>,</span><br><span class="line">		Handler: s,</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">if</span> err := srv.ListenAndServe(); err != <span class="literal">nil</span> &amp;&amp; errors.Is(err, http.ErrServerClosed) &#123;</span><br><span class="line">			log.Printf(<span class="string">&quot;listen: %s\n&quot;</span>, err)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;()</span><br><span class="line"></span><br><span class="line">	quit := <span class="built_in">make</span>(<span class="keyword">chan</span> os.Signal)</span><br><span class="line">	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)</span><br><span class="line">	&lt;-quit</span><br><span class="line">	log.Println(<span class="string">&quot;Shutting down server...&quot;</span>)</span><br><span class="line"></span><br><span class="line">	ctx, cancel := context.WithTimeout(context.Background(), <span class="number">15</span>*time.Second)</span><br><span class="line">	<span class="keyword">defer</span> cancel()</span><br><span class="line">	<span class="keyword">if</span> err := srv.Shutdown(ctx); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatal(<span class="string">&quot;Server forced to shutdown:&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 模拟用户需要在应用关闭时，持久化大量数据</span></span><br><span class="line">	time.Sleep(<span class="number">45</span> * time.Second)</span><br><span class="line"></span><br><span class="line">	log.Println(<span class="string">&quot;Server exiting&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果和之前一样，正常情况下，所有代码执行完成后会打印 <code>Server exiting</code> 日志，而当我们需要在关闭之前做大量操作的时候，那么就会发现最后一条日志无法正常打印出来。</p>
+<p>导致这个问题的原因很简单：当 <code>SIGTERM</code> 发送给 pod 之后，会等待一个时间，如果再这个时间内，应用还是没有正常结束则会发送 <code>SIGKILL</code> 信号并强制删除，故程序就被 kill 了。</p>
+<p>而我们只需要修改这个等待时间即可。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">terminationGracePeriodSeconds:</span> <span class="number">60</span></span><br></pre></td></tr></table></figure>
+<p>配置完成之后，重启就会发现，<code>Server exiting</code> 能正常被打印出来了</p>
+<p>当然其实这个值需要根据具体的业务场景进行配置，默认为 30s，其实有时已经绰绰有余了</p>
+<h2 id="小结一下"><a href="#小结一下" class="headerlink" title="小结一下"></a>小结一下</h2><p>优雅关闭所需要做的配置</p>
+<ul>
+<li>应用添加健康检查接口，并在可以正常提供服务之后才表示自己健康，<strong>并配置 <code>readinessProbe</code></strong> </li>
+<li><strong>捕获 <code>SIGTERM</code> 信号</strong>并在捕获之后做关闭后的相关处理，如保证请求正常结束，数据库连接正常断开，文件写入完毕等</li>
+<li>在特殊情况时需要<strong>配置 <code>terminationGracePeriodSeconds</code></strong> 以保证最终正常处理完成后再关闭</li>
+</ul>
+<h2 id="pod-关闭时的生命周期"><a href="#pod-关闭时的生命周期" class="headerlink" title="pod 关闭时的生命周期"></a>pod 关闭时的生命周期</h2><p>经过我们几次的优化之后，基本已经满足了我们现阶段的需求，根据这次改动，我们来回顾一下在 k8s 重启过程中 pod 的生命周期是怎么样的。</p>
+<ol>
+<li>K8S 启动新的 pod ：这个部分包括拉取对应新的镜像，启动</li>
+<li>K8S等待新 pod  进入 Ready(Running)  状态：这时就用到了我们的 <code>readinessProbe</code>，K8S 会等我们的应用真正能对外正常提供服务后才进行下一步</li>
+<li>K8S 创建 Endpoint：这时才会将新服务纳入 service，也就是新服务开始接收请求了</li>
+<li>pod 设置为 <code>Terminating</code> 状态，并从所有服务的 Endpoints 列表中删除：此时流量就不会打到老的 pod 上了，但此时容器还是正常运行的，并且正在处理当前的请求</li>
+<li>preStop Hook被执行：本文中还未提到这个 preStop 的钩子，它是一个发送到 pod 中容器的特殊命令或请求，当应用程序无法通过接收 <code>SIGTERM</code> 进行关闭时，也可以通过 preStop Hook 来触发正常关闭，当前暂时未用到</li>
+<li>SIGTERM 信号被发送到 pod ：这个时候就是我们的应用会受到 <code>SIGTERM</code> 信号，我们可以根据这个信号去处理我们的优雅停止</li>
+<li>Kubernetes 等待优雅的终止：等待 <code>terminationGracePeriodSeconds</code> 时间</li>
+<li>SIGKILL 信号被发送到 pod，并删除 pod：当等待 <code>terminationGracePeriodSeconds</code> 时间之后，如果应用还是没有正常关闭则会发送 SIGKILL 信号到 pod  去强制让应用关闭</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>至此对于我们应用本身的优雅关闭已经暂告一个段落了，基本能满足大多数场景的需求。</p>
+<p>在大多数小的实际业务中，可能优雅关闭不会对你的应用造成多大影响，可能只是小小的一两次抖动就过去了，但其实优雅关闭能保证你的应用时刻保持一个健康的状态去面向用户，也是完成 SLA 的关键。不过有时应用的重启如果没有正确处理，会带来一些意想不到的问题，这是需要根据具体场景来看了。</p>
+<p>当然优雅关闭还有更多可以优化的点，如：当应用出现 panic 时怎么办，上层网关层面的重启如何优雅等等，剩下的就需要你再工作中吸取经验了。</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a target="_blank" rel="noopener" href="https://cloud.google.com/blog/products/containers-kubernetes/kubernetes-best-practices-terminating-with-grace">https://cloud.google.com/blog/products/containers-kubernetes/kubernetes-best-practices-terminating-with-grace</a></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LinkinStar</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://www.linkinstars.com/post/12666403.html">https://www.linkinstars.com/post/12666403.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://www.linkinstars.com" target="_blank">LinkinStar's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/graceful-shutdown/">graceful-shutdown</a></div><div class="post_share"><div class="social-share" data-image="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button button--animated"><i class="fas fa-qrcode"></i> 打赏</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/images/wechatpay.png" target="_blank"><img class="post-qr-code-img" src="/images/wechatpay.png" alt="wechat"/></a><div class="post-qr-code-desc">wechat</div></li><li class="reward-item"><a href="/images/alipay.png" target="_blank"><img class="post-qr-code-img" src="/images/alipay.png" alt="alipay"/></a><div class="post-qr-code-desc">alipay</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/post/4dba76d6.html"><img class="next-cover" src="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">defer 原理分析</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-info-avatar is-center"><img class="avatar-img" src="https://cdn.jsdelivr.net/gh/LinkinStars/image/img/LLX.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">LinkinStar</div><div class="author-info__description">No one but myself can do it.<br> Don't worry. Be happy!</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">65</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">标签</div><div class="length-num">57</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">分类</div><div class="length-num">22</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/LinkinStars"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/LinkinStars" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:linkinstar@foxmail.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://www.jianshu.com/u/dcc4b2396fc4" target="_blank" title="简书"><i class="fas fa-book"></i></a><a class="social-icon" href="https://www.cnblogs.com/linkstar" target="_blank" title="博客园"><i class="fas fa-link"></i></a><a class="social-icon" href="/atom.xml" target="_blank" title="RSS"><i class="fas fa-rss"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content"><a target='_blank' href='https://board.linkinstars.com/shared?id=6599a7ee-1a95-45eb-866f-2be055d3194c&v=b4791732-ba57-4a05-8db1-fb6330a7df34&r=d0581501-d6c6-449f-8761-c60046fa9db8'>点我查看“划水看板”，用于记录当前博客划水状态，催更可以直接fa邮件哒，看到上面👆邮件小图标了吗✉️</a><p style='color:red;font-weight:bold;'>本博客封面图可能来源于网络，无商用，侵删</p></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95%E7%A8%8B%E5%BA%8F"><span class="toc-number">1.</span> <span class="toc-text">测试程序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98-1%EF%BC%9A%E9%87%8D%E5%90%AF%E5%90%8E%E5%88%9D%E5%A7%8B%E5%8C%96%E6%97%B6%E9%97%B4%E9%95%BF"><span class="toc-number">2.</span> <span class="toc-text">问题 1：重启后初始化时间长</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E5%BC%8F"><span class="toc-number">2.1.</span> <span class="toc-text">解决方式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98-2%EF%BC%9A%E6%AD%A3%E5%9C%A8%E8%BF%90%E8%A1%8C%E4%B8%AD%E7%9A%84%E8%AF%B7%E6%B1%82"><span class="toc-number">3.</span> <span class="toc-text">问题 2：正在运行中的请求</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E5%BC%8F-1"><span class="toc-number">3.1.</span> <span class="toc-text">解决方式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98-3%EF%BC%9A%E8%BF%87%E9%95%BF%E7%9A%84%E5%85%B3%E9%97%AD%E6%97%B6%E9%97%B4"><span class="toc-number">4.</span> <span class="toc-text">问题 3：过长的关闭时间</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E5%BC%8F-2"><span class="toc-number">4.1.</span> <span class="toc-text">解决方式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93%E4%B8%80%E4%B8%8B"><span class="toc-number">5.</span> <span class="toc-text">小结一下</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pod-%E5%85%B3%E9%97%AD%E6%97%B6%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="toc-number">6.</span> <span class="toc-text">pod 关闭时的生命周期</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">7.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="toc-number">8.</span> <span class="toc-text">参考链接</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/12666403.html" title="go 应用在 k8s 中如何优雅停止">go 应用在 k8s 中如何优雅停止</a><time datetime="2021-11-21T16:00:00.000Z" title="发表于 2021-11-22 00:00:00">2021-11-22</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/4dba76d6.html" title="defer 原理分析">defer 原理分析</a><time datetime="2021-11-10T16:00:00.000Z" title="发表于 2021-11-11 00:00:00">2021-11-11</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/fecd400.html" title="go 函数调用规约">go 函数调用规约</a><time datetime="2021-10-19T16:00:00.000Z" title="发表于 2021-10-20 00:00:00">2021-10-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/efe08c85.html" title="go 中其实不复杂的 timer">go 中其实不复杂的 timer</a><time datetime="2021-10-10T16:00:00.000Z" title="发表于 2021-10-11 00:00:00">2021-10-11</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/post/122ec973.html" title="我怎么从来没见过 sync.Cond">我怎么从来没见过 sync.Cond</a><time datetime="2021-09-17T16:00:00.000Z" title="发表于 2021-09-18 00:00:00">2021-09-18</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://cdn.jsdelivr.net/gh/LinkinStars/image/img/background.jpeg')"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2021 By LinkinStar</div><div class="footer_custom_text"><p><a style="margin-inline:5px" target="_blank" href="https://hexo.io/"><img src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&logo=hexo" title="博客框架为Hexo"></a><a style="margin-inline:5px" target="_blank" href="https://butterfly.js.org/"><img src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&logo=bitdefender" title="主题采用butterfly"></a><a style="margin-inline:5px" target="_blank" href="https://www.jsdelivr.com/"><img src="https://img.shields.io/badge/CDN-jsDelivr-orange?style=flat&logo=jsDelivr" title="本站使用JsDelivr为静态资源提供CDN加速"></a><a style="margin-inline:5px" target="_blank" href="https://github.com/LinkinStars/linkinstars.github.io"><img src="https://img.shields.io/badge/Source-Github-d021d6?style=flat&logo=GitHub" title="本站项目由Gtihub托管"></a><a style="margin-inline:5px" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&logo=Claris" title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"></a><br><a href="https://beian.miit.gov.cn/" target="_blank">浙B2-20080101</a></p></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font-plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font-minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>function addGitalkSource () {
+  const ele = document.createElement('link')
+  ele.rel = 'stylesheet'
+  ele.href= 'https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css'
+  document.getElementsByTagName('head')[0].appendChild(ele)
+}
+
+function loadGitalk () {
+  function initGitalk () {
+    var gitalk = new Gitalk(Object.assign({
+      clientID: 'fb1c6a994a1f26c2655e',
+      clientSecret: '512d1338f3c8e48f1be73caf0661c005bf1c0425',
+      repo: 'linkinstars.github.io',
+      owner: 'LinkinStars',
+      admin: ['LinkinStars'],
+      id: '03144791b0a7df5086980cdbbc123786',
+      language: 'zh-CN',
+      perPage: 50,
+      distractionFreeMode: true,
+      pagerDirection: 'last',
+      createIssueManually: false,
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  if (typeof Gitalk === 'function') initGitalk()
+  else {
+    addGitalkSource()
+    getScript('https://cdn.jsdelivr.net/npm/gitalk@latest/dist/gitalk.min.js').then(initGitalk)
+  }
+}
+
+function commentCount(n){
+  let isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+  if (isCommentCount) {
+    isCommentCount.innerHTML= n
+  }
+}
+
+if ('Gitalk' === 'Gitalk' || !false) {
+  if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+  else loadGitalk()
+} else {
+  function loadOtherComment () {
+    loadGitalk()
+  }
+}</script></div><script defer src="/live2d-widget/autoload.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
