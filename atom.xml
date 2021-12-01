@@ -6,7 +6,7 @@
   <link href="https://www.linkinstars.com/atom.xml" rel="self"/>
   
   <link href="https://www.linkinstars.com/"/>
-  <updated>2021-11-24T14:58:35.146Z</updated>
+  <updated>2021-12-01T15:19:50.773Z</updated>
   <id>https://www.linkinstars.com/</id>
   
   <author>
@@ -15,6 +15,25 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>k8s StorageClass使用攻略</title>
+    <link href="https://www.linkinstars.com/post/99ddf063.html"/>
+    <id>https://www.linkinstars.com/post/99ddf063.html</id>
+    <published>2021-11-30T16:00:00.000Z</published>
+    <updated>2021-12-01T15:19:50.773Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;在 k8s 中当我们需要持久化存储一些数据的使用，会使用到的就是 PV 和 PVC，但 PV 和 PVC 都是需要手动创建的话会很麻烦，特别是当有 StatefulSet 应用存在的时候，如果你需要手动对每个 pod 都创建一个 PVC 和 PV 就非常麻烦，于是 StorageClass 就是来解决这个问题的。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="kubernetes" scheme="https://www.linkinstars.com/categories/kubernetes/"/>
+    
+    
+    <category term="storage-class" scheme="https://www.linkinstars.com/tags/storage-class/"/>
+    
+  </entry>
   
   <entry>
     <title>go 应用在 k8s 中如何优雅停止</title>
@@ -415,25 +434,6 @@
     
     
     <category term="k8s-accident" scheme="https://www.linkinstars.com/tags/k8s-accident/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>k8s 小技巧</title>
-    <link href="https://www.linkinstars.com/post/9ef22657.html"/>
-    <id>https://www.linkinstars.com/post/9ef22657.html</id>
-    <published>2021-01-22T16:00:00.000Z</published>
-    <updated>2021-08-15T15:00:18.375Z</updated>
-    
-    
-    <summary type="html">&lt;p&gt;本博客持续更新…用于记录 k8s 使用过程中的很多的小技巧，也希望你能提供更多的小技巧来~&lt;/p&gt;</summary>
-    
-    
-    
-    <category term="kubernetes" scheme="https://www.linkinstars.com/categories/kubernetes/"/>
-    
-    
-    <category term="k8s-tips" scheme="https://www.linkinstars.com/tags/k8s-tips/"/>
     
   </entry>
   
